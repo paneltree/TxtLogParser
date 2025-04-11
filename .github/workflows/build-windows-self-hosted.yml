@@ -33,12 +33,6 @@ jobs:
         arch: win64_msvc2022_64
         archives: qtbase qtsvg qttools qtlinguisttools
         cache: true
-        
-    - name: Add Qt bin to PATH
-      shell: bash
-      run: |
-        echo "$Qt_ROOT_DIR/bin" >> $GITHUB_PATH
-        echo "$Qt_ROOT_DIR/msvc2022_64/bin" >> $GITHUB_PATH
 
     - name: Build
       shell: cmd
