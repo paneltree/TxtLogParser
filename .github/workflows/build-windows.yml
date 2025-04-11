@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 env:
-  QT_VERSION: '6.8.3' # Reverted to your original version
+  QT_VERSION: '6.8.3'
   CMAKE_VERSION: '3.28'
   BUILD_TYPE: Release
 
@@ -22,19 +22,21 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
-        version: "6.9.0"
+        version: "6.8.3"
         arch: win64_msvc2022_64
         archives: qtbase qtsvg qttools qtlinguisttools
         cache: true
         
     - name: Add Qt bin to PATH
       shell: bash
-      run: echo "$Qt_ROOT_DIR/bin" >> $GITHUB_PATH
+      run: |
+        echo "$Qt_ROOT_DIR/bin" >> $GITHUB_PATH
+        echo "$Qt_ROOT_DIR/msvc2022_64/bin" >> $GITHUB_PATH
 
     - name: Build
       shell: cmd
       run: |
         mkdir build
         cd build
-        cmake .. -G "NMake Makefiles" -DQT_DIR=%Qt_ROOT_DIR%
+        cmake .. -G "NMake Makefiles" -DQT_DIR=%Qt_ROOT_DIR% -DCMAKE_BUILD_TYPE=%BUILD_TYPE%
         nmake
