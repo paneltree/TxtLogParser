@@ -10,7 +10,7 @@ env:
 
 jobs:
   build-windows:
-    name: Build on Windows
+    name: Build on Windows Self-Hosted
     runs-on: [self-hosted, Windows, X64]
     steps:
     - name: Checkout code
