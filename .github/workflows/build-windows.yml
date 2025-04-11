@@ -16,61 +16,21 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Install Chocolatey
-      shell: pwsh
-      run: |
-        Set-ExecutionPolicy Bypass -Scope Process -Force
-        [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-        iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-
-    - name: Set up CMake
-      uses: lukka/get-cmake@latest
-      with:
-        cmakeVersion: ${{ env.CMAKE_VERSION }}
-
-    - name: Cache Qt
-      id: cache-qt
-      uses: actions/cache@v4
-      with:
-        path: ${{ runner.temp }}/Qt
-        key: windows-latest-qt-${{ env.QT_VERSION }}-win64_msvc2022_64
-        restore-keys: windows-latest-qt-${{ env.QT_VERSION }}-
-
-    - name: List Qt architectures
-      run: |
-        python -m aqt list-qt windows desktop --arch ${{ env.QT_VERSION }}
-      shell: cmd
-      continue-on-error: true # Allow failure to see output
+    - name: Setup devcmd
+      uses: ilammy/msvc-dev-cmd@v1
 
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
-        version: ${{ env.QT_VERSION }}
-        target: desktop
-        arch: win64_msvc2022_64 # Fixed to correct architecture
-        dir: ${{ runner.temp }}/Qt
-        cache: ${{ steps.cache-qt.outputs.cache-hit }}
-
-    - name: Configure CMake
-      run: |
-        cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DQT_DIR=${{ runner.temp }}/Qt/${{ env.QT_VERSION }}/win64_msvc2022_64
-      shell: bash
+        version: "6.9.0"
+        arch: win64_msvc2022_64
+        archives: qtbase qtsvg qttools
+        cache: true
 
     - name: Build
+      shell: cmd
       run: |
-        cmake --build build --config ${{ env.BUILD_TYPE }} --parallel
-      shell: bash
-
-    - name: Deploy
-      run: |
-        $env:Path += ";${{ runner.temp }}/Qt/${{ env.QT_VERSION }}/win64_msvc2022_64/bin"
-        dir "${{ runner.temp }}/Qt/${{ env.QT_VERSION }}/win64_msvc2022_64/bin"
-        windeployqt build/TxtLogParser.exe --dir build/deploy --verbose 3
-      shell: pwsh
-
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: TxtLogParser-Windows
-        path: build/deploy/**
-        retention-days: 7
+        mkdir build
+        cd build
+        cmake .. -G "NMake Makefiles" -DQT_DIR=%Qt_ROOT_DIR%
+        nmake
