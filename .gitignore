@@ -6,3 +6,4 @@ application.log
 .idea
 cmake-build-debug
 .cache
+.specstory

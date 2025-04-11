@@ -1,0 +1,70 @@
+name: Build TxtLogParser Ubuntu
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+
+env:
+  QT_VERSION: '6.8.3'
+  CMAKE_VERSION: '3.28'
+  BUILD_TYPE: Release
+
+jobs:
+  build-ubuntu:
+    name: Build on Ubuntu
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential libgl1-mesa-dev libx11-dev libxext-dev libxcb1-dev ninja-build
+
+    - name: Set up CMake
+      uses: lukka/get-cmake@latest
+      with:
+        cmakeVersion: ${{ env.CMAKE_VERSION }}
+
+    - name: Cache Qt
+      id: cache-qt
+      uses: actions/cache@v4
+      with:
+        path: ${{ runner.temp }}/Qt
+        key: ubuntu-latest-qt-${{ env.QT_VERSION }}-gcc_64
+        restore-keys: ubuntu-latest-qt-${{ env.QT_VERSION }}-
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: ${{ env.QT_VERSION }}
+        target: desktop
+        arch: gcc_64
+        dir: ${{ runner.temp }}/Qt
+        cache: ${{ steps.cache-qt.outputs.cache-hit }}
+
+    - name: Configure CMake
+      run: |
+        cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DQT_DIR=${{ runner.temp }}/Qt/${{ env.QT_VERSION }}/gcc_64
+      shell: bash
+
+    - name: Build
+      run: |
+        cmake --build build --config ${{ env.BUILD_TYPE }} --parallel
+      shell: bash
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: TxtLogParser-Ubuntu
+        path: build/TxtLogParser
+        retention-days: 7
+
+    - name: Run tests
+      run: |
+        ctest --test-dir build --output-on-failure
+      continue-on-error: true
+      shell: bash

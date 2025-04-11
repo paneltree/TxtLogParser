@@ -1,0 +1,72 @@
+name: Build TxtLogParser Windows
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+
+env:
+  QT_VERSION: '6.8.3'
+  CMAKE_VERSION: '3.28'
+  BUILD_TYPE: Release
+
+jobs:
+  build-windows:
+    name: Build on Windows
+    runs-on: windows-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Chocolatey
+      shell: pwsh
+      run: |
+        Set-ExecutionPolicy Bypass -Scope Process -Force
+        [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+        iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
+    - name: Set up CMake
+      uses: lukka/get-cmake@latest
+      with:
+        cmakeVersion: ${{ env.CMAKE_VERSION }}
+
+    - name: Cache Qt
+      id: cache-qt
+      uses: actions/cache@v4
+      with:
+        path: ${{ runner.temp }}/Qt
+        key: windows-latest-qt-${{ env.QT_VERSION }}-msvc2019_64
+        restore-keys: windows-latest-qt-${{ env.QT_VERSION }}-
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v4
+      with:
+        version: ${{ env.QT_VERSION }}
+        target: desktop
+        arch: msvc2019_64
+        dir: ${{ runner.temp }}/Qt
+        cache: ${{ steps.cache-qt.outputs.cache-hit }}
+
+    - name: Configure CMake
+      run: |
+        cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DQT_DIR=${{ runner.temp }}/Qt/${{ env.QT_VERSION }}/msvc2019_64
+      shell: bash
+
+    - name: Build
+      run: |
+        cmake --build build --config ${{ env.BUILD_TYPE }} --parallel
+      shell: bash
+
+    - name: Deploy
+      run: |
+        $env:Path += ";${{ runner.temp }}/Qt/${{ env.QT_VERSION }}/msvc2019_64/bin"
+        windeployqt build/TxtLogParser.exe --dir build/deploy --verbose 3
+      shell: pwsh
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: TxtLogParser-Windows
+        path: build/deploy/**
+        retention-days: 7
