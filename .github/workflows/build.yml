@@ -1,0 +1,105 @@
+name: Build TxtLogParser
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  QT_VERSION: '6.8.3'
+  CMAKE_VERSION: '3.26.x'
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        arch: [ gcc_64, msvc2019_64, clang_64 ]
+        include:
+          - os: ubuntu-latest
+            arch: gcc_64
+          - os: windows-latest
+            arch: msvc2019_64
+          - os: macos-latest
+            arch: clang_64
+      fail-fast: false
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      # Remove submodules: recursive unless confirmed needed
+      # with:
+      #   submodules: recursive
+
+    - name: Install Ubuntu dependencies
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential libgl1-mesa-dev libx11-dev libxext-dev libxcb1-dev
+
+    - name: Install Chocolatey for Windows
+      if: matrix.os == 'windows-latest'
+      run: |
+        Set-ExecutionPolicy Bypass -Scope Process -Force;
+        [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072;
+        iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
+    - name: Set up CMake
+      uses: lukka/get-cmake@latest
+      with:
+        cmakeVersion: ${{ env.CMAKE_VERSION }}
+
+    - name: Cache Qt
+      id: cache-qt
+      uses: actions/cache@v4
+      with:
+        path: ${{ runner.temp }}/Qt
+        key: ${{ matrix.os }}-qt-${{ env.QT_VERSION }}-${{ matrix.arch }}
+        restore-keys: ${{ matrix.os }}-qt-${{ env.QT_VERSION }}-
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: ${{ env.QT_VERSION }}
+        target: desktop
+        arch: ${{ matrix.arch }}
+        dir: ${{ runner.temp }}/Qt
+        cached: ${{ steps.cache-qt.outputs.cache-hit }}
+
+    - name: Configure CMake
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DQT_DIR=${{ runner.temp }}/Qt/${{ env.QT_VERSION }}/${{ matrix.arch }}
+
+    - name: Build
+      run: |
+        cmake --build build --config ${{ env.BUILD_TYPE }} --parallel
+
+    - name: Deploy Windows
+      if: matrix.os == 'windows-latest'
+      run: |
+        windeployqt build/TxtLogParser.exe --dir build/deploy
+      env:
+        PATH: ${{ runner.temp }}/Qt/${{ env.QT_VERSION }}/msvc2019_64/bin;${{ env.PATH }}
+
+    - name: Deploy macOS
+      if: matrix.os == 'macos-latest'
+      run: |
+        macdeployqt build/TxtLogParser.app -dmg -verbose=2
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: TxtLogParser-${{ matrix.os }}
+        path: |
+          ${{ matrix.os == 'windows-latest' && 'build/deploy/**' || '' }}
+          ${{ matrix.os == 'macos-latest' && 'build/TxtLogParser.dmg' || '' }}
+          ${{ matrix.os == 'ubuntu-latest' && 'build/TxtLogParser' || '' }}
+
+    - name: Run tests
+      if: matrix.os != 'windows-latest' # Placeholder: Windows may need specific test setup
+      run: |
+        ctest --test-dir build --output-on-failure
+      continue-on-error: true # Allow tests to fail while building test suite
