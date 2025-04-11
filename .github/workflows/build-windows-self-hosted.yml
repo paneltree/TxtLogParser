@@ -1,4 +1,4 @@
-name: Build TxtLogParser Windows
+name: Build TxtLogParser Windows Self-Hosted
 
 on:
   workflow_dispatch:
