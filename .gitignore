@@ -1,0 +1,8 @@
+.DS_Store
+build
+.cursor
+application.log
+.windsurfrules
+.idea
+cmake-build-debug
+.cache
