@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 env:
-  QT_VERSION: '6.8.3'
+  QT_VERSION: '6.8.3' # Reverted to your original version
   CMAKE_VERSION: '3.28'
   BUILD_TYPE: Release
 
@@ -33,21 +33,27 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ${{ runner.temp }}/Qt
-        key: windows-latest-qt-${{ env.QT_VERSION }}-msvc2019_64
+        key: windows-latest-qt-${{ env.QT_VERSION }}-msvc2022_64
         restore-keys: windows-latest-qt-${{ env.QT_VERSION }}-
+
+    - name: List Qt architectures
+      run: |
+        python -m aqt list-qt windows desktop --arch ${{ env.QT_VERSION }}
+      shell: cmd
+      continue-on-error: true # Allow failure to see output
 
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
         version: ${{ env.QT_VERSION }}
         target: desktop
-        arch: msvc2019_64
+        arch: msvc2022_64 # Fixed to correct architecture
         dir: ${{ runner.temp }}/Qt
         cache: ${{ steps.cache-qt.outputs.cache-hit }}
 
     - name: Configure CMake
       run: |
-        cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DQT_DIR=${{ runner.temp }}/Qt/${{ env.QT_VERSION }}/msvc2019_64
+        cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DQT_DIR=${{ runner.temp }}/Qt/${{ env.QT_VERSION }}/msvc2022_64
       shell: bash
 
     - name: Build
@@ -57,7 +63,8 @@ jobs:
 
     - name: Deploy
       run: |
-        $env:Path += ";${{ runner.temp }}/Qt/${{ env.QT_VERSION }}/msvc2019_64/bin"
+        $env:Path += ";${{ runner.temp }}/Qt/${{ env.QT_VERSION }}/msvc2022_64/bin"
+        dir "${{ runner.temp }}/Qt/${{ env.QT_VERSION }}/msvc2022_64/bin"
         windeployqt build/TxtLogParser.exe --dir build/deploy --verbose 3
       shell: pwsh
 
