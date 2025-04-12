@@ -24,8 +24,8 @@ jobs:
       with:
         version: "6.8.3"
         arch: win64_msvc2022_64
-        modules: qtcharts qtmultimedia qtquick3d qtquicktimeline qtshadertools
-        archives: qtbase qtsvg qttools qtlinguisttools
+        modules: all
+        archives: all
         cache: true
         
     - name: Add Qt bin to PATH
