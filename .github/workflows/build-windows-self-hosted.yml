@@ -29,10 +29,12 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
-        version: "6.8.3"
-        arch: win64_msvc2022_64
-        archives: qtbase qtsvg qttools qtlinguisttools
-        cache: true
+        version: '6.8.3'
+        arch: 'win64_msvc2022_64'
+        modules: 'qtcharts qtmultimedia qtquick3d qtquicktimeline qtshadertools'
+        archives: 'qtbase qtsvg qttools qttranslations'
+        tools: 'tools_qtcreator tools_ninja tools_cmake'
+        cache: 'true'
 
     - name: Build
       shell: cmd

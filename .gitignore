@@ -7,3 +7,4 @@ application.log
 cmake-build-debug
 .cache
 .specstory
+build2
