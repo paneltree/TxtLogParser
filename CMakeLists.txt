@@ -239,3 +239,42 @@ if(APPLE)
         )
     endif()
 endif()
+
+if(WIN32)
+    get_target_property(_qmake_executable Qt6::qmake IMPORTED_LOCATION)
+    get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
+    find_program(WINDEPLOYQT_EXECUTABLE windeployqt HINTS "${_qt_bin_dir}")
+
+    if(WINDEPLOYQT_EXECUTABLE)
+        # Create a clean deploy directory
+        set(DEPLOY_DIR "${CMAKE_BINARY_DIR}/deploy")
+        
+        add_custom_target(deploy
+            # Create clean directory
+            COMMAND ${CMAKE_COMMAND} -E remove_directory "${DEPLOY_DIR}"
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${DEPLOY_DIR}"
+            # Copy main executable
+            COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:TxtLogParser>" "${DEPLOY_DIR}/"
+            # Run windeployqt on the copied executable
+            COMMAND ${WINDEPLOYQT_EXECUTABLE}
+                "${DEPLOY_DIR}/$<TARGET_FILE_NAME:TxtLogParser>"
+                --no-translations
+                --no-system-d3d-compiler
+                --no-compiler-runtime
+                --no-quick-import
+                --verbose 0
+            DEPENDS TxtLogParser
+            COMMENT "Deploying clean Qt application package..."
+        )
+        
+        
+        add_custom_target(create_sfx
+            COMMAND "C:/Program Files/7-Zip/7z.exe"
+                a -sfx
+                "${CMAKE_BINARY_DIR}/TxtLogParserInstaller.exe"
+                "${DEPLOY_DIR}/*"
+            DEPENDS deploy
+            COMMENT "Creating self-extracting archive from clean deployment..."
+        )
+    endif()
+endif()
