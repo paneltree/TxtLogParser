@@ -26,7 +26,7 @@ jobs:
         arch: win64_msvc2022_64
         modules: all
         archives: all
-        cache: true
+        cache: false
         
     - name: Add Qt bin to PATH
       shell: bash
