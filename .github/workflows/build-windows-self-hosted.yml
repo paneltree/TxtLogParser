@@ -26,10 +26,16 @@ jobs:
       run: |
         echo "C:\Program Files\Git\usr\bin" >> %GITHUB_PATH%
 
+    - name: Install Python
+      shell: cmd
+      run: |
+        choco install python --version=3.11.9 -y
+        refreshenv
+
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
-        version: '6.8.3'
+        version: '6.9.0'
         arch: 'win64_msvc2022_64'
         modules: 'all'
         archives: 'all'
