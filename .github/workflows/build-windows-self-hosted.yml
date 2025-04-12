@@ -34,7 +34,7 @@ jobs:
         modules: 'all'
         archives: 'all'
         tools: 'tools_ninja tools_cmake'
-        cache: 'true'
+        cache: 'false'
 
     - name: Build
       shell: cmd
