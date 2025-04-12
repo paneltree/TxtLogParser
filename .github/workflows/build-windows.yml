@@ -26,11 +26,29 @@ jobs:
         arch: win64_msvc2022_64
         cache: true
         
+    - name: Show Path
+      shell: powershell
+      run: |
+        echo $env:PATH
+        echo $env:Qt_ROOT_DIR
+
+    - name: Store All Environment Variables
+      shell: powershell
+      run: |
+        Get-ChildItem Env: | Out-File -FilePath env_vars.txt -Encoding utf8
+
     - name: Add Qt bin to PATH
       shell: bash
       run: |
         echo "$Qt_ROOT_DIR/bin" >> $GITHUB_PATH
         echo "$Qt_ROOT_DIR/msvc2022_64/bin" >> $GITHUB_PATH
+
+    
+    - name: Show Path
+      shell: powershell
+      run: |
+        echo $env:PATH
+        echo $env:Qt_ROOT_DIR
 
     - name: Build
       shell: cmd
@@ -39,3 +57,10 @@ jobs:
         cd build
         cmake .. -G "NMake Makefiles" -DQT_DIR=%Qt_ROOT_DIR% -DCMAKE_BUILD_TYPE=%BUILD_TYPE%
         nmake
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: envs1
+        path: env_vars.txt
+        retention-days: 7
