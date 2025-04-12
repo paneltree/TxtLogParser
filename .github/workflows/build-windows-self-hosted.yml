@@ -32,7 +32,7 @@ jobs:
         version: '6.8.3'
         arch: 'win64_msvc2022_64'
         modules: 'all'
-        archives: 'qtbase qtsvg qttools qttranslations'
+        archives: 'all'
         tools: 'tools_ninja tools_cmake'
         cache: 'true'
 
