@@ -31,7 +31,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ${{ runner.temp }}/Qt
-        key: ubuntu-latest-qt-${{ env.QT_VERSION }}-gcc_64
+        key: ubuntu-latest-qt-${{ env.QT_VERSION }}-linux_gcc_64
         restore-keys: ubuntu-latest-qt-${{ env.QT_VERSION }}-
 
     - name: Install Qt
@@ -39,13 +39,13 @@ jobs:
       with:
         version: ${{ env.QT_VERSION }}
         target: desktop
-        arch: gcc_64
+        arch: linux_gcc_64
         dir: ${{ runner.temp }}/Qt
         cache: ${{ steps.cache-qt.outputs.cache-hit }}
 
     - name: Configure CMake
       run: |
-        cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DQT_DIR=${{ runner.temp }}/Qt/${{ env.QT_VERSION }}/gcc_64
+        cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DQT_DIR=${{ runner.temp }}/Qt/${{ env.QT_VERSION }}/linux_gcc_64
       shell: bash
 
     - name: Build
