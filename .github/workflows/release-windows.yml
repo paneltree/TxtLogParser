@@ -1,4 +1,4 @@
-name: Build TxtLogParser Windows
+name: Release TxtLogParser Windows
 
 on:
   workflow_dispatch:
@@ -10,7 +10,7 @@ env:
 
 jobs:
   build-windows:
-    name: Build on Windows
+    name: Release on Windows
     runs-on: windows-latest
     steps:
     - name: Checkout code
