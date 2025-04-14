@@ -249,35 +249,35 @@
     </message>
     <message>
         <location filename="../src/ui/mainwindow.cpp" line="348"/>
-        <location filename="../src/ui/mainwindow.cpp" line="572"/>
+        <location filename="../src/ui/mainwindow.cpp" line="593"/>
         <source>Rename Workspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.cpp" line="349"/>
-        <location filename="../src/ui/mainwindow.cpp" line="573"/>
+        <location filename="../src/ui/mainwindow.cpp" line="594"/>
         <source>Enter new name:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.cpp" line="363"/>
-        <location filename="../src/ui/mainwindow.cpp" line="601"/>
+        <location filename="../src/ui/mainwindow.cpp" line="622"/>
         <source>Rename Failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../src/ui/mainwindow.cpp" line="364"/>
-        <location filename="../src/ui/mainwindow.cpp" line="602"/>
+        <location filename="../src/ui/mainwindow.cpp" line="623"/>
         <source>Failed to rename workspace. The name might be invalid or already in use.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="646"/>
+        <location filename="../src/ui/mainwindow.cpp" line="667"/>
         <source>Rename Current Workspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="647"/>
+        <location filename="../src/ui/mainwindow.cpp" line="668"/>
         <source>Close Current Workspace</source>
         <translation type="unfinished"></translation>
     </message>

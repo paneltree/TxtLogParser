@@ -429,6 +429,22 @@ void MainWindow::restoreWindowGeometry() {
         }
     } else {
         bridge.logInfo("MainWindow No saved window geometry found, using default");
+        
+        // Set default window geometry for first launch
+        // Get the available screen geometry
+        QRect screenGeometry = QApplication::primaryScreen()->availableGeometry();
+        int defaultWidth = qMin(1024, screenGeometry.width() - 100);
+        int defaultHeight = qMin(768, screenGeometry.height() - 100);
+        
+        // Center the window on screen
+        int x = (screenGeometry.width() - defaultWidth) / 2;
+        int y = (screenGeometry.height() - defaultHeight) / 2;
+        
+        // Set window geometry
+        setGeometry(x, y, defaultWidth, defaultHeight);
+        
+        bridge.logInfo("MainWindow Set default window geometry: " + QString::number(x) + "," + QString::number(y) + 
+                      " size: " + QString::number(defaultWidth) + "x" + QString::number(defaultHeight));
     }
     
     if (settings.contains("windowState")) {
@@ -438,6 +454,11 @@ void MainWindow::restoreWindowGeometry() {
         } else {
             bridge.logWarning("Failed to restore window state");
         }
+    } else {
+        // Set default window state for first launch
+        // This will ensure toolbars and docks are in the default positions
+        setWindowState(Qt::WindowActive);
+        bridge.logInfo("MainWindow Set default window state to active");
     }
 }
 

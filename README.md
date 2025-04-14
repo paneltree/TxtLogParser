@@ -73,9 +73,30 @@ Welcome to **TxtLogParser**, an innovative log parsing tool designed to simplify
    nmake
    ```
 
+## Storage Usage
 
-## Usage
-[简要说明如何使用，例如 "Run `python main.py --file log.txt` to parse a log file."]
+### Window Position (QSettings)
+
+* macOS: ~/Library/Preferences/com.LogTools.TxtLogParser.plist
+
+   ```
+   $ defaults read ~/Library/Preferences/com.LogTools.TxtLogParser
+   ```
+* Windows: Windows: Registry under HKEY_CURRENT_USER\Software\LogTools\TxtLogParser
+* Linux: ~/.config/LogTools/TxtLogParser.conf
+
+
+### Workspace settings ()
+
+* macOS: ~/Library/Application Support/TxtLogParser/workspaces.json
+* Windows: %USERPROFILE%\AppData\Rom..\TxtLogParser\workspaces.json
+* Linux: ~/.config/TxtLogParser/workspaces.json
+
+### Logs
+
+* macOS: ~/Library/Logs/TxtLogParser/
+* Windows: 
+* Linux: ~/.local/share/TxtLogParser/logs/
 
 ## Contributing
 I welcome contributions from the community! Please check out the [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines. By contributing, you agree that your contributions may be used in future versions, including potential commercial releases.
