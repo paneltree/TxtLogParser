@@ -300,45 +300,6 @@ void OutputDisplayWidget::updateInfoArea()
     }
 }
 
-void OutputDisplayWidget::appendText(const QString &text, const QColor &color)
-{
-    QTextCharFormat format;
-    format.setForeground(color);
-    
-    QTextCursor cursor = textEditLines->textCursor();
-    cursor.movePosition(QTextCursor::End);
-    cursor.insertText(text, format);
-    textEditLines->setTextCursor(cursor);
-    
-    // Ensure the latest text is visible
-    textEditLines->verticalScrollBar()->setValue(textEditLines->verticalScrollBar()->maximum());
-    
-    // Update the info area to stay in sync
-    updateInfoArea();
-}
-
-void OutputDisplayWidget::appendTextWithColors(const QStringList &textSegments, const QList<QColor> &colors)
-{
-    if (textSegments.size() != colors.size()) {
-        appendText("Error: Text segments and colors count mismatch");
-        return;
-    }    
-    QTextCursor cursor = textEditLines->textCursor();
-    cursor.movePosition(QTextCursor::End);
-    
-    for (int i = 0; i < textSegments.size(); ++i) {
-        QTextCharFormat format;
-        format.setForeground(colors[i]);
-        cursor.insertText(textSegments[i], format);
-    }
-    
-    textEditLines->setTextCursor(cursor);
-    textEditLines->verticalScrollBar()->setValue(textEditLines->verticalScrollBar()->maximum());
-    
-    // Update the info area to stay in sync
-    updateInfoArea();
-}
-
 void OutputDisplayWidget::clearDisplay()
 {
     textEditLines->clear();
@@ -407,46 +368,53 @@ int OutputDisplayWidget::getLineStartPosition(int lineIndex) const
 
 void OutputDisplayWidget::doUpdate()
 {
+    // clear the text edit and line info area
     textEditLines->clear();
     currentLineInfos.clear();
     
-    //get the default text color from the system
-    QColor defaultTextColor = QColor(qApp->palette().color(QPalette::Text));
     QList<QOutputLine> qOutputLines = bridge.getOutputStringList(workspaceId);
     int outputLineIndex = 0;
     
-    // First collect all line infos
+    // get default text color from the application palette
+    QColor defaultTextColor = QColor(qApp->palette().color(QPalette::Text));
+    
+    // generate line info strings
     for (const auto& qOutputLine : qOutputLines) {
-        // Create line info for the InfoAreaWidget
         QString lineInfo = formatLinePrefix(outputLineIndex++, qOutputLine.m_fileRow, qOutputLine.m_lineIndex);
         currentLineInfos.append(lineInfo);
     }
     
-    // Set the line infos to the InfoArea first
+    // update the info area with line info strings
     infoArea->setLineInfos(currentLineInfos);
     
-    // Then add the actual text content
+    // disable updates and signals to avoid flickering
+    textEditLines->setUpdatesEnabled(false);
+    textEditLines->document()->blockSignals(true);
+    
+    QTextDocument* doc = textEditLines->document();
+    QTextCursor cursor(doc);
+    
+
+    cursor.beginEditBlock();
+    
     outputLineIndex = 0;
     for (const auto& qOutputLine : qOutputLines) {
-        QStringList textSegments;
-        QList<QColor> colors;
-
-        // Use the already created line info
-        QString lineInfo = currentLineInfos.at(outputLineIndex++);                
         for (const auto& qOutputSubLine : qOutputLine.m_subLines) {
-            textSegments.append(qOutputSubLine.m_content);
-            if (qOutputSubLine.m_color.isEmpty()) {
-                //get the system's default color
-                colors.append(defaultTextColor);
-            } else {
-                colors.append(QColor(qOutputSubLine.m_color));
-            }
+            QTextCharFormat format;
+            format.setForeground(qOutputSubLine.m_color.isEmpty() ? 
+                                defaultTextColor : QColor(qOutputSubLine.m_color));
+            cursor.insertText(qOutputSubLine.m_content, format);
         }
-        textSegments.append("\n");
-        colors.append(Qt::black);
-        appendTextWithColors(textSegments, colors);
+        cursor.insertBlock(); // insert a new line after each output line
     }
+
+    cursor.endEditBlock();
     
+    // re-enable updates and signals
+    textEditLines->document()->blockSignals(false);
+    textEditLines->setUpdatesEnabled(true);
+    
+    // scroll to the bottom of the text edit
     textEditLines->verticalScrollBar()->setValue(textEditLines->verticalScrollBar()->maximum());
 }
 

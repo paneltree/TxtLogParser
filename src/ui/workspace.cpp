@@ -68,7 +68,7 @@ Workspace::Workspace(int64_t id, QWidget *parent)
 
     // Set stretch factors for the splitters
     leftSplitter->setStretchFactor(0, 1); // fileListWidget
-    leftSplitter->setStretchFactor(1, 4); // rightSplitter (contains filter and search)
+    leftSplitter->setStretchFactor(1, 2); // rightSplitter (contains filter and search)
     
     rightSplitter->setStretchFactor(0, 1); // filterListWidget
     rightSplitter->setStretchFactor(1, 1); // searchListWidget

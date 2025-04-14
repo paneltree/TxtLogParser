@@ -31,10 +31,7 @@ class OutputDisplayWidget : public QWidget {
 public:
     explicit OutputDisplayWidget(int64_t workspaceId, QtBridge& bridge, QWidget *parent = nullptr);
     ~OutputDisplayWidget();
-    
-    // Modified appendText to support colored segments
-    void appendText(const QString &text, const QColor &color = Qt::black);
-    void appendTextWithColors(const QStringList &textSegments, const QList<QColor> &colors);
+
     void clearDisplay();
     void doUpdate();
     void onNavigateToNextFilterMatch(int filterId);
