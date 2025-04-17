@@ -44,6 +44,7 @@ signals:
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
     bool event(QEvent *event) override;
 
 private slots:

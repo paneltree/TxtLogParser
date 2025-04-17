@@ -53,6 +53,16 @@ void InfoAreaWidget::paintEvent(QPaintEvent *event)
     
     QTextBlock block = textEditor->document()->firstBlock();
     int blockNumber = 0;
+
+
+    //write to stdout a log
+    static int logCount = 0;
+    logCount++;
+    QTextStream(stdout) << "paneltree: InfoAreaWidget::paintEvent " << logCount 
+        << ", verticalOffset: " << verticalOffset
+        << ", blockCount: " << textEditor->document()->blockCount()
+        << ",lineInfos.size(): " << lineInfos.size()
+        << Qt::endl;
     
     // Use a slightly muted color for line numbers for subtle contrast
     painter.setPen(QApplication::palette().color(QPalette::Text).darker(120));
@@ -88,6 +98,10 @@ void InfoAreaWidget::paintEvent(QPaintEvent *event)
             // Draw text precisely aligned with textEditLines
             QRectF drawRect(documentMargin, top, width() - documentMargin * 2, height);
             painter.drawText(drawRect, Qt::AlignRight | Qt::AlignVCenter, lineInfos.at(blockNumber));
+            QTextStream(stdout) << "paneltree: InfoAreaWidget::paintEvent " << logCount 
+                << ", draw Rect: " << drawRect.top() << ", " << drawRect.height()
+                << ", blockNumber: " << blockNumber
+                << Qt::endl;
         }
         
         block = block.next();
@@ -344,6 +358,29 @@ void OutputDisplayWidget::contextMenuEvent(QContextMenuEvent *event)
     copyAction->setEnabled(textEditLines->textCursor().hasSelection());
     
     contextMenu.exec(event->globalPos());
+}
+
+void OutputDisplayWidget::resizeEvent(QResizeEvent *event)
+{
+    QWidget::resizeEvent(event);
+    
+    // Update the info area to match the new size
+    //print current size, and each child widget size
+    QSize size = this->size();
+    QSize infoAreaSize = infoArea->size();
+    QSize textEditLinesSize = textEditLines->size();
+    bridge.logInfo(QString("paneltree OutputDisplayWidget::resizeEvent: "
+        "this size: %1,%2 infoArea size: %3,%4 textEditLines size: %5,%6")
+        .arg(size.width()).arg(size.height())
+        .arg(infoAreaSize.width()).arg(infoAreaSize.height())
+        .arg(textEditLinesSize.width()).arg(textEditLinesSize.height()));
+    //print infoArea position in the parent widget
+    QPoint infoAreaPos = infoArea->pos();
+    QPoint textEditLinesPos = textEditLines->pos();
+    bridge.logInfo(QString("paneltree OutputDisplayWidget::resizeEvent: "
+        "infoArea pos: %1,%2 textEditLines pos: %3,%4")
+        .arg(infoAreaPos.x()).arg(infoAreaPos.y())
+        .arg(textEditLinesPos.x()).arg(textEditLinesPos.y()));
 }
 
 QString OutputDisplayWidget::formatLinePrefix(int outputLineIndex, int fileIndex, int lineIndex) const
