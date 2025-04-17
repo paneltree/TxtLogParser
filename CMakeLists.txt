@@ -90,6 +90,8 @@ file(GLOB_RECURSE TS_SOURCES
 set(ENV{QT_LUPDATE_DISABLE_WARNING_FOR_UNDECLARED_CLASS} "1")
 qt_create_translation(QM_FILES ${TS_SOURCES} ${TS_FILES} OPTIONS -no-obsolete)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Set macOS-specific debugger attribute
 if(APPLE)
     set(CMAKE_XCODE_ATTRIBUTE_DEBUGGER "lldb")
