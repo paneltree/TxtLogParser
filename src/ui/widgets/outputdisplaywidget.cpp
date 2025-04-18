@@ -11,6 +11,7 @@
 #include <QApplication>
 #include <QPalette>
 #include <QEvent>
+#include <QtCore/qpoint.h>
 #include "bridge/QtBridge.h"
 
 // InfoAreaWidget implementation
@@ -98,10 +99,10 @@ void InfoAreaWidget::paintEvent(QPaintEvent *event)
             // Draw text precisely aligned with textEditLines
             QRectF drawRect(documentMargin, top, width() - documentMargin * 2, height);
             painter.drawText(drawRect, Qt::AlignRight | Qt::AlignVCenter, lineInfos.at(blockNumber));
-            QTextStream(stdout) << "paneltree: InfoAreaWidget::paintEvent " << logCount 
-                << ", draw Rect: " << drawRect.top() << ", " << drawRect.height()
-                << ", blockNumber: " << blockNumber
-                << Qt::endl;
+            //QTextStream(stdout) << "paneltree: InfoAreaWidget::paintEvent " << logCount 
+            //    << ", draw Rect: " << drawRect.top() << ", " << drawRect.height()
+            //    << ", blockNumber: " << blockNumber
+            //    << Qt::endl;
         }
         
         block = block.next();
@@ -202,7 +203,7 @@ OutputDisplayWidget::OutputDisplayWidget(int64_t workspaceId, QtBridge& bridge, 
     containerLayout->addWidget(scrollArea);
     
     // Inner widget to hold the text edit and info area
-    QWidget *innerWidget = new QWidget(scrollArea);
+    innerWidget = new QWidget(scrollArea);
     scrollArea->setWidget(innerWidget);
 
     QHBoxLayout *innerLayout = new QHBoxLayout(innerWidget);
@@ -351,24 +352,42 @@ void OutputDisplayWidget::contextMenuEvent(QContextMenuEvent *event)
 void OutputDisplayWidget::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
-    
+#if 0
     // Update the info area to match the new size
     //print current size, and each child widget size
     QSize size = this->size();
-    QSize infoAreaSize = infoArea->size();
-    QSize textEditLinesSize = textEditLines->size();
-    bridge.logInfo(QString("paneltree OutputDisplayWidget::resizeEvent: "
-        "this size: %1,%2 infoArea size: %3,%4 textEditLines size: %5,%6")
-        .arg(size.width()).arg(size.height())
-        .arg(infoAreaSize.width()).arg(infoAreaSize.height())
-        .arg(textEditLinesSize.width()).arg(textEditLinesSize.height()));
+
     //print infoArea position in the parent widget
+    QPoint innerWidgetPos = innerWidget->pos();
     QPoint infoAreaPos = infoArea->pos();
     QPoint textEditLinesPos = textEditLines->pos();
-    bridge.logInfo(QString("paneltree OutputDisplayWidget::resizeEvent: "
-        "infoArea pos: %1,%2 textEditLines pos: %3,%4")
-        .arg(infoAreaPos.x()).arg(infoAreaPos.y())
-        .arg(textEditLinesPos.x()).arg(textEditLinesPos.y()));
+
+
+    QSize innerWidgetSize = innerWidget->size();
+    QSize infoAreaSize = infoArea->size();
+    QSize textEditLinesSize = textEditLines->size();
+
+    QRectF innerWidgetRect = innerWidget->geometry();
+    QRectF infoAreaRect = infoArea->geometry();
+    QRectF textEditLinesRect = textEditLines->geometry();
+    bridge.logInfo(QString("paneltree OutputDisplayWidget::resizeEvent: \n"
+        "textEditLines : (%1,%2,%3,%4 ),(%5, %6) \n"
+        "infoArea      : (%7,%8,%9,%10 ),(%11, %12) \n"
+        "innerWidget   : (%13,%14,%15,%16 ),(%17, %18) \n"
+        )
+        .arg(infoAreaRect.x()).arg(infoAreaRect.y())
+        .arg(infoAreaRect.x()+infoAreaRect.width()).arg(infoAreaRect.y()+infoAreaRect.height())
+        .arg(infoAreaRect.width()).arg(infoAreaRect.height())
+
+        .arg(textEditLinesRect.x()).arg(textEditLinesRect.y())
+        .arg(textEditLinesRect.x()+textEditLinesRect.width()).arg(textEditLinesRect.y()+textEditLinesRect.height())
+        .arg(textEditLinesRect.width()).arg(textEditLinesRect.height())
+
+        .arg(innerWidgetRect.x()).arg(innerWidgetRect.y())
+        .arg(innerWidgetRect.x()+innerWidgetRect.width()).arg(innerWidgetRect.y()+innerWidgetRect.height())
+        .arg(innerWidgetRect.width()).arg(innerWidgetRect.height())
+    );
+#endif
 }
 
 QString OutputDisplayWidget::formatLinePrefix(int outputLineIndex, int fileIndex, int lineIndex) const

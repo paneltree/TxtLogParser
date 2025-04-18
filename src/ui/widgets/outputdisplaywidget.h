@@ -52,6 +52,7 @@ private slots:
 
 private:
     QLabel *headerLabel;
+    QWidget *innerWidget;
     InfoAreaWidget *infoArea;
     QTextEdit *textEditLines;
     QtBridge& bridge;
