@@ -149,10 +149,8 @@ OutputDisplayWidget::OutputDisplayWidget(int64_t workspaceId, QtBridge& bridge, 
     headerLabel->setStyleSheet("font-weight: bold; font-size: 14px; color: #0078d4;");
     layout->addWidget(headerLabel);
     
-    // Create a custom container that will handle horizontal scrolling for both components
-    QWidget *containerWidget = new QWidget(this);
-    containerWidget->setObjectName("outputContainer");
-    containerWidget->setStyleSheet(R"(
+    // Define container widget stylesheet
+    const QString containerStyleSheet = R"(
         QWidget#outputContainer { 
             border: 1px solid palette(mid); 
             border-radius: 3px; 
@@ -182,44 +180,43 @@ OutputDisplayWidget::OutputDisplayWidget(int64_t workspaceId, QtBridge& bridge, 
         QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
             background: none;
         }
-    )");
+    )";
     
-    // Create a scrollable area to contain both widgets
+    // Container widget and layout
+    QWidget *containerWidget = new QWidget(this);
+    containerWidget->setObjectName("outputContainer");
+    containerWidget->setStyleSheet(containerStyleSheet);
+    layout->addWidget(containerWidget);
+
+    QVBoxLayout *containerLayout = new QVBoxLayout(containerWidget);
+    containerLayout->setContentsMargins(0, 0, 0, 0);
+    
+    // Scroll area for the text edit
     QScrollArea *scrollArea = new QScrollArea(containerWidget);
     scrollArea->setObjectName("unifiedScrollArea");
     scrollArea->setFrameShape(QFrame::NoFrame);
     scrollArea->setWidgetResizable(true);
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+
+    containerLayout->addWidget(scrollArea);
     
-    // Create an inner widget to hold our components
+    // Inner widget to hold the text edit and info area
     QWidget *innerWidget = new QWidget(scrollArea);
+    scrollArea->setWidget(innerWidget);
+
     QHBoxLayout *innerLayout = new QHBoxLayout(innerWidget);
     innerLayout->setContentsMargins(0, 0, 0, 0);
     innerLayout->setSpacing(0);
     
-    textEditLines = new QTextEdit(innerWidget);
-    
+    textEditLines = new QTextEdit(innerWidget);    
     infoArea = new InfoAreaWidget(textEditLines);
-    infoArea->setFixedWidth(130);
-    
-    setupTextEdit();  // Configure text edit properties
+    infoArea->setFixedWidth(130);    
+    setupTextEdit();
     
     // Add widgets to the inner container
     innerLayout->addWidget(infoArea);
     innerLayout->addWidget(textEditLines);
-    
-    // Set the inner widget as the scroll area's widget
-    scrollArea->setWidget(innerWidget);
-    
-    // Add the scroll area directly to the container layout
-    QVBoxLayout *containerLayout = new QVBoxLayout(containerWidget);
-    containerLayout->setContentsMargins(0, 0, 0, 0);
-    containerLayout->addWidget(scrollArea);
-    
-    // Add the container to the main layout
-    layout->addWidget(containerWidget);
-    setLayout(layout);
     
     // Connect for scrolling synchronization
     connect(textEditLines->verticalScrollBar(), &QScrollBar::valueChanged, 
