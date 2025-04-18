@@ -283,19 +283,6 @@
     </message>
 </context>
 <context>
-    <name>OutputDisplayWidget</name>
-    <message>
-        <location filename="../src/ui/widgets/outputdisplaywidget.ui" line="14"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/ui/widgets/outputdisplaywidget.ui" line="44"/>
-        <source>TextLabel</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
     <name>SearchDialog</name>
     <message>
         <location filename="../src/ui/widgets/searchlistwidget.cpp" line="515"/>

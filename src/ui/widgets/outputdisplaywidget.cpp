@@ -184,14 +184,8 @@ OutputDisplayWidget::OutputDisplayWidget(int64_t workspaceId, QtBridge& bridge, 
         }
     )");
     
-    // Create outer container widget to maintain consistent width regardless of scrollbar visibility
-    QWidget *outerWidget = new QWidget(containerWidget);
-    QHBoxLayout *outerLayout = new QHBoxLayout(outerWidget);
-    outerLayout->setContentsMargins(0, 0, 0, 0);
-    outerLayout->setSpacing(0);
-    
     // Create a scrollable area to contain both widgets
-    QScrollArea *scrollArea = new QScrollArea(outerWidget);
+    QScrollArea *scrollArea = new QScrollArea(containerWidget);
     scrollArea->setObjectName("unifiedScrollArea");
     scrollArea->setFrameShape(QFrame::NoFrame);
     scrollArea->setWidgetResizable(true);
@@ -218,13 +212,10 @@ OutputDisplayWidget::OutputDisplayWidget(int64_t workspaceId, QtBridge& bridge, 
     // Set the inner widget as the scroll area's widget
     scrollArea->setWidget(innerWidget);
     
-    // Add scrollArea to the outer layout
-    outerLayout->addWidget(scrollArea);
-    
-    // Add the outer widget to the main container's layout
+    // Add the scroll area directly to the container layout
     QVBoxLayout *containerLayout = new QVBoxLayout(containerWidget);
     containerLayout->setContentsMargins(0, 0, 0, 0);
-    containerLayout->addWidget(outerWidget);
+    containerLayout->addWidget(scrollArea);
     
     // Add the container to the main layout
     layout->addWidget(containerWidget);
