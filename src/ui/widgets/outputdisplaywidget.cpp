@@ -84,7 +84,7 @@ void InfoAreaWidget::paintEvent(QPaintEvent *event)
     //    from how our custom widget draws text
     // 3. QTextDocument positions text blocks with subtle spacing different from raw text drawing
     // This adjustment precisely compensates for these rendering differences
-    int topAdjustment = -2; // Fine-tuning vertical alignment
+    int topAdjustment = -1; // Fine-tuning vertical alignment
     
     // Draw line info text for visible blocks
     while (block.isValid() && blockNumber < lineInfos.size()) {
@@ -204,7 +204,7 @@ OutputDisplayWidget::OutputDisplayWidget(int64_t workspaceId, QtBridge& bridge, 
     innerLayout->setContentsMargins(0, 0, 0, 0);
     innerLayout->setSpacing(0);
     
-    textEditLines = new QTextEdit(this);
+    textEditLines = new QTextEdit(innerWidget);
     
     infoArea = new InfoAreaWidget(textEditLines);
     infoArea->setFixedWidth(130);
