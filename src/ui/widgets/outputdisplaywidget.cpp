@@ -1,5 +1,6 @@
 #include "outputdisplaywidget.h"
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QMenu>
 #include <QContextMenuEvent>
 #include <QScrollBar>
@@ -208,46 +209,60 @@ OutputDisplayWidget::OutputDisplayWidget(int64_t workspaceId, QtBridge& bridge, 
     containerWidget->setStyleSheet(containerStyleSheet);
     layout->addWidget(containerWidget);
 
-    QVBoxLayout *containerLayout = new QVBoxLayout(containerWidget);
+    // 创建主容器布局 - 使用网格布局以便更精确地控制滚动条位置
+    QGridLayout *containerLayout = new QGridLayout(containerWidget);
     containerLayout->setContentsMargins(0, 0, 0, 0);
+    containerLayout->setSpacing(0);
 
-    // Scroll area for the text edit
-    QScrollArea *scrollArea = new QScrollArea(containerWidget);
-    scrollArea->setObjectName("unifiedScrollArea");
-    scrollArea->setFrameShape(QFrame::NoFrame);
-    scrollArea->setWidgetResizable(true);
-    scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-
-    containerLayout->addWidget(scrollArea);
-
-    // Inner widget to hold the text edit and info area
-    innerWidget = new QWidget(scrollArea);
-    scrollArea->setWidget(innerWidget);
-
-    QHBoxLayout *innerLayout = new QHBoxLayout(innerWidget);
-    innerLayout->setContentsMargins(0, 0, 0, 0);
-    innerLayout->setSpacing(0);
-
-    textEditLines = new QTextEdit(innerWidget);
+    // 创建文本区域和行号区域部分
+    QWidget *contentWidget = new QWidget(containerWidget);
+    QHBoxLayout *contentLayout = new QHBoxLayout(contentWidget);
+    contentLayout->setContentsMargins(0, 0, 0, 0);
+    contentLayout->setSpacing(0);
+    
+    // 创建自定义滚动条
+    customVerticalScrollBar = new QScrollBar(Qt::Vertical, containerWidget);
+    customHorizontalScrollBar = new QScrollBar(Qt::Horizontal, containerWidget);
+    
+    // 创建文本编辑控件和行号区域
+    textEditLines = new QTextEdit(contentWidget);
     infoArea = new InfoAreaWidget(textEditLines);
     infoArea->setFixedWidth(130);
+    
+    // 禁用文本编辑器的内置滚动条
+    textEditLines->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    textEditLines->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    
+    // 初始化文本编辑器
     setupTextEdit();
-
-    // Add widgets to the inner container
-    innerLayout->addWidget(infoArea);
-    innerLayout->addWidget(textEditLines);
-
-    connect(textEditLines->verticalScrollBar(), &QScrollBar::valueChanged, 
-            this, &OutputDisplayWidget::onScrollBarMoved);
-    //connect(textEditLines->verticalScrollBar(), &QScrollBar::valueChanged, 
-    //        [this]() { infoArea->update(); });
-    connect(textEditLines->horizontalScrollBar(), &QScrollBar::rangeChanged,
-            [this]() { infoArea->update(); });
-    connect(textEditLines->document(), &QTextDocument::contentsChange, 
-            [this]() { updateInfoArea(); });
-
-    // Estimate visible lines
+    
+    // 添加控件到内容布局
+    contentLayout->addWidget(infoArea);
+    contentLayout->addWidget(textEditLines);
+    
+    // 将所有控件添加到网格布局
+    containerLayout->addWidget(contentWidget, 0, 0);
+    containerLayout->addWidget(customVerticalScrollBar, 0, 1);
+    containerLayout->addWidget(customHorizontalScrollBar, 1, 0);
+    
+    // 设置滚动条的最小大小和策略
+    customVerticalScrollBar->setFixedWidth(16);
+    customHorizontalScrollBar->setFixedHeight(16);
+    
+    // 连接信号槽
+    connect(customVerticalScrollBar, &QScrollBar::valueChanged, this, &OutputDisplayWidget::onScrollBarMoved);
+    connect(customHorizontalScrollBar, &QScrollBar::valueChanged, this, [this](int value) {
+        // 水平滚动
+        textEditLines->horizontalScrollBar()->setValue(value);
+    });
+    
+    connect(textEditLines->document(), &QTextDocument::contentsChange, [this]() {
+        updateInfoArea();
+        // 更新自定义滚动条范围
+        updateScrollBarRanges();
+    });
+    
+    // 估算可见行数
     QFontMetrics fm(textEditLines->font());
     visibleLines = textEditLines->height() / fm.lineSpacing() + 5;
     QTextStream(stdout) << "paneltree: OutputDisplayWidget::OutputDisplayWidget "
@@ -376,6 +391,10 @@ int OutputDisplayWidget::getLineStartPosition(int lineIndex) const
 
 void OutputDisplayWidget::doUpdate()
 {
+    // 禁用滚动条更新信号
+    customVerticalScrollBar->blockSignals(true);
+    customHorizontalScrollBar->blockSignals(true);
+    
     textEditLines->clear();
     outputLines.clear();
     currentLineInfos.clear();
@@ -393,12 +412,19 @@ void OutputDisplayWidget::doUpdate()
     }
 
     infoArea->setLineInfos(currentLineInfos);
-    textEditLines->verticalScrollBar()->setRange(0, std::max(0, static_cast<int>(outputLines.size()) - visibleLines));
-    //verify the scroll bar range
-    QTextStream(stdout) << "paneltree: OutputDisplayWidget::doUpdate "
-                        << "textEditLines->verticalScrollBar()->maximum(): " 
-                        << textEditLines->verticalScrollBar()->maximum()
-                        << Qt::endl;
+    
+    // 更新自定义滚动条范围
+    updateScrollBarRanges();
+    
+    // 重置滚动条位置
+    customVerticalScrollBar->setValue(0);
+    customHorizontalScrollBar->setValue(0);
+    
+    // 恢复滚动条信号
+    customVerticalScrollBar->blockSignals(false);
+    customHorizontalScrollBar->blockSignals(false);
+    
+    // 显示内容
     updateDisplay(0, visibleLines);
 }
 
@@ -409,11 +435,6 @@ void OutputDisplayWidget::updateDisplay(int startLine, int lineCount)
         return;
     }
 
-    //verify the scroll bar range
-    QTextStream(stdout) << "paneltree: OutputDisplayWidget::updateDisplay "
-                        << "1 textEditLines->verticalScrollBar()->maximum(): " 
-                        << textEditLines->verticalScrollBar()->maximum()
-                        << Qt::endl;
     isUpdatingDisplay = true; // 设置标志，表示正在进行更新
 
     QTextStream(stdout) << "paneltree: OutputDisplayWidget::updateDisplay "
@@ -423,18 +444,13 @@ void OutputDisplayWidget::updateDisplay(int startLine, int lineCount)
                         << ", outputLines.size(): " << outputLines.size()
                         << Qt::endl;
 
-    // 禁用滚动条信号
-    QScrollBar* vScrollBar = textEditLines->verticalScrollBar();
-    vScrollBar->blockSignals(true);
-
+    // 禁用更新和信号
+    customVerticalScrollBar->blockSignals(true);
+    customHorizontalScrollBar->blockSignals(true);
     textEditLines->setUpdatesEnabled(false);
     textEditLines->clear();
-    //verify the scroll bar range
-    QTextStream(stdout) << "paneltree: OutputDisplayWidget::updateDisplay "
-                        << "2 textEditLines->verticalScrollBar()->maximum(): " 
-                        << textEditLines->verticalScrollBar()->maximum()
-                        << Qt::endl;
 
+    // 确保startLine在有效范围内
     startLine = std::max(0, std::min(startLine, static_cast<int>(outputLines.size() - 1)));
     int endLine = std::min(startLine + lineCount, static_cast<int>(outputLines.size()));
 
@@ -456,24 +472,20 @@ void OutputDisplayWidget::updateDisplay(int startLine, int lineCount)
 
     cursor.endEditBlock();
 
-    // 在重新启用更新前设置滚动条位置
-    //verify the scroll bar range
-    QTextStream(stdout) << "paneltree: OutputDisplayWidget::updateDisplay "
-                        << "3 textEditLines->verticalScrollBar()->maximum(): " 
-                        << textEditLines->verticalScrollBar()->maximum()
-                        << Qt::endl;
-    vScrollBar->setValue(startLine);//verify the scroll bar range
-    QTextStream(stdout) << "paneltree: OutputDisplayWidget::updateDisplay "
-                        << "4 textEditLines->verticalScrollBar()->maximum(): " 
-                        << textEditLines->verticalScrollBar()->maximum()
-                        << Qt::endl;
+    // 使自定义滚动条与内容同步
+    customVerticalScrollBar->setValue(startLine);
     
-    // 恢复滚动条信号
-    vScrollBar->blockSignals(false);
+    // 恢复信号和更新
+    customVerticalScrollBar->blockSignals(false);
+    customHorizontalScrollBar->blockSignals(false);
     textEditLines->setUpdatesEnabled(true);
 
+    // 应用高亮并更新信息区域
     applyHighlighting();
     infoArea->update();
+    
+    // 更新水平滚动条范围和位置
+    updateScrollBarRanges();
     
     isUpdatingDisplay = false; // 更新完成，重置标志
 }
@@ -544,8 +556,9 @@ void OutputDisplayWidget::onNavigateToNextFilterMatch(int filterId)
             cursor.setPosition(lineStartPosition + matchCharStartIndex);
             cursor.setPosition(lineStartPosition + matchCharEndIndex, QTextCursor::KeepAnchor);
             textEditLines->setTextCursor(cursor);
-            // Update display to ensure the match is visible
-            textEditLines->verticalScrollBar()->setValue(matchLineIndex);
+            
+            // 使用自定义滚动条而不是内置滚动条
+            customVerticalScrollBar->setValue(matchLineIndex);
             updateDisplay(matchLineIndex, visibleLines);
         }
     }
@@ -575,7 +588,9 @@ void OutputDisplayWidget::onNavigateToPreviousFilterMatch(int filterId)
             cursor.setPosition(lineStartPosition + matchCharEndIndex);
             cursor.setPosition(lineStartPosition + matchCharStartIndex, QTextCursor::KeepAnchor);
             textEditLines->setTextCursor(cursor);
-            textEditLines->verticalScrollBar()->setValue(matchLineIndex);
+            
+            // 使用自定义滚动条代替内置滚动条
+            customVerticalScrollBar->setValue(matchLineIndex);
             updateDisplay(matchLineIndex, visibleLines);
         }
     }
@@ -605,7 +620,9 @@ void OutputDisplayWidget::onNavigateToNextSearchMatch(int searchId)
             cursor.setPosition(lineStartPosition + matchCharStartIndex);
             cursor.setPosition(lineStartPosition + matchCharEndIndex, QTextCursor::KeepAnchor);
             textEditLines->setTextCursor(cursor);
-            textEditLines->verticalScrollBar()->setValue(matchLineIndex);
+            
+            // 使用自定义滚动条而不是内置滚动条
+            customVerticalScrollBar->setValue(matchLineIndex);
             updateDisplay(matchLineIndex, visibleLines);
         }
     }
@@ -635,8 +652,34 @@ void OutputDisplayWidget::onNavigateToPreviousSearchMatch(int searchId)
             cursor.setPosition(lineStartPosition + matchCharEndIndex);
             cursor.setPosition(lineStartPosition + matchCharStartIndex, QTextCursor::KeepAnchor);
             textEditLines->setTextCursor(cursor);
-            textEditLines->verticalScrollBar()->setValue(matchLineIndex);
+            
+            // 使用自定义滚动条代替内置滚动条
+            customVerticalScrollBar->setValue(matchLineIndex);
             updateDisplay(matchLineIndex, visibleLines);
         }
     }
+}
+
+void OutputDisplayWidget::updateScrollBarRanges()
+{
+    // 更新垂直滚动条范围
+    int maxValue = std::max(0, static_cast<int>(outputLines.size() - visibleLines));
+    customVerticalScrollBar->setRange(0, maxValue);
+    customVerticalScrollBar->setPageStep(visibleLines);
+    customVerticalScrollBar->setSingleStep(1);
+    
+    // 更新水平滚动条范围以匹配文本编辑器的水平滚动条
+    QScrollBar* textHorizontalScrollBar = textEditLines->horizontalScrollBar();
+    customHorizontalScrollBar->setRange(0, textHorizontalScrollBar->maximum());
+    customHorizontalScrollBar->setPageStep(textHorizontalScrollBar->pageStep());
+    customHorizontalScrollBar->setSingleStep(textHorizontalScrollBar->singleStep());
+    customHorizontalScrollBar->setValue(textHorizontalScrollBar->value());
+    
+    // 显示调试信息
+    QTextStream(stdout) << "paneltree: OutputDisplayWidget::updateScrollBarRanges "
+                        << "vertical range: 0-" << maxValue
+                        << ", horizontal range: 0-" << textHorizontalScrollBar->maximum()
+                        << ", outputLines.size(): " << outputLines.size()
+                        << ", visibleLines: " << visibleLines
+                        << Qt::endl;
 }

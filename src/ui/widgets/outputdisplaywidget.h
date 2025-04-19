@@ -59,6 +59,7 @@ private:
     void setupTextEdit();
     void updateInfoArea();
     void updateDisplay(int startLine, int lineCount);
+    void updateScrollBarRanges(); // 更新自定义滚动条范围
     void applyHighlighting();
     QString formatLinePrefix(int outputLineIndex, int fileIndex, int lineIndex) const;
     int getLineStartPosition(int lineIndex) const;
@@ -67,6 +68,8 @@ private:
     QWidget *innerWidget;
     InfoAreaWidget *infoArea;
     QTextEdit *textEditLines;
+    QScrollBar *customVerticalScrollBar;   // 自定义垂直滚动条
+    QScrollBar *customHorizontalScrollBar; // 自定义水平滚动条
     QtBridge& bridge;
     int64_t workspaceId;
     QList<QOutputLine> outputLines; // Store all lines
