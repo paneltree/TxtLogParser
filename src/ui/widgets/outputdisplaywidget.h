@@ -6,6 +6,10 @@
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QContextMenuEvent>
+#include "qoutputline.h"
+
+#include <vector>
+#include <string>
 
 class QtBridge;
 
@@ -49,20 +53,27 @@ protected:
 
 private slots:
     void onSystemThemeChanged(const QPalette &palette);
+    void onScrollBarMoved(int value);
 
 private:
+    void setupTextEdit();
+    void updateInfoArea();
+    void updateDisplay(int startLine, int lineCount);
+    void applyHighlighting();
+    QString formatLinePrefix(int outputLineIndex, int fileIndex, int lineIndex) const;
+    int getLineStartPosition(int lineIndex) const;
+
     QLabel *headerLabel;
     QWidget *innerWidget;
     InfoAreaWidget *infoArea;
     QTextEdit *textEditLines;
     QtBridge& bridge;
     int64_t workspaceId;
+    QList<QOutputLine> outputLines; // Store all lines
     QStringList currentLineInfos;
-    
-    void setupTextEdit();  // Helper method for text edit configuration
-    void updateInfoArea(); // Helper method to update the info area
-    QString formatLinePrefix(int outputLineIndex, int fileIndex, int lineIndex) const;
-    int getLineStartPosition(int lineIndex) const;
+    int visibleLines; // Number of lines visible in viewport
+    static constexpr int CHUNK_SIZE = 10000; // Chunk size for loading
+    bool isUpdatingDisplay; // 防止递归调用的标志
 };
 
 #endif // OUTPUTDISPLAYWIDGET_H
