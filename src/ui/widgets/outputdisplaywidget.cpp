@@ -389,8 +389,8 @@ void OutputDisplayWidget::resizeEvent(QResizeEvent *event)
     QRectF infoAreaRect = infoArea->geometry();
     QRectF textEditLinesRect = textEditLines->geometry();
     bridge.logInfo(QString("paneltree OutputDisplayWidget::resizeEvent: \n"
-        "textEditLines : (%1,%2,%3,%4 ),(%5, %6) \n"
-        "infoArea      : (%7,%8,%9,%10 ),(%11, %12) \n"
+        "infoArea      : (%1,%2,%3,%4 ),(%5, %6) \n"
+        "textEditLines : (%7,%8,%9,%10 ),(%11, %12) \n"
         "innerWidget   : (%13,%14,%15,%16 ),(%17, %18) \n"
         )
         .arg(infoAreaRect.x()).arg(infoAreaRect.y())
