@@ -52,8 +52,6 @@ void InfoAreaWidget::paintEvent(QPaintEvent *event)
     QFont monoFont("Courier New", 10);
     painter.setFont(monoFont);
     
-    QTextBlock block = textEditor->document()->firstBlock();
-    int blockNumber = 0;
 
 
     //write to stdout a log
@@ -77,16 +75,32 @@ void InfoAreaWidget::paintEvent(QPaintEvent *event)
 
     // Get QTextEdit document layout
     QAbstractTextDocumentLayout* layout = textEditor->document()->documentLayout();
-    
-    // Calculate adjustment for top padding to match exactly with textEdit
-    // The -2 offset is needed because:
-    // 1. QTextEdit renders text with internal padding that isn't directly accessible
-    // 2. The QTextEdit's line height calculation includes font metrics that differ slightly 
-    //    from how our custom widget draws text
-    // 3. QTextDocument positions text blocks with subtle spacing different from raw text drawing
-    // This adjustment precisely compensates for these rendering differences
     int topAdjustment = -1; // Fine-tuning vertical alignment
     
+    int blockNumber = 0;
+    QTextBlock block = textEditor->document()->findBlockByNumber(blockNumber);
+
+    if( textEditor->document()->blockCount() > 2){
+        QRectF blockRect0 = layout->blockBoundingRect(block);
+        block = block.next();
+        QRectF blockRect1 = layout->blockBoundingRect(block);
+        qreal oneBlockHeight = blockRect1.top() - blockRect0.top();
+        int invisibleHeightUpper = -1 * (verticalOffset + topAdjustment);
+        qint32 ignoredUpperBlockCount = invisibleHeightUpper / oneBlockHeight;
+        blockNumber = ignoredUpperBlockCount;
+        block = textEditor->document()->findBlockByNumber(blockNumber);
+    }
+    if(!block.isValid()){
+        blockNumber = 0;
+        block = textEditor->document()->findBlockByNumber(blockNumber);
+    }
+    //QTextStream(stdout) << "paneltree: InfoAreaWidget::paintEvent " << logCount 
+    //    << ", begin from blockNumber: " << blockNumber
+    //    << ", blockCount: " << textEditor->document()->blockCount()
+    //    << ", lineInfos.size(): " << lineInfos.size()
+    //    << ", block.isValid(): " << block.isValid()
+    //    << ", width(): " << width() << ", height(): " << height()
+    //    << Qt::endl;
     // Draw line info text for visible blocks
     while (block.isValid() && blockNumber < lineInfos.size()) {
         // Calculate the position of the text based on the text editor's layout
@@ -95,14 +109,18 @@ void InfoAreaWidget::paintEvent(QPaintEvent *event)
         int height = (int)blockRect.height();
         
         // Only draw if the block is visible in the viewport (accounting for scrollbar)
-        if (top + height >= 0 && top <= effectiveHeight && blockNumber < lineInfos.size()) {
-            // Draw text precisely aligned with textEditLines
-            QRectF drawRect(documentMargin, top, width() - documentMargin * 2, height);
-            painter.drawText(drawRect, Qt::AlignRight | Qt::AlignVCenter, lineInfos.at(blockNumber));
-            //QTextStream(stdout) << "paneltree: InfoAreaWidget::paintEvent " << logCount 
-            //    << ", draw Rect: " << drawRect.top() << ", " << drawRect.height()
-            //    << ", blockNumber: " << blockNumber
-            //    << Qt::endl;
+
+        if (top + height >= 0 ){
+            if(top <= effectiveHeight && blockNumber < lineInfos.size()) {
+                // Draw text precisely aligned with textEditLines
+                QRectF drawRect(documentMargin, top, width() - documentMargin * 2, height);
+                painter.drawText(drawRect, Qt::AlignRight | Qt::AlignVCenter, lineInfos.at(blockNumber));
+            }else{
+                //QTextStream(stdout) << "paneltree: InfoAreaWidget::paintEvent " << logCount 
+                //    << ", ignored from blockNumber: " << blockNumber
+                //    << Qt::endl;
+                break;
+            }
         }
         
         block = block.next();
@@ -110,7 +128,7 @@ void InfoAreaWidget::paintEvent(QPaintEvent *event)
     }
     
     // Draw a subtle separator line
-    painter.setPen(QPen(QApplication::palette().color(QPalette::Mid).lighter(150), 1));
+    painter.setPen(QPen(QApplication::palette().color(QPalette::Mid), 1));
     painter.drawLine(width() - 1, 0, width() - 1, effectiveHeight);
     
     // Draw a fake scrollbar area at the bottom if horizontal scrollbar is visible
