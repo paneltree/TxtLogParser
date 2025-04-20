@@ -699,12 +699,25 @@ bool OutputDisplayWidget::eventFilter(QObject *watched, QEvent *event)
 {
     // 监听textEditLines的事件
     if (watched == textEditLines) {
-        // 拦截可能导致滚动条显示的事件
-        if (event->type() == QEvent::Wheel ||
-            event->type() == QEvent::ScrollPrepare ||
-            event->type() == QEvent::Scroll) {
-            
-            // 已有自定义滚动条处理滚动事件，无需让QTextEdit处理
+        // 处理滚轮事件，转发给自定义滚动条
+        if (event->type() == QEvent::Wheel) {
+            QWheelEvent *wheelEvent = static_cast<QWheelEvent*>(event);
+            // 将滚轮事件转发给自定义垂直滚动条
+            if (wheelEvent->angleDelta().y() != 0) { // 垂直滚动
+                int delta = wheelEvent->angleDelta().y() / 120; // 每120代表一个滚动单位
+                int newValue = customVerticalScrollBar->value() - delta * 3; // 3行/次
+                customVerticalScrollBar->setValue(newValue);
+            }
+            else if (wheelEvent->angleDelta().x() != 0) { // 水平滚动
+                int delta = wheelEvent->angleDelta().x() / 120;
+                int newValue = customHorizontalScrollBar->value() - delta * 20; // 20像素/次
+                customHorizontalScrollBar->setValue(newValue);
+            }
+            return true; // 阻止事件被textEditLines处理
+        }
+        // 拦截可能导致滚动条显示的其他事件
+        else if (event->type() == QEvent::ScrollPrepare ||
+                 event->type() == QEvent::Scroll) {
             return true; // 阻止事件被textEditLines处理
         }
     }
