@@ -12,8 +12,28 @@
 #include <QApplication>
 #include <QPalette>
 #include <QEvent>
+#include <QtCore/qdebug.h>
 #include <QtCore/qpoint.h>
+#include <cstdio>
 #include "bridge/QtBridge.h"
+
+// retrun a string representation of the QRectF
+QString rectToString(const QRect &rect)
+{
+    return QString("QRectF(%1, %2, %3, %4)(%5 x %6)")
+        .arg(rect.x()).arg(rect.y())
+        .arg(rect.x() + rect.width()).arg(rect.y() + rect.height())
+        .arg(rect.width()).arg(rect.height());
+}
+// retrun a string representation of the QRectF
+QString rectfToString(const QRectF &rect)
+{
+    return QString("QRectF(%1, %2, %3, %4)(%5 x %6)")
+        .arg(rect.x()).arg(rect.y())
+        .arg(rect.x() + rect.width()).arg(rect.y() + rect.height())
+        .arg(rect.width()).arg(rect.height());
+}
+
 
 // InfoAreaWidget implementation
 InfoAreaWidget::InfoAreaWidget(QTextEdit *editor) : QWidget(editor), textEditor(editor)
@@ -87,6 +107,12 @@ void InfoAreaWidget::paintEvent(QPaintEvent *event)
         block = block.next();
         QRectF blockRect1 = layout->blockBoundingRect(block);
         qreal oneBlockHeight = blockRect1.top() - blockRect0.top();
+        QTextStream(stdout) << "paneltree: InfoAreaWidget::paintEvent " << logCount 
+            << ", oneBlockHeight: " << oneBlockHeight
+            << ", blockRect0: " << rectfToString(blockRect0)
+            << ", blockRect1: " << rectfToString(blockRect1)
+            << ", oneBlockHeight: " << oneBlockHeight
+            << Qt::endl;
         int invisibleHeightUpper = -1 * (verticalOffset + topAdjustment);
         qint32 ignoredUpperBlockCount = invisibleHeightUpper / oneBlockHeight;
         blockNumber = ignoredUpperBlockCount;
@@ -204,7 +230,7 @@ OutputDisplayWidget::OutputDisplayWidget(int64_t workspaceId, QtBridge& bridge, 
     )";
 
     // Container widget and layout
-    QWidget *containerWidget = new QWidget(this);
+    containerWidget = new QWidget(this);
     containerWidget->setObjectName("outputContainer");
     containerWidget->setStyleSheet(containerStyleSheet);
     layout->addWidget(containerWidget);
@@ -215,7 +241,7 @@ OutputDisplayWidget::OutputDisplayWidget(int64_t workspaceId, QtBridge& bridge, 
     containerLayout->setSpacing(0);
 
     // 创建文本区域和行号区域部分
-    QWidget *contentWidget = new QWidget(containerWidget);
+    contentWidget = new QWidget(containerWidget);
     QHBoxLayout *contentLayout = new QHBoxLayout(contentWidget);
     contentLayout->setContentsMargins(0, 0, 0, 0);
     contentLayout->setSpacing(0);
@@ -264,14 +290,19 @@ OutputDisplayWidget::OutputDisplayWidget(int64_t workspaceId, QtBridge& bridge, 
         // 更新自定义滚动条范围
         updateScrollBarRanges();
     });
-    
-    // 估算可见行数
-    QFontMetrics fm(textEditLines->font());
-    visibleLines = textEditLines->height() / fm.lineSpacing() + 5;
+
+    textEditLines->clear();
+    QTextCursor cursor(textEditLines->document());
+    cursor.insertBlock();
+    QRectF blockRect = textEditLines->document()->documentLayout()->blockBoundingRect(cursor.block());
+    m_oneLineHeight = blockRect.height();
+    textEditLines->clear();
+
+    visibleLines = textEditLines->height() / m_oneLineHeight;
     QTextStream(stdout) << "paneltree: OutputDisplayWidget::OutputDisplayWidget "
                         << "visibleLines: " << visibleLines
                         << ", textEditLines->height(): " << textEditLines->height()
-                        << ", fm.lineSpacing(): " << fm.lineSpacing()
+                        << ", m_oneLineHeight: " << m_oneLineHeight
                         << Qt::endl;
 }
 
@@ -311,7 +342,7 @@ void OutputDisplayWidget::setupTextEdit()
     textEditLines->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     textEditLines->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     
-    textEditLines->document()->setDocumentMargin(5);
+    //textEditLines->document()->setDocumentMargin(5);
     textEditLines->viewport()->setContentsMargins(0, 0, 0, 0);
     
     // 使用CSS样式强制隐藏滚动条
@@ -376,9 +407,28 @@ void OutputDisplayWidget::contextMenuEvent(QContextMenuEvent *event)
 void OutputDisplayWidget::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
-    // Update visible lines on resize
-    QFontMetrics fm(textEditLines->font());
-    visibleLines = textEditLines->height() / fm.lineSpacing() + 5;
+    visibleLines = textEditLines->height() / m_oneLineHeight;
+
+    QRect a;
+    //print geometry info of containerWidget, contentWidget, customVerticalScrollBar,customHorizontalScrollBar
+    QTextStream(stdout) << "paneltree: OutputDisplayWidget::resizeEvent "
+                        << "containerWidget: " << rectToString(containerWidget->geometry())
+                        << ", contentWidget: " << rectToString(contentWidget->geometry())
+                        << ", customVerticalScrollBar: " << rectToString(customVerticalScrollBar->geometry())
+                        << ", customHorizontalScrollBar: " << rectToString(customHorizontalScrollBar->geometry())
+                        << Qt::endl;
+    //print geometry info of textEditLines, infoArea
+    QTextStream(stdout) << "paneltree: OutputDisplayWidget::resizeEvent "
+                        << "textEditLines: " << rectToString(textEditLines->geometry())
+                        << ", infoArea: " << rectToString(infoArea->geometry())
+                        << Qt::endl;
+
+    // textEditLines, infoArea, 
+    QTextStream(stdout) << "paneltree: OutputDisplayWidget::resizeEvent "
+                        << "visibleLines: " << visibleLines
+                        << ", textEditLines->height(): " << textEditLines->height()
+                        << ", m_oneLineHeight: " << m_oneLineHeight
+                        << Qt::endl;
     updateDisplay(textEditLines->verticalScrollBar()->value(), visibleLines);
 }
 
@@ -480,8 +530,16 @@ void OutputDisplayWidget::updateDisplay(int startLine, int lineCount)
         }
         cursor.insertBlock();
     }
-
     cursor.endEditBlock();
+    //print rect of first block and last block
+    QTextBlock firstBlock = doc->firstBlock();
+    QTextBlock lastBlock = doc->lastBlock();
+    QTextStream(stdout) << "paneltree: OutputDisplayWidget::updateDisplay "
+                        << "firstBlock: " << firstBlock.text()
+                        << ", lastBlock: " << lastBlock.text()
+                        << ", firstBlockRect: " << rectfToString(doc->documentLayout()->blockBoundingRect(firstBlock))
+                        << ", lastBlockRect: " << rectfToString(doc->documentLayout()->blockBoundingRect(lastBlock))
+                        << Qt::endl;
 
     // 使自定义滚动条与内容同步
     customVerticalScrollBar->setValue(startLine);

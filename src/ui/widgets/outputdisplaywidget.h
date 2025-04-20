@@ -66,11 +66,16 @@ private:
     int getLineStartPosition(int lineIndex) const;
 
     QLabel *headerLabel;
+
+    QWidget *containerWidget;
+    QScrollBar *customVerticalScrollBar;   // 自定义垂直滚动条
+    QScrollBar *customHorizontalScrollBar; // 自定义水平滚动条
+    
+    QWidget *contentWidget;
+    qreal m_oneLineHeight;
     QWidget *innerWidget;
     InfoAreaWidget *infoArea;
     QTextEdit *textEditLines;
-    QScrollBar *customVerticalScrollBar;   // 自定义垂直滚动条
-    QScrollBar *customHorizontalScrollBar; // 自定义水平滚动条
     QtBridge& bridge;
     int64_t workspaceId;
     QList<QOutputLine> outputLines; // Store all lines
