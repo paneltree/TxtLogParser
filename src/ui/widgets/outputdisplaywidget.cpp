@@ -236,6 +236,9 @@ OutputDisplayWidget::OutputDisplayWidget(int64_t workspaceId, QtBridge& bridge, 
     // 初始化文本编辑器
     setupTextEdit();
     
+    // 安装事件过滤器来拦截可能导致滚动条显示的事件
+    textEditLines->installEventFilter(this);
+    
     // 添加控件到内容布局
     contentLayout->addWidget(infoArea);
     contentLayout->addWidget(textEditLines);
@@ -303,11 +306,19 @@ void OutputDisplayWidget::setupTextEdit()
     }
     textEditLines->setMinimumHeight(200);
     textEditLines->setFrameShape(QFrame::NoFrame);
-    textEditLines->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    textEditLines->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    
+    // 确保滚动条策略一致为AlwaysOff
+    textEditLines->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    textEditLines->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    
     textEditLines->document()->setDocumentMargin(5);
     textEditLines->viewport()->setContentsMargins(0, 0, 0, 0);
-    textEditLines->setStyleSheet("QTextEdit { line-height: 100%; }");
+    
+    // 使用CSS样式强制隐藏滚动条
+    textEditLines->setStyleSheet("QTextEdit { line-height: 100%; }"
+                              "QTextEdit::-webkit-scrollbar { width: 0px; height: 0px; }"
+                              "QTextEdit QScrollBar { width: 0px; height: 0px; background: transparent; }");
+    
     textEditLines->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
 }
 
@@ -682,4 +693,22 @@ void OutputDisplayWidget::updateScrollBarRanges()
                         << ", outputLines.size(): " << outputLines.size()
                         << ", visibleLines: " << visibleLines
                         << Qt::endl;
+}
+
+bool OutputDisplayWidget::eventFilter(QObject *watched, QEvent *event)
+{
+    // 监听textEditLines的事件
+    if (watched == textEditLines) {
+        // 拦截可能导致滚动条显示的事件
+        if (event->type() == QEvent::Wheel ||
+            event->type() == QEvent::ScrollPrepare ||
+            event->type() == QEvent::Scroll) {
+            
+            // 已有自定义滚动条处理滚动事件，无需让QTextEdit处理
+            return true; // 阻止事件被textEditLines处理
+        }
+    }
+    
+    // 允许其他事件正常处理
+    return QWidget::eventFilter(watched, event);
 }
