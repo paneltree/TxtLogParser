@@ -13,6 +13,7 @@
 #include <QPalette>
 #include <QEvent>
 #include <QtCore/qdebug.h>
+#include <QtCore/qlocale.h>
 #include <QtCore/qpoint.h>
 #include <cstdio>
 #include "bridge/QtBridge.h"
@@ -107,12 +108,14 @@ void InfoAreaWidget::paintEvent(QPaintEvent *event)
         block = block.next();
         QRectF blockRect1 = layout->blockBoundingRect(block);
         qreal oneBlockHeight = blockRect1.top() - blockRect0.top();
+#if 0
         QTextStream(stdout) << "paneltree: InfoAreaWidget::paintEvent " << logCount 
             << ", oneBlockHeight: " << oneBlockHeight
             << ", blockRect0: " << rectfToString(blockRect0)
             << ", blockRect1: " << rectfToString(blockRect1)
             << ", oneBlockHeight: " << oneBlockHeight
             << Qt::endl;
+#endif
         int invisibleHeightUpper = -1 * (verticalOffset + topAdjustment);
         qint32 ignoredUpperBlockCount = invisibleHeightUpper / oneBlockHeight;
         blockNumber = ignoredUpperBlockCount;
@@ -344,6 +347,7 @@ void OutputDisplayWidget::setupTextEdit()
     
     //textEditLines->document()->setDocumentMargin(5);
     textEditLines->viewport()->setContentsMargins(0, 0, 0, 0);
+    textEditLines->viewport()->installEventFilter(this);
     
     // 使用CSS样式强制隐藏滚动条
     textEditLines->setStyleSheet("QTextEdit { line-height: 100%; }"
@@ -750,13 +754,14 @@ void OutputDisplayWidget::updateScrollBarRanges()
                         << ", horizontal range: 0-" << textHorizontalScrollBar->maximum()
                         << ", outputLines.size(): " << outputLines.size()
                         << ", visibleLines: " << visibleLines
+                        << ", value: " << customVerticalScrollBar->value()
                         << Qt::endl;
 }
 
 bool OutputDisplayWidget::eventFilter(QObject *watched, QEvent *event)
 {
     // 监听textEditLines的事件
-    if (watched == textEditLines) {
+    if (watched == textEditLines|| watched == textEditLines->viewport()) {
         // 处理滚轮事件，转发给自定义滚动条
         if (event->type() == QEvent::Wheel) {
             QWheelEvent *wheelEvent = static_cast<QWheelEvent*>(event);
@@ -774,8 +779,9 @@ bool OutputDisplayWidget::eventFilter(QObject *watched, QEvent *event)
             return true; // 阻止事件被textEditLines处理
         }
         // 拦截可能导致滚动条显示的其他事件
-        else if (event->type() == QEvent::ScrollPrepare ||
-                 event->type() == QEvent::Scroll) {
+        else if (event->type() == QEvent::ScrollPrepare 
+                 || event->type() == QEvent::Scroll
+                ){
             return true; // 阻止事件被textEditLines处理
         }
     }
