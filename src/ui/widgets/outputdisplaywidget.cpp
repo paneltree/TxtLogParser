@@ -66,6 +66,12 @@ void InfoAreaWidget::paintEvent(QPaintEvent *event)
     // Use exactly the same background color as the text edit
     QColor bgColor = QApplication::palette().color(QPalette::Base);
     painter.fillRect(event->rect(), bgColor);
+    if(m_startLine >= m_endLine || m_startLine < 0 || m_endLine < 0){
+        return;
+    }
+    if(m_startLine >= lineInfos.size() || m_endLine > lineInfos.size()){
+        return;
+    }    
 
     // Get the viewport offset from the text editor's scrollbar
     int verticalOffset = -textEditor->verticalScrollBar()->value();
@@ -74,18 +80,7 @@ void InfoAreaWidget::paintEvent(QPaintEvent *event)
     QFont monoFont("Courier New", 10);
     painter.setFont(monoFont);
 
-
-
     //write to stdout a log
-    static int logCount = 0;
-    logCount++;
-#if 0
-    QTextStream(stdout) << "paneltree: InfoAreaWidget::paintEvent " << logCount 
-                        << ", verticalOffset: " << verticalOffset
-                        << ", blockCount: " << textEditor->document()->blockCount()
-                        << ",lineInfos.size(): " << lineInfos.size()
-                        << Qt::endl;
-#endif
     // Use a slightly muted color for line numbers for subtle contrast
     painter.setPen(QApplication::palette().color(QPalette::Text).darker(120));
     
@@ -93,90 +88,39 @@ void InfoAreaWidget::paintEvent(QPaintEvent *event)
     int documentMargin = 5; // Same as textEditLines->document()->documentMargin()
     
     // Adjust the drawing area to account for scrollbar height (16px)
-    int scrollbarHeight = 16;
-    int effectiveHeight = height() - (textEditor->horizontalScrollBar()->isVisible() ? scrollbarHeight : 0);
 
     // Get QTextEdit document layout
     QAbstractTextDocumentLayout* layout = textEditor->document()->documentLayout();
-    int topAdjustment = -1; // Fine-tuning vertical alignment
+    int topAdjustment = -2; // Fine-tuning vertical alignment
     
-    int blockNumber = 0;
-    QTextBlock block = textEditor->document()->findBlockByNumber(blockNumber);
-
-    if( textEditor->document()->blockCount() > 2){
-        QRectF blockRect0 = layout->blockBoundingRect(block);
-        block = block.next();
-        QRectF blockRect1 = layout->blockBoundingRect(block);
-        qreal oneBlockHeight = blockRect1.top() - blockRect0.top();
-#if 0
-        QTextStream(stdout) << "paneltree: InfoAreaWidget::paintEvent " << logCount 
-            << ", oneBlockHeight: " << oneBlockHeight
-            << ", blockRect0: " << rectfToString(blockRect0)
-            << ", blockRect1: " << rectfToString(blockRect1)
-            << ", oneBlockHeight: " << oneBlockHeight
-            << Qt::endl;
-#endif
-        int invisibleHeightUpper = -1 * (verticalOffset + topAdjustment);
-        qint32 ignoredUpperBlockCount = invisibleHeightUpper / oneBlockHeight;
-        blockNumber = ignoredUpperBlockCount;
-        block = textEditor->document()->findBlockByNumber(blockNumber);
-    }
-    if(!block.isValid()){
-        blockNumber = 0;
-        block = textEditor->document()->findBlockByNumber(blockNumber);
-    }
-    //QTextStream(stdout) << "paneltree: InfoAreaWidget::paintEvent " << logCount 
-    //    << ", begin from blockNumber: " << blockNumber
-    //    << ", blockCount: " << textEditor->document()->blockCount()
-    //    << ", lineInfos.size(): " << lineInfos.size()
-    //    << ", block.isValid(): " << block.isValid()
-    //    << ", width(): " << width() << ", height(): " << height()
-    //    << Qt::endl;
-    // Draw line info text for visible blocks
-    while (block.isValid() && blockNumber < lineInfos.size()) {
-        // Calculate the position of the text based on the text editor's layout
+    QTextBlock block = textEditor->document()->findBlockByNumber(0);
+    int currentLine = m_startLine;
+    while (block.isValid() && currentLine < m_endLine) {
         QRectF blockRect = layout->blockBoundingRect(block);
-        int top = (int)blockRect.top() + verticalOffset + topAdjustment;
+        int top = (int)blockRect.top() +  topAdjustment;
         int height = (int)blockRect.height();
 
-        // Only draw if the block is visible in the viewport (accounting for scrollbar)
-
-        if (top + height >= 0 ){
-            if(top <= effectiveHeight && blockNumber < lineInfos.size()) {
-                // Draw text precisely aligned with textEditLines
-                QRectF drawRect(documentMargin, top, width() - documentMargin * 2, height);
-                painter.drawText(drawRect, Qt::AlignRight | Qt::AlignVCenter, lineInfos.at(blockNumber));
-            }else{
-                //QTextStream(stdout) << "paneltree: InfoAreaWidget::paintEvent " << logCount 
-                //    << ", ignored from blockNumber: " << blockNumber
-                //    << Qt::endl;
-                break;
-            }
-        }
-
+        QRectF drawRect(documentMargin, top, width() - documentMargin * 2, height);
+        painter.drawText(drawRect, Qt::AlignRight | Qt::AlignVCenter, lineInfos.at(currentLine));
         block = block.next();
-        ++blockNumber;
+        ++currentLine;
     }
 
     // Draw a subtle separator line
+    int scrollbarHeight = 16;
+    int effectiveHeight = height() - (textEditor->horizontalScrollBar()->isVisible() ? scrollbarHeight : 0);
     painter.setPen(QPen(QApplication::palette().color(QPalette::Mid), 1));
     painter.drawLine(width() - 1, 0, width() - 1, effectiveHeight);
-
-    // Draw a fake scrollbar area at the bottom if horizontal scrollbar is visible
-    if (textEditor->horizontalScrollBar()->isVisible()) {
-        QColor scrollAreaColor = QApplication::palette().color(QPalette::Base);
-        painter.fillRect(0, effectiveHeight, width(), scrollbarHeight, scrollAreaColor);
-        
-        // Draw separator line for the scrollbar area
-        painter.setPen(QPen(QApplication::palette().color(QPalette::Mid), 1));
-        painter.drawLine(0, effectiveHeight, width(), effectiveHeight);
-    }
 }
 
-void InfoAreaWidget::setLineInfos(const QStringList &newLineInfos)
+void InfoAreaWidget::setLineInfos(const QVector<QString> &newLineInfos)
 {
     lineInfos = newLineInfos;
-    update(); // Repaint the widget
+}
+void InfoAreaWidget::setLineRange(int startLine, int endLine)
+{
+    m_startLine = startLine;
+    m_endLine = endLine;
 }
 
 bool InfoAreaWidget::event(QEvent *event)
@@ -288,12 +232,14 @@ OutputDisplayWidget::OutputDisplayWidget(int64_t workspaceId, QtBridge& bridge, 
         textEditLines->horizontalScrollBar()->setValue(value);
     });
     
+#if 0
     connect(textEditLines->document(), &QTextDocument::contentsChange, [this]() {
-        updateInfoArea();
-        // 更新自定义滚动条范围
+        if(infoArea) {
+            infoArea->update();
+        }
         updateScrollBarRanges();
     });
-
+#endif
     textEditLines->clear();
     QTextCursor cursor(textEditLines->document());
     cursor.insertBlock();
@@ -357,20 +303,14 @@ void OutputDisplayWidget::setupTextEdit()
     textEditLines->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
 }
 
-void OutputDisplayWidget::updateInfoArea()
-{
-    if (infoArea) {
-        infoArea->update();
-    }
-}
-
 void OutputDisplayWidget::clearDisplay()
 {
     textEditLines->clear();
     outputLines.clear();
     currentLineInfos.clear();
     infoArea->setLineInfos(currentLineInfos);
-    updateInfoArea();
+    infoArea->setLineRange(0, 0);
+    infoArea->update();
 }
 
 void OutputDisplayWidget::contextMenuEvent(QContextMenuEvent *event)
@@ -466,6 +406,7 @@ void OutputDisplayWidget::doUpdate()
 
     outputLines = bridge.getOutputStringList(workspaceId);
     outputLines.reserve(1000000); // Pre-allocate for large datasets
+    currentLineInfos.reserve(outputLines.size());
 
     int outputLineIndex = 0;
     for (const auto& qOutputLine : outputLines) {
@@ -523,6 +464,8 @@ void OutputDisplayWidget::updateDisplay(int startLine, int lineCount)
     QTextCursor cursor(doc);
     cursor.beginEditBlock();
 
+    m_textEditLinesStartLine = startLine;
+    m_textEditLinesEndLine = endLine;
     QColor defaultTextColor = QApplication::palette().color(QPalette::Text);
     for (int i = startLine; i < endLine; ++i) {
         const auto& qOutputLine = outputLines[i];
@@ -555,6 +498,7 @@ void OutputDisplayWidget::updateDisplay(int startLine, int lineCount)
 
     // 应用高亮并更新信息区域
     applyHighlighting();
+    infoArea->setLineRange(m_textEditLinesStartLine, m_textEditLinesEndLine);
     infoArea->update();
     
     // 更新水平滚动条范围和位置

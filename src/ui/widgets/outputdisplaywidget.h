@@ -24,10 +24,12 @@ public:
     bool event(QEvent *event) override;
     
     void setLineInfos(const QStringList &lineInfos);
-
+    void setLineRange(int startLine, int endLine);
 private:
-    QTextEdit *textEditor;
+    QTextEdit *textEditor = nullptr;
     QStringList lineInfos;
+    int m_startLine = 0;
+    int m_endLine = 0;
 };
 
 class OutputDisplayWidget : public QWidget {
@@ -58,24 +60,25 @@ private slots:
 
 private:
     void setupTextEdit();
-    void updateInfoArea();
     void updateDisplay(int startLine, int lineCount);
     void updateScrollBarRanges(); // 更新自定义滚动条范围
     void applyHighlighting();
     QString formatLinePrefix(int outputLineIndex, int fileIndex, int lineIndex) const;
     int getLineStartPosition(int lineIndex) const;
 
-    QLabel *headerLabel;
-
-    QWidget *containerWidget;
-    QScrollBar *customVerticalScrollBar;   // 自定义垂直滚动条
-    QScrollBar *customHorizontalScrollBar; // 自定义水平滚动条
+    QLabel *headerLabel = nullptr;
+    QWidget *containerWidget = nullptr; // 容器小部件
+    QScrollBar *customVerticalScrollBar = nullptr;   // 自定义垂直滚动条
+    QScrollBar *customHorizontalScrollBar = nullptr; // 自定义水平滚动条
     
-    QWidget *contentWidget;
-    qreal m_oneLineHeight;
-    QWidget *innerWidget;
-    InfoAreaWidget *infoArea;
-    QTextEdit *textEditLines;
+    QWidget *contentWidget = nullptr;
+    qreal m_oneLineHeight = 0.0;;
+    QWidget *innerWidget = nullptr;
+    InfoAreaWidget *infoArea = nullptr;
+    QTextEdit *textEditLines = nullptr;
+    int m_textEditLinesStartLine = 0;
+    int m_textEditLinesEndLine = 0;
+
     QtBridge& bridge;
     int64_t workspaceId;
     QList<QOutputLine> outputLines; // Store all lines
