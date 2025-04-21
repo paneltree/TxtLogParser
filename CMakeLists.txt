@@ -280,3 +280,26 @@ if(WIN32)
         )
     endif()
 endif()
+
+
+if(WIN32)
+    get_target_property(_qmake_executable Qt6::qmake IMPORTED_LOCATION)
+    get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
+    find_program(WINDEPLOYQT_EXECUTABLE windeployqt HINTS "${_qt_bin_dir}")
+
+    if(WINDEPLOYQT_EXECUTABLE)
+        # Create a clean deploy directory
+        
+        add_custom_target(deploy_local
+            COMMAND ${WINDEPLOYQT_EXECUTABLE}
+                "$<TARGET_FILE:TxtLogParser>"
+                --no-translations
+                --no-system-d3d-compiler
+                --no-compiler-runtime
+                --no-quick-import
+                --verbose 0
+            DEPENDS TxtLogParser
+            COMMENT "Deploying Qt application to $<TARGET_FILE:TxtLogParser>..."
+        )
+    endif()
+endif()

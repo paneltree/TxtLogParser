@@ -61,6 +61,8 @@ Welcome to **TxtLogParser**, an innovative log parsing tool designed to simplify
    "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
    cmake .. -G "Visual Studio 17 2022" -DQT_DIR=C:\Qt\6.8.2
    cmake --build . --config Release
+   cmake --build . --config Release --target deploy_local
+   Release\TxtLogParser.exe
    ```
 * For NMake:
    ```cmd
