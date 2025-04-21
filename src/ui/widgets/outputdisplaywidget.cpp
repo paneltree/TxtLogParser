@@ -248,11 +248,13 @@ OutputDisplayWidget::OutputDisplayWidget(int64_t workspaceId, QtBridge& bridge, 
     textEditLines->clear();
 
     visibleLines = textEditLines->height() / m_oneLineHeight;
+#if 0
     QTextStream(stdout) << "paneltree: OutputDisplayWidget::OutputDisplayWidget "
                         << "visibleLines: " << visibleLines
                         << ", textEditLines->height(): " << textEditLines->height()
                         << ", m_oneLineHeight: " << m_oneLineHeight
                         << Qt::endl;
+#endif
 }
 
 OutputDisplayWidget::~OutputDisplayWidget()
@@ -353,7 +355,7 @@ void OutputDisplayWidget::resizeEvent(QResizeEvent *event)
     QWidget::resizeEvent(event);
     visibleLines = textEditLines->height() / m_oneLineHeight;
 
-    QRect a;
+#if 0
     //print geometry info of containerWidget, contentWidget, customVerticalScrollBar,customHorizontalScrollBar
     QTextStream(stdout) << "paneltree: OutputDisplayWidget::resizeEvent "
                         << "containerWidget: " << rectToString(containerWidget->geometry())
@@ -367,9 +369,11 @@ void OutputDisplayWidget::resizeEvent(QResizeEvent *event)
                         << ", infoArea: " << rectToString(infoArea->geometry())
                         << Qt::endl;
 
+#endif
     // textEditLines, infoArea, 
     QTextStream(stdout) << "paneltree: OutputDisplayWidget::resizeEvent "
-                        << "visibleLines: " << visibleLines
+                        << ", workspaceId: " << workspaceId
+                        << ", visibleLines: " << visibleLines
                         << ", textEditLines->height(): " << textEditLines->height()
                         << ", m_oneLineHeight: " << m_oneLineHeight
                         << Qt::endl;
@@ -442,14 +446,22 @@ void OutputDisplayWidget::updateDisplay(int startLine, int lineCount)
     }
 
     isUpdatingDisplay = true; // 设置标志，表示正在进行更新
-
+    
+    // 动态计算当前可见行数，确保使用最新的高度值
+    int currentHeight = textEditLines->height();
+    if (currentHeight > 0 && m_oneLineHeight > 0) {
+        visibleLines = currentHeight / m_oneLineHeight;
+        lineCount = visibleLines; // 使用最新计算的可见行数
+    }
+    
+#if 0
     QTextStream(stdout) << "paneltree: OutputDisplayWidget::updateDisplay "
                         << "startLine: " << startLine
                         << ", lineCount: " << lineCount
                         << ", visibleLines: " << visibleLines
                         << ", outputLines.size(): " << outputLines.size()
                         << Qt::endl;
-
+#endif
     // 禁用更新和信号
     customVerticalScrollBar->blockSignals(true);
     customHorizontalScrollBar->blockSignals(true);
@@ -481,13 +493,14 @@ void OutputDisplayWidget::updateDisplay(int startLine, int lineCount)
     //print rect of first block and last block
     QTextBlock firstBlock = doc->firstBlock();
     QTextBlock lastBlock = doc->lastBlock();
+#if 0
     QTextStream(stdout) << "paneltree: OutputDisplayWidget::updateDisplay "
                         << "firstBlock: " << firstBlock.text()
                         << ", lastBlock: " << lastBlock.text()
                         << ", firstBlockRect: " << rectfToString(doc->documentLayout()->blockBoundingRect(firstBlock))
                         << ", lastBlockRect: " << rectfToString(doc->documentLayout()->blockBoundingRect(lastBlock))
                         << Qt::endl;
-
+#endif
     // 使自定义滚动条与内容同步
     customVerticalScrollBar->setValue(startLine);
     
@@ -679,20 +692,17 @@ void OutputDisplayWidget::onNavigateToPreviousSearchMatch(int searchId)
 
 void OutputDisplayWidget::updateScrollBarRanges()
 {
-    // 更新垂直滚动条范围
     int maxValue = std::max(0, static_cast<int>(outputLines.size() - visibleLines));
     customVerticalScrollBar->setRange(0, maxValue);
     customVerticalScrollBar->setPageStep(visibleLines);
     customVerticalScrollBar->setSingleStep(1);
     
-    // 更新水平滚动条范围以匹配文本编辑器的水平滚动条
     QScrollBar* textHorizontalScrollBar = textEditLines->horizontalScrollBar();
     customHorizontalScrollBar->setRange(0, textHorizontalScrollBar->maximum());
     customHorizontalScrollBar->setPageStep(textHorizontalScrollBar->pageStep());
     customHorizontalScrollBar->setSingleStep(textHorizontalScrollBar->singleStep());
     customHorizontalScrollBar->setValue(textHorizontalScrollBar->value());
-    
-    // 显示调试信息
+#if 0
     QTextStream(stdout) << "paneltree: OutputDisplayWidget::updateScrollBarRanges "
                         << "vertical range: 0-" << maxValue
                         << ", horizontal range: 0-" << textHorizontalScrollBar->maximum()
@@ -700,6 +710,7 @@ void OutputDisplayWidget::updateScrollBarRanges()
                         << ", visibleLines: " << visibleLines
                         << ", value: " << customVerticalScrollBar->value()
                         << Qt::endl;
+#endif
 }
 
 bool OutputDisplayWidget::eventFilter(QObject *watched, QEvent *event)
