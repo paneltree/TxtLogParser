@@ -91,7 +91,7 @@ Welcome to **TxtLogParser**, an innovative log parsing tool designed to simplify
 ### Workspace settings ()
 
 * macOS: ~/Library/Application Support/TxtLogParser/workspaces.json
-* Windows: %USERPROFILE%\AppData\Rom..\TxtLogParser\workspaces.json
+* Windows: %USERPROFILE%\AppData\Roaming\TxtLogParser\workspaces.json
 * Linux: ~/.config/TxtLogParser/workspaces.json
 
 ### Logs
