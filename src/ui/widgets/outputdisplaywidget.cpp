@@ -566,6 +566,7 @@ void OutputDisplayWidget::onNavigateToNextFilterMatch(int filterId)
 {
     QTextCursor cursor = textEditLines->textCursor();
     int lineIndex = cursor.blockNumber();
+    lineIndex += m_textEditLinesStartLine;
     int charIndex = cursor.positionInBlock();
     bridge.logInfo(QString("OutputDisplayWidget::onNavigateToNextMatch: "
                            "filterId: %1 lineIndex: %2 charIndex: %3 ")
@@ -580,16 +581,43 @@ void OutputDisplayWidget::onNavigateToNextFilterMatch(int filterId)
                            "ret: %1 matchLineIndex: %2 matchCharStartIndex: %3 matchCharEndIndex: %4")
                            .arg(ret).arg(matchLineIndex).arg(matchCharStartIndex).arg(matchCharEndIndex));
     if (ret) {
-        int lineStartPosition = getLineStartPosition(matchLineIndex);
+        if(matchLineIndex < 0 || matchLineIndex >= outputLines.size()){
+            return;
+        }
+        if(matchLineIndex >= m_textEditLinesEndLine){
+            int newStartLine = matchLineIndex - visibleLines + 1;
+            if(newStartLine < 0){
+                newStartLine = 0;
+            }
+            customVerticalScrollBar->setValue(newStartLine);
+            //updateDisplay(newStartLine, visibleLines);
+        }
+        else if(matchLineIndex < m_textEditLinesStartLine){
+            int newStartLine = matchLineIndex;
+            if(newStartLine < 0){
+                newStartLine = 0;
+            }
+            customVerticalScrollBar->setValue(newStartLine);
+            //updateDisplay(newStartLine, visibleLines);
+        }
+        if(matchLineIndex < m_textEditLinesStartLine || matchLineIndex >= m_textEditLinesEndLine){
+            bridge.logError(QString("OutputDisplayWidget::onNavigateToNextMatch: "
+                           "matchLineIndex: %1 is out of range [%2, %3)")
+                           .arg(matchLineIndex).arg(m_textEditLinesStartLine).arg(m_textEditLinesEndLine));
+            return;
+        }
+        int relativeLineIndex = matchLineIndex - m_textEditLinesStartLine;
+        
+        
+        int lineStartPosition = getLineStartPosition(relativeLineIndex);
         if (lineStartPosition != -1) {
+            
+            // 使用自定义滚动条而不是内置滚动条
+
             QTextCursor cursor = textEditLines->textCursor();
             cursor.setPosition(lineStartPosition + matchCharStartIndex);
             cursor.setPosition(lineStartPosition + matchCharEndIndex, QTextCursor::KeepAnchor);
             textEditLines->setTextCursor(cursor);
-            
-            // 使用自定义滚动条而不是内置滚动条
-            customVerticalScrollBar->setValue(matchLineIndex);
-            updateDisplay(matchLineIndex, visibleLines);
         }
     }
 }
@@ -598,6 +626,7 @@ void OutputDisplayWidget::onNavigateToPreviousFilterMatch(int filterId)
 {
     QTextCursor cursor = textEditLines->textCursor();
     int lineIndex = cursor.blockNumber();
+    lineIndex += m_textEditLinesStartLine;
     int charIndex = cursor.positionInBlock();
     bridge.logInfo(QString("OutputDisplayWidget::onNavigateToPreviousMatch: "
                            "filterId: %1 lineIndex: %2 charIndex: %3 ")
@@ -612,16 +641,41 @@ void OutputDisplayWidget::onNavigateToPreviousFilterMatch(int filterId)
                            "ret: %1 matchLineIndex: %2 matchCharStartIndex: %3 matchCharEndIndex: %4")
                            .arg(ret).arg(matchLineIndex).arg(matchCharStartIndex).arg(matchCharEndIndex));
     if (ret) {
-        int lineStartPosition = getLineStartPosition(matchLineIndex);
+        if(matchLineIndex < 0 || matchLineIndex >= outputLines.size()){
+            return;
+        }
+        
+        if(matchLineIndex >= m_textEditLinesEndLine){
+            int newStartLine = matchLineIndex - visibleLines + 1;
+            if(newStartLine < 0){
+                newStartLine = 0;
+            }
+            customVerticalScrollBar->setValue(newStartLine);
+            //updateDisplay(newStartLine, visibleLines);
+        }
+        else if(matchLineIndex < m_textEditLinesStartLine){
+            int newStartLine = matchLineIndex;
+            if(newStartLine < 0){
+                newStartLine = 0;
+            }
+            customVerticalScrollBar->setValue(newStartLine);
+            //updateDisplay(newStartLine, visibleLines);
+        }
+        if(matchLineIndex < m_textEditLinesStartLine || matchLineIndex >= m_textEditLinesEndLine){
+            bridge.logError(QString("OutputDisplayWidget::onNavigateToNextMatch: "
+                           "matchLineIndex: %1 is out of range [%2, %3)")
+                           .arg(matchLineIndex).arg(m_textEditLinesStartLine).arg(m_textEditLinesEndLine));
+            return;
+        }
+        int relativeLineIndex = matchLineIndex - m_textEditLinesStartLine;
+        
+        
+        int lineStartPosition = getLineStartPosition(relativeLineIndex);
         if (lineStartPosition != -1) {
             QTextCursor cursor = textEditLines->textCursor();
             cursor.setPosition(lineStartPosition + matchCharEndIndex);
             cursor.setPosition(lineStartPosition + matchCharStartIndex, QTextCursor::KeepAnchor);
             textEditLines->setTextCursor(cursor);
-            
-            // 使用自定义滚动条代替内置滚动条
-            customVerticalScrollBar->setValue(matchLineIndex);
-            updateDisplay(matchLineIndex, visibleLines);
         }
     }
 }
@@ -630,6 +684,7 @@ void OutputDisplayWidget::onNavigateToNextSearchMatch(int searchId)
 {
     QTextCursor cursor = textEditLines->textCursor();
     int lineIndex = cursor.blockNumber();
+    lineIndex += m_textEditLinesStartLine;
     int charIndex = cursor.positionInBlock();
     bridge.logInfo(QString("OutputDisplayWidget::onNavigateToNextSearchMatch: "
                            "searchId: %1 lineIndex: %2 charIndex: %3 ")
@@ -644,16 +699,40 @@ void OutputDisplayWidget::onNavigateToNextSearchMatch(int searchId)
                            "ret: %1 matchLineIndex: %2 matchCharStartIndex: %3 matchCharEndIndex: %4")
                            .arg(ret).arg(matchLineIndex).arg(matchCharStartIndex).arg(matchCharEndIndex));
     if (ret) {
-        int lineStartPosition = getLineStartPosition(matchLineIndex);
+        if(matchLineIndex < 0 || matchLineIndex >= outputLines.size()){
+            return;
+        }
+        if(matchLineIndex >= m_textEditLinesEndLine){
+            int newStartLine = matchLineIndex - visibleLines + 1;
+            if(newStartLine < 0){
+                newStartLine = 0;
+            }
+            customVerticalScrollBar->setValue(newStartLine);
+            //updateDisplay(newStartLine, visibleLines);
+        }
+        else if(matchLineIndex < m_textEditLinesStartLine){
+            int newStartLine = matchLineIndex;
+            if(newStartLine < 0){
+                newStartLine = 0;
+            }
+            customVerticalScrollBar->setValue(newStartLine);
+            //updateDisplay(newStartLine, visibleLines);
+        }
+        if(matchLineIndex < m_textEditLinesStartLine || matchLineIndex >= m_textEditLinesEndLine){
+            bridge.logError(QString("OutputDisplayWidget::onNavigateToNextMatch: "
+                           "matchLineIndex: %1 is out of range [%2, %3)")
+                           .arg(matchLineIndex).arg(m_textEditLinesStartLine).arg(m_textEditLinesEndLine));
+            return;
+        }
+        int relativeLineIndex = matchLineIndex - m_textEditLinesStartLine;
+        
+        
+        int lineStartPosition = getLineStartPosition(relativeLineIndex);
         if (lineStartPosition != -1) {
             QTextCursor cursor = textEditLines->textCursor();
             cursor.setPosition(lineStartPosition + matchCharStartIndex);
             cursor.setPosition(lineStartPosition + matchCharEndIndex, QTextCursor::KeepAnchor);
             textEditLines->setTextCursor(cursor);
-            
-            // 使用自定义滚动条而不是内置滚动条
-            customVerticalScrollBar->setValue(matchLineIndex);
-            updateDisplay(matchLineIndex, visibleLines);
         }
     }
 }
@@ -662,6 +741,7 @@ void OutputDisplayWidget::onNavigateToPreviousSearchMatch(int searchId)
 {
     QTextCursor cursor = textEditLines->textCursor();
     int lineIndex = cursor.blockNumber();
+    lineIndex += m_textEditLinesStartLine;
     int charIndex = cursor.positionInBlock();
     bridge.logInfo(QString("OutputDisplayWidget::onNavigateToPreviousSearchMatch: "
                            "searchId: %1 lineIndex: %2 charIndex: %3 ")
@@ -676,16 +756,41 @@ void OutputDisplayWidget::onNavigateToPreviousSearchMatch(int searchId)
                            "ret: %1 matchLineIndex: %2 matchCharStartIndex: %3 matchCharEndIndex: %4")
                            .arg(ret).arg(matchLineIndex).arg(matchCharStartIndex).arg(matchCharEndIndex));
     if (ret) {
-        int lineStartPosition = getLineStartPosition(matchLineIndex);
+        if(matchLineIndex < 0 || matchLineIndex >= outputLines.size()){
+            return;
+        }
+        
+        if(matchLineIndex >= m_textEditLinesEndLine){
+            int newStartLine = matchLineIndex - visibleLines + 1;
+            if(newStartLine < 0){
+                newStartLine = 0;
+            }
+            customVerticalScrollBar->setValue(newStartLine);
+            //updateDisplay(newStartLine, visibleLines);
+        }
+        else if(matchLineIndex < m_textEditLinesStartLine){
+            int newStartLine = matchLineIndex;
+            if(newStartLine < 0){
+                newStartLine = 0;
+            }
+            customVerticalScrollBar->setValue(newStartLine);
+            //updateDisplay(newStartLine, visibleLines);
+        }
+        if(matchLineIndex < m_textEditLinesStartLine || matchLineIndex >= m_textEditLinesEndLine){
+            bridge.logError(QString("OutputDisplayWidget::onNavigateToNextMatch: "
+                           "matchLineIndex: %1 is out of range [%2, %3)")
+                           .arg(matchLineIndex).arg(m_textEditLinesStartLine).arg(m_textEditLinesEndLine));
+            return;
+        }
+        int relativeLineIndex = matchLineIndex - m_textEditLinesStartLine;
+        
+        
+        int lineStartPosition = getLineStartPosition(relativeLineIndex);
         if (lineStartPosition != -1) {
             QTextCursor cursor = textEditLines->textCursor();
             cursor.setPosition(lineStartPosition + matchCharEndIndex);
             cursor.setPosition(lineStartPosition + matchCharStartIndex, QTextCursor::KeepAnchor);
             textEditLines->setTextCursor(cursor);
-            
-            // 使用自定义滚动条代替内置滚动条
-            customVerticalScrollBar->setValue(matchLineIndex);
-            updateDisplay(matchLineIndex, visibleLines);
         }
     }
 }
