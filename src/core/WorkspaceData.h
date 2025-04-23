@@ -58,6 +58,7 @@ public:
     void commitFilterUpdate();
     void rollbackFilterUpdate();
     std::string getNextFilterColor();
+
     // Search management
     int32_t addSearch(const SearchData& search);
     void removeSearch(int32_t searchId);
@@ -67,7 +68,8 @@ public:
     void updateSearch(const SearchData& search);
     void beginSearchUpdate();
     void commitSearchUpdate();
-    void rollbackSearchUpdate();    
+    void rollbackSearchUpdate();
+    std::string getNextSearchColor();  
 
     // Output management
     std::vector<std::shared_ptr<OutputLine>> getOutputStringList() const;

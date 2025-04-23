@@ -349,6 +349,26 @@ void QtBridge::rollbackSearchUpdate(int64_t workspaceId) {
     workspaceManager->rollbackSearchUpdate(workspaceId);
 }
 
+QColor QtBridge::getNextSearchColor(int64_t workspaceId) {
+    std::string color = workspaceManager->getNextSearchColor(workspaceId);
+    //create QColor from string
+    if (color.empty()) {
+        return QColor();
+    }
+    // Check if the color string is in hex format
+    if (color[0] == '#') {
+        return QColor(color.c_str());
+    }
+    // If not, assume it's in RGB format
+    // Split the string by commas
+    std::string rStr = color.substr(0, color.find(','));
+    std::string gStr = color.substr(color.find(',') + 1, color.find_last_of(',') - color.find(',') - 1);
+    std::string bStr = color.substr(color.find_last_of(',') + 1);
+    // Convert to integers
+    int r = std::stoi(rStr);
+    return QColor(color.c_str());
+}
+
 ////////////////////////////////////////////////////////////
 // Workspace management
 ////////////////////////////////////////////////////////////

@@ -9,6 +9,7 @@
 #include <QVector>
 #include <QMap>
 #include <QPair>
+#include <QtGui/qcolor.h>
 #include <memory>
 #include <vector>
 #include "FilterAdapter.h"
@@ -94,6 +95,7 @@ public:
     void beginSearchUpdate(int64_t workspaceId);
     void commitSearchUpdate(int64_t workspaceId);
     void rollbackSearchUpdate(int64_t workspaceId);
+    QColor getNextSearchColor(int64_t workspaceId);
     
     
 

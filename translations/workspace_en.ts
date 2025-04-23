@@ -40,62 +40,62 @@
 <context>
     <name>FilterDialog</name>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="489"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="470"/>
         <source>Filter:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="492"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="473"/>
         <source>Enabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="494"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="475"/>
         <source>Status:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="497"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="478"/>
         <source>Case Sensitive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="498"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="479"/>
         <source>Whole Word</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="499"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="480"/>
         <source>Regular Expression</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="506"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="487"/>
         <source>Options:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="509"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="490"/>
         <source>Select Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="513"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="494"/>
         <source>Color:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="530"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="511"/>
         <source>Invalid Input</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="530"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="511"/>
         <source>Filter string cannot be empty.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="586"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="567"/>
         <source>Select Filter Color</source>
         <translation type="unfinished"></translation>
     </message>
@@ -103,62 +103,62 @@
 <context>
     <name>FilterItemWidget</name>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="604"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="585"/>
         <source>Enable/Disable Filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="619"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="600"/>
         <source>Matches: 0</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="627"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="608"/>
         <source>Previous Match</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="634"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="615"/>
         <source>Next Match</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="667"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="648"/>
         <source>Remove Filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="702"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="683"/>
         <source>Matches: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="716"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="697"/>
         <source>Match %1 of %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="718"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="699"/>
         <source>No matches found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="782"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="763"/>
         <source>Select Filter Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="827"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="808"/>
         <source>Edit Filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="836"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="817"/>
         <source>Invalid Filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="836"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="817"/>
         <source>Filter string cannot be empty.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -166,36 +166,36 @@
 <context>
     <name>FilterListWidget</name>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="42"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="23"/>
         <source>Filters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="201"/>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="226"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="182"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="207"/>
         <source>Add Filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="204"/>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="244"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="185"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="225"/>
         <source>Edit Filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="205"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="186"/>
         <source>Remove Filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="86"/>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="251"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="67"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="232"/>
         <source>Invalid Filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="86"/>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="251"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="67"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="232"/>
         <source>Filter string cannot be empty.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -285,62 +285,62 @@
 <context>
     <name>SearchDialog</name>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="515"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="471"/>
         <source>Search:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="518"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="474"/>
         <source>Enabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="520"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="476"/>
         <source>Status:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="523"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="479"/>
         <source>Case Sensitive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="524"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="480"/>
         <source>Whole Word</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="525"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="481"/>
         <source>Regular Expression</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="532"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="488"/>
         <source>Options:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="535"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="491"/>
         <source>Select Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="539"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="495"/>
         <source>Color:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="556"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="512"/>
         <source>Invalid Input</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="556"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="512"/>
         <source>Search string cannot be empty.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="612"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="568"/>
         <source>Select Search Color</source>
         <translation type="unfinished"></translation>
     </message>
@@ -348,62 +348,62 @@
 <context>
     <name>SearchItemWidget</name>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="653"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="609"/>
         <source>Previous Match</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="660"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="616"/>
         <source>Next Match</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="853"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="809"/>
         <source>Edit Search</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="693"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="649"/>
         <source>Remove Search</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="630"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="586"/>
         <source>Enable/Disable Search</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="645"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="601"/>
         <source>Matches: 0</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="728"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="684"/>
         <source>Matches: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="742"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="698"/>
         <source>Match %1 of %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="744"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="700"/>
         <source>No matches found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="808"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="764"/>
         <source>Select Search Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="862"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="818"/>
         <source>Invalid Search</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="862"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="818"/>
         <source>Search string cannot be empty.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -411,36 +411,36 @@
 <context>
     <name>SearchListWidget</name>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="42"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="24"/>
         <source>Searchs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="86"/>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="274"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="68"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="233"/>
         <source>Invalid Search</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="86"/>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="274"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="68"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="233"/>
         <source>Search string cannot be empty.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="226"/>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="249"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="183"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="208"/>
         <source>Add Search</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="229"/>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="267"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="186"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="226"/>
         <source>Edit Search</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="230"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="187"/>
         <source>Remove Search</source>
         <translation type="unfinished"></translation>
     </message>

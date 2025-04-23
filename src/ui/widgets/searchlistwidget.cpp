@@ -13,26 +13,8 @@
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 #include "../../utils/GenericGuard.h"
+#include "searchconfig.h"
 #include <QMimeData>
-// Define a list of readable, distinct colors
-const QList<QColor> SearchListWidget::predefinedColors = {
-    QColor("#FF0000"), // Red
-    QColor("#0000FF"), // Blue
-    QColor("#008000"), // Green
-    QColor("#800080"), // Purple
-    QColor("#FF8C00"), // Dark Orange
-    QColor("#1E90FF"), // Dodger Blue
-    QColor("#FF1493"), // Deep Pink
-    QColor("#00CED1"), // Dark Turquoise
-    QColor("#8B4513"), // Saddle Brown
-    QColor("#2E8B57"), // Sea Green
-    QColor("#4B0082"), // Indigo
-    QColor("#800000"), // Maroon
-    QColor("#708090"), // Slate Gray
-    QColor("#000080"), // Navy
-    QColor("#8B008B"), // Dark Magenta
-    QColor("#556B2F")  // Dark Olive Green
-};
 
 SearchListWidget::SearchListWidget(int64_t workspaceId, QtBridge& bridge, QWidget *parent)
     : QWidget(parent), workspaceId(workspaceId), colorIndex(0), bridge(bridge)
@@ -98,31 +80,6 @@ void SearchListWidget::addSearch(SearchConfig &search)
     } else {
         QtBridge::getInstance().logError(QString("Failed to add search: %1").arg(search.searchPattern));
     }
-}
-
-QColor SearchListWidget::getNextColor()
-{
-    if (predefinedColors.isEmpty()) {
-        return QColor("#FF0000"); // Default to red if no colors defined
-    }
-    
-    // Get a list of colors already in use
-    QList<QColor> usedColors;
-    for (const SearchConfig &search : std::as_const(searchList)) {
-        usedColors.append(search.color);
-    }
-    
-    // Find the first color that's not in use
-    for (const QColor &color : predefinedColors) {
-        if (!usedColors.contains(color)) {
-            return color;
-        }
-    }
-    
-    // If all colors are in use, return the next color in sequence
-    QColor color = predefinedColors[colorIndex % predefinedColors.size()];
-    colorIndex++;
-    return color;
 }
 
 void SearchListWidget::createSearchItem(int index, const SearchConfig &search)
@@ -246,7 +203,9 @@ void SearchListWidget::contextMenuEvent(QContextMenuEvent *event)
 
 void SearchListWidget::showAddSearchDialog()
 {
-    SearchDialog *dialog = createSearchDialog(tr("Add Search"));
+    SearchConfig search;
+    search.color = bridge.getNextSearchColor(workspaceId);
+    SearchDialog *dialog = createSearchDialog(tr("Add Search"), search);
     
     if (dialog->exec() == QDialog::Accepted) {
         SearchConfig search = dialog->getSearchConfig();
@@ -374,10 +333,7 @@ void SearchListWidget::removeSelectedSearch()
 SearchDialog* SearchListWidget::createSearchDialog(const QString &title, const SearchConfig &initialSearch)
 {
     SearchDialog *dialog = new SearchDialog(title, this);
-    
-    if (!initialSearch.searchPattern.isEmpty()) {
-        dialog->setSearchConfig(initialSearch);
-    }
+    dialog->setSearchConfig(initialSearch);
     
     return dialog;
 }
