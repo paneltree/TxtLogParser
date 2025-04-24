@@ -281,7 +281,7 @@ void OutputDisplayWidget::setupTextEdit()
 {
     textEditLines->setReadOnly(false);
     textEditLines->setLineWrapMode(QTextEdit::NoWrap);
-    QFont monoFont("Courier New", 10);
+    QFont monoFont = getOptimalMonoFont();
     textEditLines->setFont(monoFont);
     if (infoArea) {
         infoArea->setFont(monoFont);
@@ -303,6 +303,34 @@ void OutputDisplayWidget::setupTextEdit()
                               "QTextEdit QScrollBar { width: 0px; height: 0px; background: transparent; }");
     
     textEditLines->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
+}
+
+QFont OutputDisplayWidget::getOptimalMonoFont()
+{
+    QFont font;
+    
+    // Choose the best font based on platform
+    #ifdef Q_OS_MAC
+        font.setFamily("Menlo");
+        font.setPointSize(11); // macOS fonts need to be slightly larger
+    #elif defined(Q_OS_WIN)
+        font.setFamily("Consolas");
+        font.setPointSize(10);
+    #else // Linux
+        font.setFamily("DejaVu Sans Mono");
+        font.setPointSize(10);
+    #endif
+    
+    // Set fallbacks and properties for all platforms
+    font.setStyleHint(QFont::Monospace);
+    font.setFixedPitch(true);
+    
+    // Scale for high DPI if needed
+    if (devicePixelRatio() > 1.5) {
+        font.setPointSize(font.pointSize() + 1);
+    }
+    
+    return font;
 }
 
 void OutputDisplayWidget::clearDisplay()

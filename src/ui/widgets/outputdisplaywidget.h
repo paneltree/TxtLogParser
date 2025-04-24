@@ -60,6 +60,7 @@ private slots:
 
 private:
     void setupTextEdit();
+    QFont getOptimalMonoFont();
     void updateDisplay(int startLine, int lineCount);
     void updateScrollBarRanges(); // 更新自定义滚动条范围
     void applyHighlighting();
