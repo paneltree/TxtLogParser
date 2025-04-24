@@ -34,6 +34,7 @@ public:
     void setLineRange(int startLine, int endLine);
 protected:
     QString formatLinePrefix(int outputLineIndex, int fileIndex, int lineIndex) const;
+    void updateWidth();
 private:
     QTextEdit *textEditor = nullptr;
     QStringList lineInfos;

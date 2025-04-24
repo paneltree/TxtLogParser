@@ -56,7 +56,15 @@ InfoAreaWidget::InfoAreaWidget(QTextEdit *editor) : QWidget(editor), textEditor(
 QSize InfoAreaWidget::sizeHint() const
 {
     // Calculate width based on the content
-    int width = 150; // Default width
+    //int width = 150; // Default width
+    //return QSize(width, 0);
+    QFontMetrics fm(font());
+    // Create example string with max-width values
+    QString example = QString("%1 [%2:%3]")
+        .arg(QString("9").repeated(m_outputLineFieldWidth), 
+             QString("9").repeated(m_fileIndexFieldWidth), 
+             QString("9").repeated(m_lineIndexFieldWidth));
+    int width = fm.horizontalAdvance(example) + 20; // Add padding
     return QSize(width, 0);
 }
 
@@ -122,6 +130,7 @@ void InfoAreaWidget::setLineInfoList(int maxFileLineCount, const QVector<OutputL
     m_outputLineFieldWidth = QString::number(lineInfoList.size()).length();
     m_fileIndexFieldWidth = 2;
     m_lineIndexFieldWidth = QString::number(maxFileLineCount).length();
+    updateWidth();
 }
 QString InfoAreaWidget::formatLinePrefix(int outputLineIndex, int fileIndex, int lineIndex) const
 {
@@ -129,6 +138,17 @@ QString InfoAreaWidget::formatLinePrefix(int outputLineIndex, int fileIndex, int
         .arg(outputLineIndex, m_outputLineFieldWidth, 10, QChar('0'))
         .arg(fileIndex, m_fileIndexFieldWidth, 10, QChar('0'))
         .arg(lineIndex + 1, m_lineIndexFieldWidth, 10, QChar('0'));
+}
+void InfoAreaWidget::updateWidth()
+{
+    QFontMetrics fm(font());
+    QString example = formatLinePrefix(
+        pow(10, m_outputLineFieldWidth) - 1,
+        pow(10, m_fileIndexFieldWidth) - 1,
+        pow(10, m_lineIndexFieldWidth) - 1);
+    int width = fm.horizontalAdvance(example) + 20;
+    setMinimumWidth(width);
+    updateGeometry();
 }
 void InfoAreaWidget::setLineRange(int startLine, int endLine)
 {
@@ -213,7 +233,7 @@ OutputDisplayWidget::OutputDisplayWidget(int64_t workspaceId, QtBridge& bridge, 
     // 创建文本编辑控件和行号区域
     textEditLines = new QTextEdit(contentWidget);
     infoArea = new InfoAreaWidget(textEditLines);
-    infoArea->setFixedWidth(130);
+    //infoArea->setFixedWidth(130);
     
     // 禁用文本编辑器的内置滚动条
     textEditLines->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
