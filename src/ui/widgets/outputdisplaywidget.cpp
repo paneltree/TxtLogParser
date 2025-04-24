@@ -40,7 +40,7 @@ QString rectfToString(const QRectF &rect)
 InfoAreaWidget::InfoAreaWidget(QTextEdit *editor) : QWidget(editor), textEditor(editor)
 {
     // Use the exact same font as the text editor for perfect alignment
-    setFont(QFont("Courier New", 10));
+    setFont(QFont("Courier New", 11));
     
     // Ensure the widget doesn't capture mouse events (so user can't select it)
     setAttribute(Qt::WA_TransparentForMouseEvents);
@@ -77,7 +77,7 @@ void InfoAreaWidget::paintEvent(QPaintEvent *event)
     int verticalOffset = -textEditor->verticalScrollBar()->value();
 
     // Use the same font as textEditLines to ensure matching text metrics
-    QFont monoFont("Courier New", 10);
+    QFont monoFont("Courier New", 11);
     painter.setFont(monoFont);
 
     //write to stdout a log
@@ -91,7 +91,7 @@ void InfoAreaWidget::paintEvent(QPaintEvent *event)
 
     // Get QTextEdit document layout
     QAbstractTextDocumentLayout* layout = textEditor->document()->documentLayout();
-    int topAdjustment = -2; // Fine-tuning vertical alignment
+    int topAdjustment = 0; // Fine-tuning vertical alignment
     
     QTextBlock block = textEditor->document()->findBlockByNumber(0);
     int currentLine = m_startLine;
@@ -282,6 +282,7 @@ void OutputDisplayWidget::setupTextEdit()
     textEditLines->setReadOnly(false);
     textEditLines->setLineWrapMode(QTextEdit::NoWrap);
     QFont monoFont = getOptimalMonoFont();
+    //QFont monoFont("Courier New", 11);
     textEditLines->setFont(monoFont);
     if (infoArea) {
         infoArea->setFont(monoFont);
@@ -410,10 +411,10 @@ void OutputDisplayWidget::resizeEvent(QResizeEvent *event)
     updateDisplay(textEditLines->verticalScrollBar()->value(), visibleLines);
 }
 
-QString OutputDisplayWidget::formatLinePrefix(int outputLineIndex, int fileIndex, int lineIndex) const
+QString OutputDisplayWidget::formatLinePrefix(int outputLineIndex, int outputLineFieldWidth, int fileIndex, int lineIndex) const
 {
     return QString("%1 [%2:%3]")
-        .arg(outputLineIndex, 6, 10, QChar('0'))
+        .arg(outputLineIndex, outputLineFieldWidth, 10, QChar('0'))
         .arg(fileIndex, 2, 10, QChar('0'))
         .arg(lineIndex + 1, 6, 10, QChar('0'));
 }
@@ -442,9 +443,10 @@ void OutputDisplayWidget::doUpdate()
     outputLines.reserve(1000000); // Pre-allocate for large datasets
     currentLineInfos.reserve(outputLines.size());
 
+    int outputLineFieldWidth = QString::number(outputLines.size()).length();
     int outputLineIndex = 0;
     for (const auto& qOutputLine : outputLines) {
-        QString lineInfo = formatLinePrefix(outputLineIndex++, qOutputLine.m_fileRow, qOutputLine.m_lineIndex);
+        QString lineInfo = formatLinePrefix(++outputLineIndex, outputLineFieldWidth, qOutputLine.m_fileRow, qOutputLine.m_lineIndex);
         currentLineInfos.append(lineInfo);
         if (outputLineIndex % CHUNK_SIZE == 0) {
             QApplication::processEvents();

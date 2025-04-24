@@ -64,7 +64,7 @@ private:
     void updateDisplay(int startLine, int lineCount);
     void updateScrollBarRanges(); // 更新自定义滚动条范围
     void applyHighlighting();
-    QString formatLinePrefix(int outputLineIndex, int fileIndex, int lineIndex) const;
+    QString formatLinePrefix(int outputLineIndex, int outputLineFieldWidth, int fileIndex, int lineIndex) const;
     int getLineStartPosition(int lineIndex) const;
 
     QLabel *headerLabel = nullptr;
