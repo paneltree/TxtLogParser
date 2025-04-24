@@ -4,7 +4,7 @@
 <context>
     <name>FileItemWidget</name>
     <message>
-        <location filename="../src/ui/widgets/filelistwidget.cpp" line="369"/>
+        <location filename="../src/ui/widgets/filelistwidget.cpp" line="367"/>
         <source>Remove File</source>
         <translation type="unfinished"></translation>
     </message>

@@ -334,12 +334,10 @@ FileItemWidget::FileItemWidget(FileInfo fileInfo, QWidget *parent)
     layout->setContentsMargins(5, 2, 5, 2);
     layout->setSpacing(5);
     
-    // Set a fixed height for the widget
     setFixedHeight(FILE_ITEM_HEIGHT);
     
-    // Index label (showing fileIndex which starts from 1)
-    indexLabel = new QLabel(QString::number(fileInfo.fileId), this);
-    indexLabel->setStyleSheet("font-weight: bold; min-width: 20px;");
+    indexLabel = new QLabel(QString("%1").arg(fileInfo.fileRow, 2, 10, QChar('0')), this);
+    indexLabel->setStyleSheet("min-width: 20px; font-family: 'Courier New', monospace;");
     indexLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
     layout->addWidget(indexLabel);
     
@@ -377,8 +375,7 @@ FileItemWidget::FileItemWidget(FileInfo fileInfo, QWidget *parent)
     // Make the widget clickable
     setMouseTracking(true);
     setCursor(Qt::PointingHandCursor);
-    
-    // 为整个widget也设置tooltip，这样鼠标悬停在任何位置都能看到完整路径
+
     setToolTip(fileInfo.filePath);
 }
 
@@ -394,26 +391,11 @@ void FileItemWidget::mousePressEvent(QMouseEvent *event) {
 
 void FileItemWidget::setFileIndex(int index) {
     m_fileInfo.fileRow = index;
-    indexLabel->setText(QString::number(index + 1)); // Display 1-based index
+    indexLabel->setText(QString("%1").arg(index, 2, 10, QChar('0'))); // Display 1-based index
 }
 
-// Handle item movement (drag and drop)
 void FileListWidget::handleItemMoved(int fromIndex, int toIndex) {
-    QtBridge::getInstance().logInfo(QString("FileListWidget::handleItemMoved - Item moved from %1 to %2").arg(fromIndex).arg(toIndex));
-
-    if (fromIndex < 0 || fromIndex >= fileList.size() || toIndex < 0 || toIndex >= fileList.size()) {
-        QtBridge::getInstance().logError("Invalid index for item move operation");
-        return;
-    }
-
-    // Move the item in the internal list
-    FileInfo movedFileInfo = fileList.takeAt(fromIndex);
-    fileList.insert(toIndex, movedFileInfo);
-
-    // Update file indices in the database
     updateAllFileIndices();
-
-    // Notify about the change
     emit filesChanged();
 }
 
@@ -430,15 +412,16 @@ void FileListWidget::updateAllFileIndices() {
             bridge.rollbackFileUpdate(workspaceId);
         }
     );
+    fileList.clear();
     for (int i = 0; i < fileListWidget->count(); i++) {
         QListWidgetItem *item = fileListWidget->item(i);
         FileItemWidget *widget = qobject_cast<FileItemWidget*>(fileListWidget->itemWidget(item));
         
         if (widget) {
             widget->setFileIndex(i);
-            // Update the row in the database
-            fileList[i].fileRow = i;
-            QtBridge::getInstance().updateFileRowInWorkspace(workspaceId, fileList[i].fileId, i);
+            FileInfo fileInfo = widget->getFileInfo();
+            fileList.append(fileInfo);
+            QtBridge::getInstance().updateFileRowInWorkspace(workspaceId, fileInfo.fileId, i);
         }
     }
     guard.commit();

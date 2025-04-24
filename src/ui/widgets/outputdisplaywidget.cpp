@@ -370,6 +370,7 @@ void OutputDisplayWidget::resizeEvent(QResizeEvent *event)
                         << Qt::endl;
 
 #endif
+#if 0
     // textEditLines, infoArea, 
     QTextStream(stdout) << "paneltree: OutputDisplayWidget::resizeEvent "
                         << ", workspaceId: " << workspaceId
@@ -377,6 +378,7 @@ void OutputDisplayWidget::resizeEvent(QResizeEvent *event)
                         << ", textEditLines->height(): " << textEditLines->height()
                         << ", m_oneLineHeight: " << m_oneLineHeight
                         << Qt::endl;
+#endif
     updateDisplay(textEditLines->verticalScrollBar()->value(), visibleLines);
 }
 
@@ -384,7 +386,7 @@ QString OutputDisplayWidget::formatLinePrefix(int outputLineIndex, int fileIndex
 {
     return QString("%1 [%2:%3]")
         .arg(outputLineIndex, 6, 10, QChar('0'))
-        .arg(fileIndex, 3, 10, QChar('0'))
+        .arg(fileIndex, 2, 10, QChar('0'))
         .arg(lineIndex + 1, 6, 10, QChar('0'));
 }
 
