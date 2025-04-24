@@ -13,6 +13,13 @@
 
 class QtBridge;
 
+struct OutputLineInfo
+{
+    int outputLineNumber;
+    int fileIndex;
+    int lineIndex;
+};
+
 // Custom class for displaying line numbers and file info
 class InfoAreaWidget : public QWidget
 {
@@ -23,11 +30,17 @@ public:
     void paintEvent(QPaintEvent *event) override;
     bool event(QEvent *event) override;
     
-    void setLineInfos(const QStringList &lineInfos);
+    void setLineInfoList(int maxFileLineCount, const QVector<OutputLineInfo> &lineInfoList);
     void setLineRange(int startLine, int endLine);
+protected:
+    QString formatLinePrefix(int outputLineIndex, int fileIndex, int lineIndex) const;
 private:
     QTextEdit *textEditor = nullptr;
     QStringList lineInfos;
+    QVector<OutputLineInfo> m_lineInfoList;
+    int m_outputLineFieldWidth = 0;
+    int m_fileIndexFieldWidth = 0;
+    int m_lineIndexFieldWidth = 0;
     int m_startLine = 0;
     int m_endLine = 0;
 };
@@ -83,7 +96,6 @@ private:
     QtBridge& bridge;
     int64_t workspaceId;
     QList<QOutputLine> outputLines; // Store all lines
-    QStringList currentLineInfos;
     int visibleLines; // Number of lines visible in viewport
     static constexpr int CHUNK_SIZE = 10000; // Chunk size for loading
     bool isUpdatingDisplay; // 防止递归调用的标志

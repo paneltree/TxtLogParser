@@ -12,6 +12,7 @@
 #include <QApplication>
 #include <QPalette>
 #include <QEvent>
+#include <QtCore/qcontainerfwd.h>
 #include <QtCore/qdebug.h>
 #include <QtCore/qlocale.h>
 #include <QtCore/qpoint.h>
@@ -69,7 +70,7 @@ void InfoAreaWidget::paintEvent(QPaintEvent *event)
     if(m_startLine >= m_endLine || m_startLine < 0 || m_endLine < 0){
         return;
     }
-    if(m_startLine >= lineInfos.size() || m_endLine > lineInfos.size()){
+    if(m_startLine >= m_lineInfoList.size() || m_endLine > m_lineInfoList.size()){
         return;
     }    
 
@@ -100,8 +101,10 @@ void InfoAreaWidget::paintEvent(QPaintEvent *event)
         int top = (int)blockRect.top() +  topAdjustment;
         int height = (int)blockRect.height();
 
+        auto& lineInfo = m_lineInfoList[currentLine];
+        QString lineString = formatLinePrefix(lineInfo.outputLineNumber, lineInfo.fileIndex, lineInfo.lineIndex);
         QRectF drawRect(documentMargin, top, width() - documentMargin * 2, height);
-        painter.drawText(drawRect, Qt::AlignRight | Qt::AlignVCenter, lineInfos.at(currentLine));
+        painter.drawText(drawRect, Qt::AlignRight | Qt::AlignVCenter, lineString);
         block = block.next();
         ++currentLine;
     }
@@ -113,9 +116,19 @@ void InfoAreaWidget::paintEvent(QPaintEvent *event)
     painter.drawLine(width() - 1, 0, width() - 1, effectiveHeight);
 }
 
-void InfoAreaWidget::setLineInfos(const QVector<QString> &newLineInfos)
+void InfoAreaWidget::setLineInfoList(int maxFileLineCount, const QVector<OutputLineInfo> &lineInfoList)
 {
-    lineInfos = newLineInfos;
+    m_lineInfoList = lineInfoList;
+    m_outputLineFieldWidth = QString::number(lineInfoList.size()).length();
+    m_fileIndexFieldWidth = 2;
+    m_lineIndexFieldWidth = QString::number(maxFileLineCount).length();
+}
+QString InfoAreaWidget::formatLinePrefix(int outputLineIndex, int fileIndex, int lineIndex) const
+{
+    return QString("%1 [%2:%3]")
+        .arg(outputLineIndex, m_outputLineFieldWidth, 10, QChar('0'))
+        .arg(fileIndex, m_fileIndexFieldWidth, 10, QChar('0'))
+        .arg(lineIndex + 1, m_lineIndexFieldWidth, 10, QChar('0'));
 }
 void InfoAreaWidget::setLineRange(int startLine, int endLine)
 {
@@ -338,8 +351,8 @@ void OutputDisplayWidget::clearDisplay()
 {
     textEditLines->clear();
     outputLines.clear();
-    currentLineInfos.clear();
-    infoArea->setLineInfos(currentLineInfos);
+    QVector<OutputLineInfo> currentLineInfos;
+    infoArea->setLineInfoList(0, currentLineInfos);
     infoArea->setLineRange(0, 0);
     infoArea->update();
 }
@@ -437,23 +450,24 @@ void OutputDisplayWidget::doUpdate()
     
     textEditLines->clear();
     outputLines.clear();
-    currentLineInfos.clear();
 
     outputLines = bridge.getOutputStringList(workspaceId);
     outputLines.reserve(1000000); // Pre-allocate for large datasets
-    currentLineInfos.reserve(outputLines.size());
 
+    QVector<OutputLineInfo> lineInfoList;
+    lineInfoList.reserve(outputLines.size());
     int outputLineFieldWidth = QString::number(outputLines.size()).length();
     int outputLineIndex = 0;
+    int maxLineCountInFile = 0;
     for (const auto& qOutputLine : outputLines) {
-        QString lineInfo = formatLinePrefix(++outputLineIndex, outputLineFieldWidth, qOutputLine.m_fileRow, qOutputLine.m_lineIndex);
-        currentLineInfos.append(lineInfo);
+        lineInfoList.append({outputLineIndex+1, qOutputLine.m_fileRow, qOutputLine.m_lineIndex});
+        maxLineCountInFile = std::max(maxLineCountInFile, qOutputLine.m_lineIndex);
         if (outputLineIndex % CHUNK_SIZE == 0) {
             QApplication::processEvents();
         }
     }
 
-    infoArea->setLineInfos(currentLineInfos);
+    infoArea->setLineInfoList(maxLineCountInFile, lineInfoList);
     
     // 更新自定义滚动条范围
     updateScrollBarRanges();
