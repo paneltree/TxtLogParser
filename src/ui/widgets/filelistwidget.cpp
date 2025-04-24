@@ -11,6 +11,10 @@
 #include "../../bridge/QtBridge.h"
 #include "../../utils/GenericGuard.h"
 
+namespace{
+    static constexpr int FILE_ITEM_HEIGHT = 25;
+}
+
 FileListWidget::FileListWidget(int64_t workspaceId, QtBridge& bridge, QWidget *parent)
     : workspaceId(workspaceId),bridge(bridge), QWidget(parent)
 {
@@ -24,6 +28,8 @@ FileListWidget::FileListWidget(int64_t workspaceId, QtBridge& bridge, QWidget *p
     
     // Create file list widget
     fileListWidget = new QListWidget(this);
+    layout->addWidget(fileListWidget);
+
     fileListWidget->setSelectionMode(QAbstractItemView::SingleSelection);
     fileListWidget->setDragDropMode(QAbstractItemView::InternalMove);
     fileListWidget->setDefaultDropAction(Qt::MoveAction);
@@ -32,7 +38,7 @@ FileListWidget::FileListWidget(int64_t workspaceId, QtBridge& bridge, QWidget *p
     fileListWidget->setContextMenuPolicy(Qt::CustomContextMenu);
     fileListWidget->setSpacing(0);
     fileListWidget->setUniformItemSizes(true);
-    fileListWidget->setStyleSheet("QListWidget::item { min-height: 40px; }");
+    fileListWidget->setStyleSheet(QString("QListWidget::item { min-height: %1px; }").arg(FILE_ITEM_HEIGHT));
     
     // Connect signals for item position changes
     connect(fileListWidget->model(), &QAbstractItemModel::rowsMoved, 
@@ -87,9 +93,6 @@ FileListWidget::FileListWidget(int64_t workspaceId, QtBridge& bridge, QWidget *p
     // Set up drag and drop
     setAcceptDrops(true);
     
-    layout->addWidget(fileListWidget);
-    
-    setLayout(layout);
 }
 
 void FileListWidget::initializeWithData(int64_t workspaceId)
@@ -158,7 +161,7 @@ void FileListWidget::addFile(QString filePath)
 
 void FileListWidget::createFileItem(int index, const FileInfo &fileInfo) {
     QListWidgetItem *item = new QListWidgetItem();
-    item->setSizeHint(QSize(0, 40)); // Match the min-height of QListWidget::item
+    item->setSizeHint(QSize(0, FILE_ITEM_HEIGHT)); // Match the min-height of QListWidget::item
     fileListWidget->addItem(item);
     
     FileItemWidget *fileItemWidget = new FileItemWidget(fileInfo, this);
@@ -332,7 +335,7 @@ FileItemWidget::FileItemWidget(FileInfo fileInfo, QWidget *parent)
     layout->setSpacing(5);
     
     // Set a fixed height for the widget
-    setFixedHeight(30);
+    setFixedHeight(FILE_ITEM_HEIGHT);
     
     // Index label (showing fileIndex which starts from 1)
     indexLabel = new QLabel(QString::number(fileInfo.fileId), this);
