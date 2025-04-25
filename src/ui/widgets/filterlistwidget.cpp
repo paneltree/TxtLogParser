@@ -14,25 +14,6 @@
 #include <QRegularExpressionMatch>
 #include "../../utils/GenericGuard.h"
 #include <QMimeData>
-// Define a list of readable, distinct colors
-const QList<QColor> FilterListWidget::predefinedColors = {
-    QColor("#FF0000"), // Red
-    QColor("#0000FF"), // Blue
-    QColor("#008000"), // Green
-    QColor("#800080"), // Purple
-    QColor("#FF8C00"), // Dark Orange
-    QColor("#1E90FF"), // Dodger Blue
-    QColor("#FF1493"), // Deep Pink
-    QColor("#00CED1"), // Dark Turquoise
-    QColor("#8B4513"), // Saddle Brown
-    QColor("#2E8B57"), // Sea Green
-    QColor("#4B0082"), // Indigo
-    QColor("#800000"), // Maroon
-    QColor("#708090"), // Slate Gray
-    QColor("#000080"), // Navy
-    QColor("#8B008B"), // Dark Magenta
-    QColor("#556B2F")  // Dark Olive Green
-};
 
 FilterListWidget::FilterListWidget(int64_t workspaceId, QtBridge& bridge, QWidget *parent)
     : QWidget(parent), workspaceId(workspaceId), colorIndex(0), bridge(bridge)

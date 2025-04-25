@@ -70,6 +70,7 @@ public:
     void rollbackFilterUpdate(int64_t workspaceId);
     std::map<int32_t, int32_t> getFilterMatchCounts(int64_t workspaceId);
     std::string getNextFilterColor(int64_t workspaceId);
+
     // Search management
     int32_t addSearchToWorkspace(int64_t workspaceId, const SearchData& search);
     bool removeSearchFromWorkspace(int64_t workspaceId, int32_t searchId);
@@ -80,6 +81,7 @@ public:
     void commitSearchUpdate(int64_t workspaceId);
     void rollbackSearchUpdate(int64_t workspaceId);
     std::map<int32_t, int32_t> getSearchMatchCounts(int64_t workspaceId);
+    std::string getNextSearchColor(int64_t workspaceId);
 
     /// Output management
     std::vector<std::shared_ptr<OutputLine>> getOutputStringList(int64_t workspaceId);

@@ -3,6 +3,7 @@
 #include <QVBoxLayout>
 #include <QSplitter>
 #include <QTextEdit>
+#include <QTimer>
 #include "widgets/filelistwidget.h"
 #include "widgets/filterlistwidget.h"
 #include "widgets/searchlistwidget.h"
@@ -212,6 +213,21 @@ void Workspace::setActive(bool active)
     outputDisplay->doUpdate();
     filterListWidget->doUpdate();
     searchListWidget->doUpdate();
+    
+    if (active) {
+        // 强制布局更新以确保 OutputDisplayWidget 接收到正确的尺寸
+        outputDisplay->updateGeometry();
+        outputDisplay->layout()->invalidate();
+        outputDisplay->layout()->activate();
+        
+        // 在下一个事件循环中执行布局更新，确保所有挂起的事件都已处理
+        QTimer::singleShot(0, this, [this]() {
+            if (outputDisplay && outputDisplay->layout()) {
+                outputDisplay->layout()->update();
+                outputDisplay->update();
+            }
+        });
+    }
 }
 
 void Workspace::showEvent(QShowEvent *event)

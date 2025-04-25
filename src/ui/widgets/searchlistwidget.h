@@ -56,7 +56,6 @@ private:
     
     SearchDialog *createSearchDialog(const QString &title, const SearchConfig &initialSearch = SearchConfig());
     void createSearchItem(int index, const SearchConfig &search);
-    QColor getNextColor(); // Get the next color from the predefined list
     void updateSearchRows();
     
     // Helper methods for search processing

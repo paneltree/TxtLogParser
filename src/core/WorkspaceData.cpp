@@ -353,6 +353,10 @@ void WorkspaceData::rollbackSearchUpdate() {
     m_outputData.resumeRefresh();
 }
 
+std::string WorkspaceData::getNextSearchColor() {
+    return m_filterSearchColorManager.getNextColor();
+}
+
 //////////////////////////////////////////////////////////////////
 ///     Output management
 ////////////////////////////////////////////////////////////////

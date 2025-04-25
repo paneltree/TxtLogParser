@@ -1,0 +1,31 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug TxtLogParser (LLDB)",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/TxtLogParser.app/Contents/MacOS/TxtLogParser",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "CMake Build",
+            "internalConsoleOptions": "neverOpen",
+            "terminal": "console",
+            "env": {
+                "QT_LOGGING_RULES": "*.debug=true",
+                "QT_QPA_PLATFORM_PLUGIN_PATH": "${env:QT6_DIR}/macos/plugins/platforms",
+                "QT_FONT_DPI": "0"
+            }
+        },
+        {
+            "name": "Attach to TxtLogParser",
+            "type": "lldb",
+            "request": "attach",
+            "pid": "${command:pickProcess}",
+            "stopOnEntry": false
+        }
+    ]
+}

@@ -609,6 +609,14 @@ std::map<int32_t, int32_t> WorkspaceManager::getSearchMatchCounts(int64_t worksp
 }
 
 
+std::string WorkspaceManager::getNextSearchColor(int64_t workspaceId) {
+    auto it = workspaces.find(workspaceId);
+    if (it == workspaces.end()) {
+        Logger::getInstance().info("WorkspaceManager Failed to get next filter color: Invalid workspace id " + std::to_string(workspaceId));
+        return "#000000";
+    }
+    return it->second->getNextSearchColor();
+}
 
 ////////////////////////////////////////////////////////////
 // Output management

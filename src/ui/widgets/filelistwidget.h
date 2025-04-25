@@ -63,6 +63,7 @@ public:
     bool isSelected() const { return checkBox->isChecked(); }
     int32_t getFileId() const { return m_fileInfo.fileId; }
     void setFileIndex(int index);
+    FileInfo getFileInfo() const { return m_fileInfo; }
 
 signals:
     void selectionChanged(int id, bool selected);
