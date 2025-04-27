@@ -105,6 +105,9 @@ if(APPLE)
     set(MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION})
     set(MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR})
     set(MACOSX_BUNDLE_INFO_STRING "Txt Log Parser Tool by PanelTree")
+    set(MACOSX_BUNDLE_ICON_FILE app_icon.icns)
+    set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/icons/app_icon.icns PROPERTIES
+        MACOSX_PACKAGE_LOCATION "Resources")
 endif()
 
 # Core library (pure C++)
@@ -183,7 +186,9 @@ if(APPLE)
         ${BRIDGE_SOURCES}
         ${UI_SOURCES}
         translations/workspace.qrc
+        icons.qrc
         ${QM_FILES}
+        ${CMAKE_CURRENT_SOURCE_DIR}/icons/app_icon.icns
     )
 elseif(WIN32)
     add_executable(TxtLogParser WIN32
@@ -191,7 +196,9 @@ elseif(WIN32)
         ${BRIDGE_SOURCES}
         ${UI_SOURCES}
         translations/workspace.qrc
+        icons.qrc
         ${QM_FILES}
+        ${APP_ICON_RESOURCE_WINDOWS}
     )
 else()
     add_executable(TxtLogParser
@@ -199,6 +206,7 @@ else()
         ${BRIDGE_SOURCES}
         ${UI_SOURCES}
         translations/workspace.qrc
+        icons.qrc
         ${QM_FILES}
     )
 endif()

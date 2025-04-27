@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=TxtLogParser
+Comment=Text Log Parser Application
+Exec=TxtLogParser
+Icon=app_icon
+Terminal=false
+Type=Application
+Categories=Utility;TextTools;
+StartupNotify=true
