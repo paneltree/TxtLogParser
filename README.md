@@ -7,7 +7,31 @@ Welcome to **TxtLogParser**, an innovative log parsing tool designed to simplify
 - Customizable filters
 - Cross-platform support
 
-## Installation
+## Download Precompiled Binaries
+
+### Windows
+
+### MacOS
+
+* Precompiled binaries are available for macOS. You can download the latest version from the [releases page]()
+* If you encounter a "damaged" error when opening the app, you can bypass it by following these steps:
+1. Open **Terminal**.
+2. Navigate to the directory where the app is located:
+   ```bash
+   cd /path/to/TxtLogParser.app
+   ```
+3. Use the `xattr` command to remove the quarantine attribute:
+   ```bash
+   xattr -d com.apple.quarantine TxtLogParser.app
+   ```
+4. If you still encounter issues, you can clear all extended attributes:
+   ```bash
+   xattr -c TxtLogParser.app
+   ```
+
+### Linux
+
+## Build 
 1. Clone the repository:
    ```bash
    git clone https://github.com/paneltree/TxtLogParser.git
