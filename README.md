@@ -79,13 +79,13 @@ Welcome to **TxtLogParser**, an innovative log parsing tool designed to simplify
 
 ### Window Position (QSettings)
 
-* macOS: ~/Library/Preferences/com.LogTools.TxtLogParser.plist
+* macOS: ~/Library/Preferences/com.paneltree.TxtLogParser.plist
 
    ```
-   $ defaults read ~/Library/Preferences/com.LogTools.TxtLogParser
+   $ defaults read ~/Library/Preferences/com.paneltree.TxtLogParser
    ```
-* Windows: Windows: Registry under HKEY_CURRENT_USER\Software\LogTools\TxtLogParser
-* Linux: ~/.config/LogTools/TxtLogParser.conf
+* Windows: Windows: Registry under HKEY_CURRENT_USER\Software\paneltree\TxtLogParser
+* Linux: ~/.config/paneltree/TxtLogParser.conf
 
 
 ### Workspace settings ()

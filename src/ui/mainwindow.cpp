@@ -19,7 +19,7 @@
 #include "../bridge/QtBridge.h"
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), settings("LogTools", "TxtLogParser"), bridge(QtBridge::getInstance())
+    : QMainWindow(parent), settings("paneltree", "TxtLogParser"), bridge(QtBridge::getInstance())
 {
     bridge.logInfo("MainWindow MainWindow::MainWindow Enter");
     
