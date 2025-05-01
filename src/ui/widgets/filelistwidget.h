@@ -13,6 +13,7 @@
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QMimeData>
+#include <QToolButton>
 #include "../bridge/QtBridge.h"
 #include "../models/fileinfo.h"
 
@@ -41,12 +42,14 @@ protected:
 private slots:
     void updateFileSelection(int id, bool selected);
     void handleItemMoved(int fromIndex, int toIndex);
+    void onReloadButtonClicked();
 
 private:
     int64_t workspaceId = -1;
     QtBridge& bridge;
     QListWidget *fileListWidget;
     QList<FileInfo> fileList;
+    QToolButton *reloadButton;
     
     void createFileItem(int index, const FileInfo &fileInfo);
     void addFilesFromUrls(const QList<QUrl> &urls);
@@ -84,4 +87,4 @@ private:
     QPushButton *removeButton;
 };
 
-#endif // FILELISTWIDGET_H 
+#endif // FILELISTWIDGET_H

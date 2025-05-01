@@ -4,7 +4,7 @@
 <context>
     <name>FileItemWidget</name>
     <message>
-        <location filename="../src/ui/widgets/filelistwidget.cpp" line="367"/>
+        <location filename="../src/ui/widgets/filelistwidget.cpp" line="385"/>
         <source>Remove File</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12,27 +12,32 @@
 <context>
     <name>FileListWidget</name>
     <message>
-        <location filename="../src/ui/widgets/filelistwidget.cpp" line="24"/>
+        <location filename="../src/ui/widgets/filelistwidget.cpp" line="29"/>
         <source>Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filelistwidget.cpp" line="75"/>
+        <location filename="../src/ui/widgets/filelistwidget.cpp" line="37"/>
+        <source>Reload</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/widgets/filelistwidget.cpp" line="93"/>
         <source>Add File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filelistwidget.cpp" line="76"/>
+        <location filename="../src/ui/widgets/filelistwidget.cpp" line="94"/>
         <source>Remove Selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filelistwidget.cpp" line="305"/>
+        <location filename="../src/ui/widgets/filelistwidget.cpp" line="323"/>
         <source>Select Log Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filelistwidget.cpp" line="307"/>
+        <location filename="../src/ui/widgets/filelistwidget.cpp" line="325"/>
         <source>All Files (*)</source>
         <translation type="unfinished"></translation>
     </message>

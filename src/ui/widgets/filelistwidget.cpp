@@ -6,6 +6,7 @@
 #include <QDesktopServices>
 #include <QUrl>
 #include <QFileDialog>
+#include <QIcon>
 #include "../../core/TimeUtils.h"
 #include "../../core/FileSystem.h"
 #include "../../bridge/QtBridge.h"
@@ -20,15 +21,32 @@ FileListWidget::FileListWidget(int64_t workspaceId, QtBridge& bridge, QWidget *p
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
     
-    // Create header
+    // Create header with a horizontal layout
+    QHBoxLayout *headerLayout = new QHBoxLayout();
+    headerLayout->setContentsMargins(0, 0, 0, 0);
+    
+    // Create header label
     QLabel *headerLabel = new QLabel(tr("Files"), this);
     headerLabel->setStyleSheet("font-weight: bold; font-size: 14px; color: #0078d4;");
     headerLabel->setAlignment(Qt::AlignCenter);
-    layout->addWidget(headerLabel);
+    headerLayout->addWidget(headerLabel);
+    
+    // Create reload button
+    reloadButton = new QToolButton(this);
+    reloadButton->setIcon(QIcon::fromTheme("view-refresh"));
+    reloadButton->setToolTip(tr("Reload"));
+    reloadButton->setAutoRaise(true);
+    headerLayout->addWidget(reloadButton);
+    
+    // Add the header layout to the main layout
+    layout->addLayout(headerLayout);
     
     // Create file list widget
     fileListWidget = new QListWidget(this);
     layout->addWidget(fileListWidget);
+
+    // Connect reload button signal
+    connect(reloadButton, &QToolButton::clicked, this, &FileListWidget::onReloadButtonClicked);
 
     fileListWidget->setSelectionMode(QAbstractItemView::SingleSelection);
     fileListWidget->setDragDropMode(QAbstractItemView::InternalMove);
@@ -425,4 +443,10 @@ void FileListWidget::updateAllFileIndices() {
         }
     }
     guard.commit();
+}
+
+// Reload button handler
+void FileListWidget::onReloadButtonClicked() {
+    QtBridge::getInstance().logInfo("FileListWidget: Reload button clicked");
+    initializeWithData(workspaceId);
 }
