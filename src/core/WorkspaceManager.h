@@ -58,6 +58,7 @@ public:
     void beginFileUpdate(int64_t workspaceId);
     void commitFileUpdate(int64_t workspaceId);
     void rollbackFileUpdate(int64_t workspaceId);
+    void reloadFilesInWorkspace(int64_t workspaceId);
 
     // Filter management
     int32_t addFilterToWorkspace(int64_t workspaceId, const FilterData& filter);

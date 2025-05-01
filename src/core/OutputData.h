@@ -49,6 +49,7 @@ namespace Core {
         void addFile(std::shared_ptr<FileData> file);
         void removeFile(int32_t id);
         void updateFileRow(int32_t id, int32_t row);
+        void reloadFiles();
 
         // Filter management
         void addFilter(std::shared_ptr<FilterData> filter);

@@ -409,6 +409,14 @@ void WorkspaceManager::rollbackFileUpdate(int64_t workspaceId) {
     it->second->rollbackFileUpdate();
 }
 
+void WorkspaceManager::reloadFilesInWorkspace(int64_t workspaceId) {
+    auto it = workspaces.find(workspaceId);
+    if (it == workspaces.end()) {
+        Logger::getInstance().info("WorkspaceManager Failed to reload files in workspace: Invalid workspace id " + std::to_string(workspaceId));
+        return;
+    }
+    it->second->reloadFiles();
+}
 ////////////////////////////////////////////////////////////
 // Filter management
 ////////////////////////////////////////////////////////////

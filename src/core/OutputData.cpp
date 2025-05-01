@@ -95,6 +95,19 @@ namespace Core {
         }
     }
 
+    void OutputData::reloadFiles(){
+        pauseRefresh();
+        m_loadedFiles.clear();
+        m_allFileLineInfos.clear();
+        for(auto it : m_allFiles){
+            if(it.second->isSelected()){
+                loadFile(it.second);
+            }
+        }
+        recreateOutputLines();
+        resumeRefresh();
+        refresh();
+    }
     ////////////////////////////////////////////////////////////
     // Filter management
     ////////////////////////////////////////////////////////////

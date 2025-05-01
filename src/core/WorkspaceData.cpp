@@ -188,6 +188,10 @@ void WorkspaceData::rollbackFileUpdate() {
     m_outputData.resumeRefresh();
 }
 
+void WorkspaceData::reloadFiles() {
+    m_outputData.reloadFiles();
+}
+
 ////////////////////////////////////////////////////////////
 // Filter management
 ////////////////////////////////////////////////////////////

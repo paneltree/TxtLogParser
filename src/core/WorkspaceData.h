@@ -58,6 +58,7 @@ public:
     void commitFilterUpdate();
     void rollbackFilterUpdate();
     std::string getNextFilterColor();
+    void reloadFiles();
 
     // Search management
     int32_t addSearch(const SearchData& search);

@@ -199,6 +199,9 @@ void QtBridge::rollbackFileUpdate(int64_t workspaceId) {
     workspaceManager->rollbackFileUpdate(workspaceId);
 }
 
+void QtBridge::reloadFilesInWorkspace(int64_t workspaceId) {
+    workspaceManager->reloadFilesInWorkspace(workspaceId);
+}
 
 ////////////////////////////////////////////////////////////
 // Filter management

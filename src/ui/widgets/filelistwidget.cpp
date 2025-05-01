@@ -448,5 +448,17 @@ void FileListWidget::updateAllFileIndices() {
 // Reload button handler
 void FileListWidget::onReloadButtonClicked() {
     QtBridge::getInstance().logInfo("FileListWidget: Reload button clicked");
-    initializeWithData(workspaceId);
+    this->fileList.clear();
+    fileListWidget->clear();
+    bridge.reloadFilesInWorkspace(workspaceId);
+    bridge.getFileListFromWorkspace(workspaceId, [this](const QList<FileInfo> &fileList) {
+        for (const FileInfo &fileInfo : fileList) {
+            assert(static_cast<qint32>(this->fileList.size()) == fileInfo.fileRow);
+            this->fileList.append(fileInfo);
+            createFileItem(this->fileList.size()-1, fileInfo);
+        }
+        
+        // Emit signal to notify Workspace about the reload
+        emit filesChanged();
+    });
 }
