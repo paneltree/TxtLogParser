@@ -110,6 +110,11 @@ if(APPLE)
         MACOSX_PACKAGE_LOCATION "Resources")
 endif()
 
+# Set Windows app icon resource
+if(WIN32)
+    set(APP_ICON_RESOURCE_WINDOWS "${CMAKE_CURRENT_SOURCE_DIR}/app_icon.rc")
+endif()
+
 # Core library (pure C++)
 set(CORE_SOURCES
     src/core/FileData.cpp
