@@ -121,7 +121,7 @@ Welcome to **TxtLogParser**, an innovative log parsing tool designed to simplify
 ### Logs
 
 * macOS: ~/Library/Logs/TxtLogParser/
-* Windows: 
+* Windows: %USERPROFILE%\AppData\Roaming\TxtLogParser\Logs
 * Linux: ~/.local/share/TxtLogParser/logs/
 
 ## Contributing
