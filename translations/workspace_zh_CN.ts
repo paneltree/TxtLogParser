@@ -123,7 +123,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="655"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="667"/>
         <source>Remove Filter</source>
         <translation type="unfinished"></translation>
     </message>
@@ -133,52 +133,52 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="624"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="626"/>
         <source>Case Sensitive</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="632"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="638"/>
         <source>Whole Word</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="640"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="650"/>
         <source>Regular Expression</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="690"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="702"/>
         <source>M: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="704"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="716"/>
         <source>Match %1 of %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="706"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="718"/>
         <source>No matches found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="770"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="803"/>
         <source>Select Filter Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="815"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="850"/>
         <source>Edit Filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="824"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="859"/>
         <source>Invalid Filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="824"/>
+        <location filename="../src/ui/widgets/filterlistwidget.cpp" line="859"/>
         <source>Filter string cannot be empty.</source>
         <translation type="unfinished"></translation>
     </message>

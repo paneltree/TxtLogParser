@@ -618,28 +618,40 @@ FilterItemWidget::FilterItemWidget(const FilterConfig &filter, int index, QWidge
     connect(nextMatchButton, &QPushButton::clicked, this, &FilterItemWidget::onNextMatchClicked);
     layout->addWidget(nextMatchButton);
     
-    // Case sensitive checkbox
-    caseSensitiveButton = new QCheckBox("Aa", this);
+    // Case sensitive button - replace checkbox with toolbutton
+    caseSensitiveButton = new QToolButton(this);
+    caseSensitiveButton->setText("Aa");
+    caseSensitiveButton->setCheckable(true);
     caseSensitiveButton->setChecked(filter.caseSensitive);
     caseSensitiveButton->setToolTip(tr("Case Sensitive"));
-    caseSensitiveButton->setMaximumWidth(35); // Add maximum width
-    connect(caseSensitiveButton, &QCheckBox::toggled, this, &FilterItemWidget::onCaseSensitiveToggled);
+    caseSensitiveButton->setFixedSize(24, 24);
+    //caseSensitiveButton->setMaximumWidth(30);
+    updateCaseSensitiveButtonStyle(); // New method to update style based on state
+    connect(caseSensitiveButton, &QToolButton::toggled, this, &FilterItemWidget::onCaseSensitiveToggled);
     layout->addWidget(caseSensitiveButton);
     
-    // Whole word checkbox
-    wholeWordButton = new QCheckBox("W", this); // Change from "Word" to "W"
+    // Whole word button - replace checkbox with toolbutton
+    wholeWordButton = new QToolButton(this);
+    wholeWordButton->setText("ab");
+    wholeWordButton->setCheckable(true);
     wholeWordButton->setChecked(filter.wholeWord);
     wholeWordButton->setToolTip(tr("Whole Word"));
-    wholeWordButton->setMaximumWidth(30); // Add maximum width
-    connect(wholeWordButton, &QCheckBox::toggled, this, &FilterItemWidget::onWholeWordToggled);
+    wholeWordButton->setFixedSize(24, 24);
+    //wholeWordButton->setMaximumWidth(30);
+    updateWholeWordButtonStyle(); // New method to update style based on state
+    connect(wholeWordButton, &QToolButton::toggled, this, &FilterItemWidget::onWholeWordToggled);
     layout->addWidget(wholeWordButton);
     
-    // Regex checkbox
-    regexButton = new QCheckBox(".*", this);
+    // Regex button - replace checkbox with toolbutton
+    regexButton = new QToolButton(this);
+    regexButton->setText(".*");
+    regexButton->setCheckable(true);
     regexButton->setChecked(filter.isRegex);
     regexButton->setToolTip(tr("Regular Expression"));
-    regexButton->setMaximumWidth(30); // Add maximum width
-    connect(regexButton, &QCheckBox::toggled, this, &FilterItemWidget::onRegexToggled);
+    regexButton->setFixedSize(24, 24);
+    regexButton->setMaximumWidth(30);
+    updateRegexButtonStyle(); // New method to update style based on state
+    connect(regexButton, &QToolButton::toggled, this, &FilterItemWidget::onRegexToggled);
     layout->addWidget(regexButton);
     
     // Color button
@@ -742,26 +754,47 @@ void FilterItemWidget::updateEnabledState()
     filterLabel->setStyleSheet(styleSheet);
     
     caseSensitiveButton->setEnabled(isEnabled);
+    if (isEnabled) {
+        updateCaseSensitiveButtonStyle();
+    } else {
+        caseSensitiveButton->setStyleSheet("QToolButton { background-color: #f0f0f0; border: 1px solid #cccccc; border-radius: 3px; opacity: 0.5; }");
+    }
+    
     wholeWordButton->setEnabled(isEnabled);
+    if (isEnabled) {
+        updateWholeWordButtonStyle();
+    } else {
+        wholeWordButton->setStyleSheet("QToolButton { background-color: #f0f0f0; border: 1px solid #cccccc; border-radius: 3px; opacity: 0.5; }");
+    }
+    
     regexButton->setEnabled(isEnabled);
+    if (isEnabled) {
+        updateRegexButtonStyle();
+    } else {
+        regexButton->setStyleSheet("QToolButton { background-color: #f0f0f0; border: 1px solid #cccccc; border-radius: 3px; opacity: 0.5; }");
+    }
+    
     colorButton->setEnabled(isEnabled);
 }
 
 void FilterItemWidget::onCaseSensitiveToggled(bool checked)
 {
     currentFilter.caseSensitive = checked;
+    updateCaseSensitiveButtonStyle();
     emit filterChanged(itemIndex, currentFilter);
 }
 
 void FilterItemWidget::onWholeWordToggled(bool checked)
 {
     currentFilter.wholeWord = checked;
+    updateWholeWordButtonStyle();
     emit filterChanged(itemIndex, currentFilter);
 }
 
 void FilterItemWidget::onRegexToggled(bool checked)
 {
     currentFilter.isRegex = checked;
+    updateRegexButtonStyle();
     emit filterChanged(itemIndex, currentFilter);
 }
 
@@ -790,7 +823,9 @@ void FilterItemWidget::setFilterConfig(const FilterConfig &filter)
     // Update button states
     enabledButton->setChecked(filter.enabled);
     caseSensitiveButton->setChecked(filter.caseSensitive);
+    updateCaseSensitiveButtonStyle();
     wholeWordButton->setChecked(filter.wholeWord);
+    updateWholeWordButtonStyle();
     regexButton->setChecked(filter.isRegex);
     
     // Update color button
@@ -890,4 +925,31 @@ void FilterListWidget::updateFilterRows()
         }
     }
     guard.commit();
+}
+
+void FilterItemWidget::updateCaseSensitiveButtonStyle()
+{
+    if (caseSensitiveButton->isChecked()) {
+        caseSensitiveButton->setStyleSheet("QToolButton { background-color: #99c2ff; border: 1px solid #5599ff; border-radius: 3px; }");
+    } else {
+        caseSensitiveButton->setStyleSheet("QToolButton { background-color: transparent; border: 1px solid #cccccc; border-radius: 3px; }");
+    }
+}
+
+void FilterItemWidget::updateWholeWordButtonStyle()
+{
+    if (wholeWordButton->isChecked()) {
+        wholeWordButton->setStyleSheet("QToolButton { background-color: #99c2ff; border: 1px solid #5599ff; border-radius: 3px;  text-decoration: underline;}");
+    } else {
+        wholeWordButton->setStyleSheet("QToolButton { background-color: transparent; border: 1px solid #cccccc; border-radius: 3px;  text-decoration: underline;}");
+    }
+}
+
+void FilterItemWidget::updateRegexButtonStyle()
+{
+    if (regexButton->isChecked()) {
+        regexButton->setStyleSheet("QToolButton { background-color: #99c2ff; border: 1px solid #5599ff; border-radius: 3px; }");
+    } else {
+        regexButton->setStyleSheet("QToolButton { background-color: transparent; border: 1px solid #cccccc; border-radius: 3px; }");
+    }
 }
