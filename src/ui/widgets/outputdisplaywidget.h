@@ -78,7 +78,6 @@ private:
     QFont getOptimalMonoFont();
     void updateDisplay(int startLine, int lineCount);
     void updateScrollBarRanges(); // 更新自定义滚动条范围
-    void applyHighlighting();
     QString formatLinePrefix(int outputLineIndex, int outputLineFieldWidth, int fileIndex, int lineIndex) const;
     int getLineStartPosition(int lineIndex) const;
 

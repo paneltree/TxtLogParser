@@ -55,6 +55,9 @@ namespace Core {
     void OutputLine::setLineIndex(int32_t lineIndex){
         m_lineIndex = lineIndex;
     }
+    void OutputLine::setContent(std::string_view content){
+        m_content = content;
+    }
     int32_t OutputLine::getFileId() const{
         return m_fileId;
     }
@@ -63,6 +66,9 @@ namespace Core {
     }
     int32_t OutputLine::getLineIndex() const{
         return m_lineIndex;
+    }
+    std::string_view OutputLine::getContent() const{
+        return m_content;
     }
     void OutputLine::addSubLine(const OutputSubLine& subLine){
         m_subLines.push_back(subLine);

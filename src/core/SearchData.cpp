@@ -184,6 +184,10 @@ namespace Core {
 
             if (begin == end) {
                 // No matches found
+                // Add the entire line as unmatched
+                OutputSubLine unmatched;
+                unmatched.setContent(lineContent);
+                sublines.push_back(unmatched);
                 return;
             }
 

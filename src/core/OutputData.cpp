@@ -276,6 +276,7 @@ namespace Core {
                 outputLine->setFileId(fileId);
                 outputLine->setFileRow(fileRow);
                 outputLine->setLineIndex(itLine->fileLineIndex);
+                outputLine->setContent(std::string_view(itLine->lineContent));
 
                 std::list<OutputSubLine> subLines;
                 OutputSubLine subLine;

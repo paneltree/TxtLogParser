@@ -577,7 +577,6 @@ void OutputDisplayWidget::updateDisplay(int startLine, int lineCount)
     textEditLines->setUpdatesEnabled(true);
 
     // 应用高亮并更新信息区域
-    applyHighlighting();
     infoArea->setLineRange(m_textEditLinesStartLine, m_textEditLinesEndLine);
     infoArea->update();
     
@@ -585,39 +584,6 @@ void OutputDisplayWidget::updateDisplay(int startLine, int lineCount)
     updateScrollBarRanges();
     
     isUpdatingDisplay = false; // 更新完成，重置标志
-}
-
-void OutputDisplayWidget::applyHighlighting()
-{
-    // Example: Highlight "example" (replace with actual logic from bridge if needed)
-    std::string highlightTerm = "example";
-    if (highlightTerm.empty()) return;
-
-    QTextCharFormat highlightFormat;
-    highlightFormat.setBackground(Qt::yellow);
-
-    QTextCursor cursor(textEditLines->document());
-    cursor.movePosition(QTextCursor::Start);
-
-    int startLine = textEditLines->verticalScrollBar()->value();
-    int endLine = std::min(startLine + visibleLines, static_cast<int>(outputLines.size()));
-
-    for (int i = startLine; i < endLine; ++i) {
-        QString lineText;
-        for (const auto& subLine : outputLines[i].m_subLines) {
-            lineText += subLine.m_content;
-        }
-        std::string line = lineText.toStdString();
-        size_t pos = 0;
-        while ((pos = line.find(highlightTerm, pos)) != std::string::npos) {
-            int lineStart = cursor.position();
-            cursor.setPosition(lineStart + pos);
-            cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, highlightTerm.length());
-            cursor.mergeCharFormat(highlightFormat);
-            pos += highlightTerm.length();
-        }
-        cursor.movePosition(QTextCursor::NextBlock);
-    }
 }
 
 void OutputDisplayWidget::onScrollBarMoved(int value)
