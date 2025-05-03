@@ -481,6 +481,7 @@ void OutputDisplayWidget::doUpdate()
     int maxLineCountInFile = 0;
     for (const auto& qOutputLine : outputLines) {
         lineInfoList.append({outputLineIndex+1, qOutputLine.m_fileRow, qOutputLine.m_lineIndex});
+        outputLineIndex += 1;
         maxLineCountInFile = std::max(maxLineCountInFile, qOutputLine.m_lineIndex);
         if (outputLineIndex % CHUNK_SIZE == 0) {
             QApplication::processEvents();
