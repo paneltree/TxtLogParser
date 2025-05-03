@@ -25,6 +25,9 @@ FileListWidget::FileListWidget(int64_t workspaceId, QtBridge& bridge, QWidget *p
     QHBoxLayout *headerLayout = new QHBoxLayout();
     headerLayout->setContentsMargins(0, 0, 0, 0);
     
+    // Add stretch to push elements to center
+    headerLayout->addStretch(1);
+    
     // Create header label
     QLabel *headerLabel = new QLabel(tr("Files"), this);
     headerLabel->setStyleSheet("font-weight: bold; font-size: 14px; color: #0078d4;");
@@ -37,6 +40,9 @@ FileListWidget::FileListWidget(int64_t workspaceId, QtBridge& bridge, QWidget *p
     reloadButton->setToolTip(tr("Reload"));
     reloadButton->setAutoRaise(true);
     headerLayout->addWidget(reloadButton);
+    
+    // Add stretch for symmetry to keep elements centered
+    headerLayout->addStretch(1);
     
     // Add the header layout to the main layout
     layout->addLayout(headerLayout);

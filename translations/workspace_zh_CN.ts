@@ -4,7 +4,7 @@
 <context>
     <name>FileItemWidget</name>
     <message>
-        <location filename="../src/ui/widgets/filelistwidget.cpp" line="385"/>
+        <location filename="../src/ui/widgets/filelistwidget.cpp" line="391"/>
         <source>Remove File</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12,32 +12,32 @@
 <context>
     <name>FileListWidget</name>
     <message>
-        <location filename="../src/ui/widgets/filelistwidget.cpp" line="29"/>
+        <location filename="../src/ui/widgets/filelistwidget.cpp" line="32"/>
         <source>Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filelistwidget.cpp" line="37"/>
+        <location filename="../src/ui/widgets/filelistwidget.cpp" line="40"/>
         <source>Reload</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filelistwidget.cpp" line="93"/>
+        <location filename="../src/ui/widgets/filelistwidget.cpp" line="99"/>
         <source>Add File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filelistwidget.cpp" line="94"/>
+        <location filename="../src/ui/widgets/filelistwidget.cpp" line="100"/>
         <source>Remove Selected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filelistwidget.cpp" line="323"/>
+        <location filename="../src/ui/widgets/filelistwidget.cpp" line="329"/>
         <source>Select Log Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/filelistwidget.cpp" line="325"/>
+        <location filename="../src/ui/widgets/filelistwidget.cpp" line="331"/>
         <source>All Files (*)</source>
         <translation type="unfinished"></translation>
     </message>
