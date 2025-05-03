@@ -594,57 +594,64 @@ FilterItemWidget::FilterItemWidget(const FilterConfig &filter, int index, QWidge
     filterLabel->setWordWrap(false);
     filterLabel->setTextFormat(Qt::PlainText);
     
-    layout->addWidget(filterLabel, 1);
+    layout->addWidget(filterLabel, 3); // Increase stretch factor from 1 to 3
     
     // Match count label
-    matchCountLabel = new QLabel(tr("Matches: 0"), this);
+    matchCountLabel = new QLabel(tr("M: 0"), this);
     matchCountLabel->setAlignment(Qt::AlignCenter);
-    matchCountLabel->setMinimumWidth(80);
+    matchCountLabel->setMinimumWidth(40); // Reduce from 80 to 40
+    matchCountLabel->setMaximumWidth(60); // Add maximum width
     layout->addWidget(matchCountLabel);
     
     // Navigation buttons
     prevMatchButton = new QPushButton("◀", this);
-    prevMatchButton->setFixedSize(24, 24);
+    prevMatchButton->setFixedSize(20, 24); // Reduce width from 24 to 20
     prevMatchButton->setToolTip(tr("Previous Match"));
     prevMatchButton->setEnabled(false);
     connect(prevMatchButton, &QPushButton::clicked, this, &FilterItemWidget::onPrevMatchClicked);
     layout->addWidget(prevMatchButton);
     
     nextMatchButton = new QPushButton("▶", this);
-    nextMatchButton->setFixedSize(24, 24);
+    nextMatchButton->setFixedSize(20, 24); // Reduce width from 24 to 20
     nextMatchButton->setToolTip(tr("Next Match"));
     nextMatchButton->setEnabled(false);
     connect(nextMatchButton, &QPushButton::clicked, this, &FilterItemWidget::onNextMatchClicked);
     layout->addWidget(nextMatchButton);
     
     // Case sensitive checkbox
-    caseSensitiveButton = new QCheckBox("Case", this);
+    caseSensitiveButton = new QCheckBox("Aa", this);
     caseSensitiveButton->setChecked(filter.caseSensitive);
+    caseSensitiveButton->setToolTip(tr("Case Sensitive"));
+    caseSensitiveButton->setMaximumWidth(35); // Add maximum width
     connect(caseSensitiveButton, &QCheckBox::toggled, this, &FilterItemWidget::onCaseSensitiveToggled);
     layout->addWidget(caseSensitiveButton);
     
     // Whole word checkbox
-    wholeWordButton = new QCheckBox("Word", this);
+    wholeWordButton = new QCheckBox("W", this); // Change from "Word" to "W"
     wholeWordButton->setChecked(filter.wholeWord);
+    wholeWordButton->setToolTip(tr("Whole Word"));
+    wholeWordButton->setMaximumWidth(30); // Add maximum width
     connect(wholeWordButton, &QCheckBox::toggled, this, &FilterItemWidget::onWholeWordToggled);
     layout->addWidget(wholeWordButton);
     
     // Regex checkbox
-    regexButton = new QCheckBox("Regex", this);
+    regexButton = new QCheckBox(".*", this);
     regexButton->setChecked(filter.isRegex);
+    regexButton->setToolTip(tr("Regular Expression"));
+    regexButton->setMaximumWidth(30); // Add maximum width
     connect(regexButton, &QCheckBox::toggled, this, &FilterItemWidget::onRegexToggled);
     layout->addWidget(regexButton);
     
     // Color button
     colorButton = new QPushButton(this);
-    colorButton->setFixedSize(24, 24);
+    colorButton->setFixedSize(20, 24); // Reduce width from 24 to 20
     colorButton->setStyleSheet(QString("background-color: %1; border: 1px solid #888;").arg(filter.color.name()));
     connect(colorButton, &QPushButton::clicked, this, &FilterItemWidget::onColorClicked);
     layout->addWidget(colorButton);
     
     // Remove button
     removeButton = new QPushButton(QIcon::fromTheme("edit-delete"), "", this);
-    removeButton->setFixedSize(24, 24);
+    removeButton->setFixedSize(20, 24); // Reduce width from 24 to 20
     removeButton->setToolTip(tr("Remove Filter"));
     connect(removeButton, &QPushButton::clicked, this, [this]() {
         emit removeRequested(itemIndex);
@@ -680,7 +687,7 @@ bool FilterItemWidget::eventFilter(QObject *watched, QEvent *event)
 void FilterItemWidget::updateMatchCount(int count)
 {
     currentFilter.matchCount = count;
-    matchCountLabel->setText(tr("Matches: %1").arg(count));
+    matchCountLabel->setText(tr("M: %1").arg(count));
     
     // Enable/disable navigation buttons based on match count
     bool hasMatches = (count > 0);
