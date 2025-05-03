@@ -9,6 +9,7 @@
 #include <QLineEdit>
 #include <QCheckBox>
 #include <QPushButton>
+#include <QToolButton>
 #include <QColorDialog>
 #include <QFrame>
 #include <QColor>
@@ -96,9 +97,9 @@ private slots:
 private:
     QLabel *searchLabel;
     QCheckBox *enabledButton;
-    QCheckBox *caseSensitiveButton;
-    QCheckBox *wholeWordButton;
-    QCheckBox *regexButton;
+    QToolButton *caseSensitiveButton;
+    QToolButton *wholeWordButton;
+    QToolButton *regexButton;
     QPushButton *colorButton;
     QPushButton *removeButton;
     
@@ -112,6 +113,9 @@ private:
     
     void updateEnabledState();
     void updateSearchStyle();
+    void updateCaseSensitiveButtonStyle();
+    void updateWholeWordButtonStyle();
+    void updateRegexButtonStyle();
 };
 
 // Dialog for adding/editing searchs
@@ -140,4 +144,4 @@ private:
     void updateColorButton();
 };
 
-#endif // SEARCHLISTWIDGET_H 
+#endif // SEARCHLISTWIDGET_H

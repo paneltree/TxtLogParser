@@ -619,21 +619,36 @@ SearchItemWidget::SearchItemWidget(const SearchConfig &search, int index, QWidge
     layout->addWidget(nextMatchButton);
     
     // Case sensitive checkbox
-    caseSensitiveButton = new QCheckBox("Case", this);
+    caseSensitiveButton = new QToolButton(this);
+    caseSensitiveButton->setText("Aa");
+    caseSensitiveButton->setCheckable(true);
     caseSensitiveButton->setChecked(search.caseSensitive);
-    connect(caseSensitiveButton, &QCheckBox::toggled, this, &SearchItemWidget::onCaseSensitiveToggled);
+    caseSensitiveButton->setToolTip(tr("Case Sensitive"));
+    caseSensitiveButton->setFixedSize(24, 24);
+    updateCaseSensitiveButtonStyle();
+    connect(caseSensitiveButton, &QToolButton::toggled, this, &SearchItemWidget::onCaseSensitiveToggled);
     layout->addWidget(caseSensitiveButton);
     
     // Whole word checkbox
-    wholeWordButton = new QCheckBox("Word", this);
+    wholeWordButton = new QToolButton(this);
+    wholeWordButton->setText("ab");
+    wholeWordButton->setCheckable(true);
     wholeWordButton->setChecked(search.wholeWord);
-    connect(wholeWordButton, &QCheckBox::toggled, this, &SearchItemWidget::onWholeWordToggled);
+    wholeWordButton->setToolTip(tr("Whole Word"));
+    wholeWordButton->setFixedSize(24, 24);
+    updateWholeWordButtonStyle();
+    connect(wholeWordButton, &QToolButton::toggled, this, &SearchItemWidget::onWholeWordToggled);
     layout->addWidget(wholeWordButton);
     
     // Regex checkbox
-    regexButton = new QCheckBox("Regex", this);
+    regexButton = new QToolButton(this);
+    regexButton->setText(".*");
+    regexButton->setCheckable(true);
     regexButton->setChecked(search.isRegex);
-    connect(regexButton, &QCheckBox::toggled, this, &SearchItemWidget::onRegexToggled);
+    regexButton->setToolTip(tr("Regular Expression"));
+    regexButton->setFixedSize(24, 24);
+    updateRegexButtonStyle();
+    connect(regexButton, &QToolButton::toggled, this, &SearchItemWidget::onRegexToggled);
     layout->addWidget(regexButton);
     
     // Color button
@@ -736,26 +751,47 @@ void SearchItemWidget::updateEnabledState()
     searchLabel->setStyleSheet(styleSheet);
     
     caseSensitiveButton->setEnabled(isEnabled);
+    if (isEnabled) {
+        updateCaseSensitiveButtonStyle();
+    } else {
+        caseSensitiveButton->setStyleSheet("QToolButton { background-color: #f0f0f0; border: 1px solid #cccccc; border-radius: 3px; opacity: 0.5; }");
+    }
+    
     wholeWordButton->setEnabled(isEnabled);
+    if (isEnabled) {
+        updateWholeWordButtonStyle();
+    } else {
+        wholeWordButton->setStyleSheet("QToolButton { background-color: #f0f0f0; border: 1px solid #cccccc; border-radius: 3px; opacity: 0.5; }");
+    }
+    
     regexButton->setEnabled(isEnabled);
+    if (isEnabled) {
+        updateRegexButtonStyle();
+    } else {
+        regexButton->setStyleSheet("QToolButton { background-color: #f0f0f0; border: 1px solid #cccccc; border-radius: 3px; opacity: 0.5; }");
+    }
+    
     colorButton->setEnabled(isEnabled);
 }
 
 void SearchItemWidget::onCaseSensitiveToggled(bool checked)
 {
     currentSearch.caseSensitive = checked;
+    updateCaseSensitiveButtonStyle();
     emit searchChanged(itemIndex, currentSearch);
 }
 
 void SearchItemWidget::onWholeWordToggled(bool checked)
 {
     currentSearch.wholeWord = checked;
+    updateWholeWordButtonStyle();
     emit searchChanged(itemIndex, currentSearch);
 }
 
 void SearchItemWidget::onRegexToggled(bool checked)
 {
     currentSearch.isRegex = checked;
+    updateRegexButtonStyle();
     emit searchChanged(itemIndex, currentSearch);
 }
 
@@ -884,4 +920,31 @@ void SearchListWidget::updateSearchRows()
         }
     }
     guard.commit();
+}
+
+void SearchItemWidget::updateCaseSensitiveButtonStyle()
+{
+    if (caseSensitiveButton->isChecked()) {
+        caseSensitiveButton->setStyleSheet("QToolButton { background-color: #99c2ff; border: 1px solid #5599ff; border-radius: 3px; }");
+    } else {
+        caseSensitiveButton->setStyleSheet("QToolButton { background-color: transparent; border: 1px solid #cccccc; border-radius: 3px; }");
+    }
+}
+
+void SearchItemWidget::updateWholeWordButtonStyle()
+{
+    if (wholeWordButton->isChecked()) {
+        wholeWordButton->setStyleSheet("QToolButton { background-color: #99c2ff; border: 1px solid #5599ff; border-radius: 3px;  text-decoration: underline;}");
+    } else {
+        wholeWordButton->setStyleSheet("QToolButton { background-color: transparent; border: 1px solid #cccccc; border-radius: 3px;  text-decoration: underline;}");
+    }
+}
+
+void SearchItemWidget::updateRegexButtonStyle()
+{
+    if (regexButton->isChecked()) {
+        regexButton->setStyleSheet("QToolButton { background-color: #99c2ff; border: 1px solid #5599ff; border-radius: 3px; }");
+    } else {
+        regexButton->setStyleSheet("QToolButton { background-color: transparent; border: 1px solid #cccccc; border-radius: 3px; }");
+    }
 }

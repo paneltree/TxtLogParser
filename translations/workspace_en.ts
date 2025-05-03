@@ -378,12 +378,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="809"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="845"/>
         <source>Edit Search</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="649"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="664"/>
         <source>Remove Search</source>
         <translation type="unfinished"></translation>
     </message>
@@ -398,32 +398,47 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="684"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="626"/>
+        <source>Case Sensitive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="637"/>
+        <source>Whole Word</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="648"/>
+        <source>Regular Expression</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="699"/>
         <source>Matches: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="698"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="713"/>
         <source>Match %1 of %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="700"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="715"/>
         <source>No matches found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="764"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="800"/>
         <source>Select Search Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="818"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="854"/>
         <source>Invalid Search</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="818"/>
+        <location filename="../src/ui/widgets/searchlistwidget.cpp" line="854"/>
         <source>Search string cannot be empty.</source>
         <translation type="unfinished"></translation>
     </message>
