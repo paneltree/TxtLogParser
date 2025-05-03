@@ -38,7 +38,7 @@ QString rectfToString(const QRectF &rect)
 
 
 // InfoAreaWidget implementation
-InfoAreaWidget::InfoAreaWidget(QTextEdit *editor) : QWidget(editor), textEditor(editor)
+InfoAreaWidget::InfoAreaWidget(QtBridge& bridge,QTextEdit *editor) : m_bridge(bridge), QWidget(editor), textEditor(editor)
 {
     // Use the exact same font as the text editor for perfect alignment
     setFont(QFont("Courier New", 11));
@@ -111,7 +111,7 @@ void InfoAreaWidget::paintEvent(QPaintEvent *event)
 
         auto& lineInfo = m_lineInfoList[currentLine];
         QString lineString = formatLinePrefix(lineInfo.outputLineNumber, lineInfo.fileIndex, lineInfo.lineIndex);
-        QRectF drawRect(documentMargin, top, width() - documentMargin * 2, height);
+        QRectF drawRect(0, top, width(), height);
         painter.drawText(drawRect, Qt::AlignRight | Qt::AlignVCenter, lineString);
         block = block.next();
         ++currentLine;
@@ -232,7 +232,7 @@ OutputDisplayWidget::OutputDisplayWidget(int64_t workspaceId, QtBridge& bridge, 
     
     // 创建文本编辑控件和行号区域
     textEditLines = new QTextEdit(contentWidget);
-    infoArea = new InfoAreaWidget(textEditLines);
+    infoArea = new InfoAreaWidget(bridge, textEditLines);
     //infoArea->setFixedWidth(130);
     
     // 禁用文本编辑器的内置滚动条

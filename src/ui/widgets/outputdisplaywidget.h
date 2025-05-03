@@ -25,7 +25,7 @@ class InfoAreaWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit InfoAreaWidget(QTextEdit *editor);
+    explicit InfoAreaWidget(QtBridge& bridge, QTextEdit *editor);
     QSize sizeHint() const override;
     void paintEvent(QPaintEvent *event) override;
     bool event(QEvent *event) override;
@@ -36,6 +36,7 @@ protected:
     QString formatLinePrefix(int outputLineIndex, int fileIndex, int lineIndex) const;
     void updateWidth();
 private:
+    QtBridge& m_bridge;
     QTextEdit *textEditor = nullptr;
     QStringList lineInfos;
     QVector<OutputLineInfo> m_lineInfoList;
