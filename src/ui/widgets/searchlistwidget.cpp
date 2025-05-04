@@ -902,7 +902,7 @@ void SearchListWidget::updateSearchRows()
             if (widget) {
                 widget->setSearchIndex(i);
                 SearchConfig search = widget->getSearchConfig();
-                search.searchRow = i;
+                searchList.append(search);
                 QtBridge::getInstance().updateSearchRowInWorkspace(workspaceId, search.searchId, i);
             }
         }
