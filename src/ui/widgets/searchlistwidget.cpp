@@ -874,21 +874,7 @@ void SearchItemWidget::showEditDialog()
 
 void SearchListWidget::handleItemMoved(int fromRow, int toRow)
 {
-    // Ensure the rows are valid
-    if (fromRow < 0 || fromRow >= searchList.size() || 
-        toRow < 0 || toRow >= searchList.size() || 
-        fromRow == toRow) {
-        return;
-    }
-    
-    // Move the search in our internal list
-    SearchConfig movedSearch = searchList.takeAt(fromRow);
-    searchList.insert(toRow, movedSearch);
-    
-    // Update search rows for all searchs
     updateSearchRows();
-    
-    // Notify that searchs have changed
     emit searchsChanged();
 }
 
@@ -908,14 +894,16 @@ void SearchListWidget::updateSearchRows()
             bridge.rollbackSearchUpdate(workspaceId);
         }
     );
+    searchList.clear();
     for (int i = 0; i < searchListWidget->count(); i++) {
         QListWidgetItem *item = searchListWidget->item(i);
         if (item) {
             SearchItemWidget *widget = qobject_cast<SearchItemWidget*>(searchListWidget->itemWidget(item));
             if (widget) {
                 widget->setSearchIndex(i);
-                searchList[i].searchRow = i;
-                QtBridge::getInstance().updateSearchRowInWorkspace(workspaceId, searchList[i].searchId, i);
+                SearchConfig search = widget->getSearchConfig();
+                search.searchRow = i;
+                QtBridge::getInstance().updateSearchRowInWorkspace(workspaceId, search.searchId, i);
             }
         }
     }

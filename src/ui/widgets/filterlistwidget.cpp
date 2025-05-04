@@ -879,21 +879,7 @@ void FilterItemWidget::showEditDialog()
 
 void FilterListWidget::handleItemMoved(int fromRow, int toRow)
 {
-    // Ensure the rows are valid
-    if (fromRow < 0 || fromRow >= filterList.size() || 
-        toRow < 0 || toRow >= filterList.size() || 
-        fromRow == toRow) {
-        return;
-    }
-    
-    // Move the filter in our internal list
-    FilterConfig movedFilter = filterList.takeAt(fromRow);
-    filterList.insert(toRow, movedFilter);
-    
-    // Update filter rows for all filters
     updateFilterRows();
-    
-    // Notify that filters have changed
     emit filtersChanged();
 }
 
@@ -913,14 +899,16 @@ void FilterListWidget::updateFilterRows()
             bridge.rollbackFilterUpdate(workspaceId);
         }
     );
+    filterList.clear();
     for (int i = 0; i < filterListWidget->count(); i++) {
         QListWidgetItem *item = filterListWidget->item(i);
         if (item) {
             FilterItemWidget *widget = qobject_cast<FilterItemWidget*>(filterListWidget->itemWidget(item));
             if (widget) {
                 widget->setFilterIndex(i);
-                filterList[i].filterRow = i;
-                QtBridge::getInstance().updateFilterRowInWorkspace(workspaceId, filterList[i].filterId, i);
+                FilterConfig filter = widget->getFilterConfig();
+                filterList.append(filter);
+                QtBridge::getInstance().updateFilterRowInWorkspace(workspaceId, filter.filterId, i);
             }
         }
     }
