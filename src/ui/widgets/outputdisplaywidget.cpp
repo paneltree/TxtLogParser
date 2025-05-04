@@ -505,7 +505,7 @@ void OutputDisplayWidget::doUpdate()
     updateDisplay(0, visibleLines);
 }
 
-void OutputDisplayWidget::updateDisplay(int startLine, int lineCount)
+void OutputDisplayWidget::updateDisplay(int startLine, int lineCount, int matchLineIndex, int matchCharStartIndex , int matchCharEndIndex)
 {
     // 防止递归调用
     if (isUpdatingDisplay) {
@@ -548,11 +548,21 @@ void OutputDisplayWidget::updateDisplay(int startLine, int lineCount)
     QColor defaultTextColor = QApplication::palette().color(QPalette::Text);
     for (int i = startLine; i < endLine; ++i) {
         const auto& qOutputLine = outputLines[i];
+        int curCharIndex = 0;
         for (const auto& qOutputSubLine : qOutputLine.m_subLines) {
             QTextCharFormat format;
             format.setForeground(qOutputSubLine.m_color.isEmpty() ? 
                                 defaultTextColor : QColor(qOutputSubLine.m_color));
+            if(matchLineIndex == i){
+                if(curCharIndex >= matchCharStartIndex && curCharIndex < matchCharEndIndex){
+                    format.setFontWeight(QFont::Bold);
+                    format.setFontUnderline(true);                     // Add underline
+                    format.setUnderlineStyle(QTextCharFormat::WaveUnderline);  // Make it wavy for emphasis
+                    format.setUnderlineColor(Qt::red);  
+                }
+            }
             cursor.insertText(qOutputSubLine.m_content, format);
+            curCharIndex += qOutputSubLine.m_content.length();
         }
         cursor.insertBlock();
     }
@@ -644,12 +654,16 @@ void OutputDisplayWidget::onNavigateToNextFilterMatch(int filterId)
         
         int lineStartPosition = getLineStartPosition(relativeLineIndex);
         if (lineStartPosition != -1) {
-            
-            // 使用自定义滚动条而不是内置滚动条
-
+            /*
             QTextCursor cursor = textEditLines->textCursor();
             cursor.setPosition(lineStartPosition + matchCharStartIndex);
             cursor.setPosition(lineStartPosition + matchCharEndIndex, QTextCursor::KeepAnchor);
+            textEditLines->setTextCursor(cursor);
+            */
+            updateDisplay(customVerticalScrollBar->value(), visibleLines, 
+                matchLineIndex, matchCharStartIndex, matchCharEndIndex);
+            QTextCursor cursor = textEditLines->textCursor();
+            cursor.setPosition(lineStartPosition + matchCharEndIndex);
             textEditLines->setTextCursor(cursor);
         }
     }
@@ -705,9 +719,16 @@ void OutputDisplayWidget::onNavigateToPreviousFilterMatch(int filterId)
         
         int lineStartPosition = getLineStartPosition(relativeLineIndex);
         if (lineStartPosition != -1) {
+            /*
             QTextCursor cursor = textEditLines->textCursor();
             cursor.setPosition(lineStartPosition + matchCharEndIndex);
             cursor.setPosition(lineStartPosition + matchCharStartIndex, QTextCursor::KeepAnchor);
+            textEditLines->setTextCursor(cursor);
+            */
+            updateDisplay(customVerticalScrollBar->value(), visibleLines, 
+                matchLineIndex, matchCharStartIndex, matchCharEndIndex);
+            QTextCursor cursor = textEditLines->textCursor();
+            cursor.setPosition(lineStartPosition + matchCharStartIndex);
             textEditLines->setTextCursor(cursor);
         }
     }
@@ -762,9 +783,16 @@ void OutputDisplayWidget::onNavigateToNextSearchMatch(int searchId)
         
         int lineStartPosition = getLineStartPosition(relativeLineIndex);
         if (lineStartPosition != -1) {
+            /*
             QTextCursor cursor = textEditLines->textCursor();
             cursor.setPosition(lineStartPosition + matchCharStartIndex);
             cursor.setPosition(lineStartPosition + matchCharEndIndex, QTextCursor::KeepAnchor);
+            textEditLines->setTextCursor(cursor);
+            */            
+            updateDisplay(customVerticalScrollBar->value(), visibleLines, 
+                matchLineIndex, matchCharStartIndex, matchCharEndIndex);
+            QTextCursor cursor = textEditLines->textCursor();
+            cursor.setPosition(lineStartPosition + matchCharEndIndex);
             textEditLines->setTextCursor(cursor);
         }
     }
@@ -820,9 +848,16 @@ void OutputDisplayWidget::onNavigateToPreviousSearchMatch(int searchId)
         
         int lineStartPosition = getLineStartPosition(relativeLineIndex);
         if (lineStartPosition != -1) {
+            /*
             QTextCursor cursor = textEditLines->textCursor();
             cursor.setPosition(lineStartPosition + matchCharEndIndex);
             cursor.setPosition(lineStartPosition + matchCharStartIndex, QTextCursor::KeepAnchor);
+            textEditLines->setTextCursor(cursor);
+            */
+            updateDisplay(customVerticalScrollBar->value(), visibleLines, 
+                matchLineIndex, matchCharStartIndex, matchCharEndIndex);
+            QTextCursor cursor = textEditLines->textCursor();
+            cursor.setPosition(lineStartPosition + matchCharStartIndex);
             textEditLines->setTextCursor(cursor);
         }
     }
