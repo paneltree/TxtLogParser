@@ -480,4 +480,22 @@
         <translation type="unfinished"></translation>
     </message>
 </context>
+<context>
+    <name>Workspace</name>
+    <message>
+        <location filename="../src/ui/workspace.cpp" line="61"/>
+        <source>Files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/workspace.cpp" line="62"/>
+        <source>Filters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ui/workspace.cpp" line="63"/>
+        <source>Search</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
 </TS>

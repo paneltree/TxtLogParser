@@ -4,6 +4,7 @@
 #include <QSplitter>
 #include <QTextEdit>
 #include <QTimer>
+#include <QTabWidget>
 #include "widgets/filelistwidget.h"
 #include "widgets/filterlistwidget.h"
 #include "widgets/searchlistwidget.h"
@@ -51,28 +52,15 @@ Workspace::Workspace(int64_t id, QWidget *parent)
     filterListWidget = new FilterListWidget(workspaceId, bridge, topWidget);
     searchListWidget = new SearchListWidget(workspaceId, bridge, topWidget);
 
-    // Create horizontal splitters for the top section
-    QSplitter *leftSplitter = new QSplitter(Qt::Horizontal, topWidget);
-    topLayout->addWidget(leftSplitter);
+    // Create tab widget to hold the three widgets
+    QTabWidget *tabWidget = new QTabWidget(topWidget);
+    topLayout->addWidget(tabWidget);
     topLayout->setContentsMargins(0, 0, 0, 0);
 
-    // Add the file list widget directly to the first splitter
-    leftSplitter->addWidget(fileListWidget);
-
-    // Create a second splitter for filter and search lists
-    QSplitter *rightSplitter = new QSplitter(Qt::Horizontal, leftSplitter);
-    leftSplitter->addWidget(rightSplitter);
-    
-    // Add filter and search widgets to the second splitter
-    rightSplitter->addWidget(filterListWidget);
-    rightSplitter->addWidget(searchListWidget);
-
-    // Set stretch factors for the splitters
-    leftSplitter->setStretchFactor(0, 1); // fileListWidget
-    leftSplitter->setStretchFactor(1, 2); // rightSplitter (contains filter and search)
-    
-    rightSplitter->setStretchFactor(0, 1); // filterListWidget
-    rightSplitter->setStretchFactor(1, 1); // searchListWidget
+    // Add the widgets to the tab widget
+    tabWidget->addTab(fileListWidget, tr("Files"));
+    tabWidget->addTab(filterListWidget, tr("Filters"));
+    tabWidget->addTab(searchListWidget, tr("Search"));
 
     // Bottom section: output display area
     outputDisplay = new OutputDisplayWidget(workspaceId, bridge, topWidget);  // No parent, let splitter manage
