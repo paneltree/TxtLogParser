@@ -54,6 +54,7 @@ Workspace::Workspace(int64_t id, QWidget *parent)
 
     // Create tab widget to hold the three widgets
     QTabWidget *tabWidget = new QTabWidget(topWidget);
+    //tabWidget->setTabPosition(QTabWidget::West);  // Set tabs to the left side
     topLayout->addWidget(tabWidget);
     topLayout->setContentsMargins(0, 0, 0, 0);
 
