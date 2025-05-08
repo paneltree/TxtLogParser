@@ -53,6 +53,9 @@ private:
     void restoreWorkspaces(const QStringList &workspaceNames);
     void loadWorkspaces();
     void updateWorkspaceSortIndex();
+    void addPlusTab();
+    void onTabChanged(int index);
+    void onTabClicked(int index);
     
     QTabWidget *tabWidget;
     QMenu *workspaceMenu;
@@ -61,10 +64,10 @@ private:
     QAction *closeWorkspaceAction;
     QTranslator translator;
     QSettings settings;
-    void updateWorkspaceNames();
     
     QActionGroup *workspaceActionGroup;
     QList<QAction*> workspaceActions;
+    int plusTabIndex; // Index of the "+" tab
 
     // Window geometry methods
     void saveWindowGeometry();

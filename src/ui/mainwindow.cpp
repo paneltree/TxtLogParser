@@ -19,7 +19,7 @@
 #include "../bridge/QtBridge.h"
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent), settings("paneltree", "TxtLogParser"), bridge(QtBridge::getInstance())
+    : QMainWindow(parent), settings("paneltree", "TxtLogParser"), bridge(QtBridge::getInstance()), plusTabIndex(-1)
 {
     bridge.logInfo("MainWindow MainWindow::MainWindow Enter");
     
@@ -53,8 +53,13 @@ MainWindow::MainWindow(QWidget *parent)
     
     setCentralWidget(tabWidget);
     
-    // Connect tab close signal
-    connect(tabWidget, &QTabWidget::tabCloseRequested, this, &MainWindow::closeWorkspaceAtIndex);
+    // Connect tab close signal with filter for "+" tab
+    connect(tabWidget, &QTabWidget::tabCloseRequested, this, [this](int index) {
+        // Skip close request if it's the "+" tab
+        if (index != plusTabIndex) {
+            closeWorkspaceAtIndex(index);
+        }
+    });
     
     // Connect tab moved signal to handle drag and drop reordering
     connect(tabWidget->tabBar(), &QTabBar::tabMoved, this, [this](int from, int to) {
@@ -65,17 +70,8 @@ MainWindow::MainWindow(QWidget *parent)
     });
     
     // Connect tab change signal
-    connect(tabWidget, &QTabWidget::currentChanged, this, [this](int index) {
-        if (index >= 0) {
-            Workspace* workspace = qobject_cast<Workspace*>(tabWidget->widget(index));
-            if (workspace) {
-                int64_t workspaceId = workspace->getWorkspaceId();
-                bridge.logInfo("MainWindow Switching to workspace index: " + QString::number(index) + " id: " + QString::number(workspaceId));
-                bridge.setActiveWorkspace(workspaceId);
-                workspace->setActive(true);
-            }
-        }
-    });
+    connect(tabWidget, &QTabWidget::currentChanged, this, &MainWindow::onTabChanged);
+    connect(tabWidget, &QTabWidget::tabBarClicked, this, &MainWindow::onTabClicked);
     
     // Create menus and toolbars
     createMenus();
@@ -207,6 +203,9 @@ void MainWindow::retranslateUi() {
     
     // Update workspace tabs
     for (int i = 0; i < tabWidget->count(); ++i) {
+        if(i == plusTabIndex) {
+            continue; // Skip the "+" tab
+        }
         Workspace *workspace = qobject_cast<Workspace*>(tabWidget->widget(i));
         if (workspace) {
             workspace->updateTranslation();
@@ -215,6 +214,15 @@ void MainWindow::retranslateUi() {
 }
 
 void MainWindow::createWorkspace() {
+    bridge.logInfo("Enter MainWindow Created workspace: ");
+    // Remove the plus tab temporarily
+    if (plusTabIndex >= 0) {
+        QWidget* oldWidget = tabWidget->widget(plusTabIndex);
+        tabWidget->removeTab(plusTabIndex);
+        delete oldWidget;  // Explicitly delete the widget
+        plusTabIndex = -1;
+    }
+    
     // Let the bridge generate the workspace name
     int64_t workspaceId = bridge.createWorkspace();
     
@@ -228,10 +236,13 @@ void MainWindow::createWorkspace() {
     workspace->setSortIndex(tabIndex);
     tabWidget->setCurrentIndex(tabIndex);
     
+    // Add the plus tab back at the end
+    addPlusTab();
+    
     // Update workspace menu
     updateWorkspaceMenu();
     
-    bridge.logInfo("MainWindow Created workspace: " + displayName);
+    bridge.logInfo("Leave MainWindow Created workspace: " + displayName);
 }
 
 void MainWindow::closeWorkspace() {
@@ -242,8 +253,19 @@ void MainWindow::closeWorkspace() {
 }
 
 void MainWindow::closeWorkspaceAtIndex(int index) {
+    bridge.logInfo("Enter MainWindow Closed workspace: " + QString::number(index));
     if (index < 0 || index >= tabWidget->count()) {
         return;
+    }
+    // Skip if it's the "+" tab
+    if (index == plusTabIndex) {
+        return;
+    }
+    if(plusTabIndex > index) {
+        QWidget* oldWidget = tabWidget->widget(plusTabIndex);
+        tabWidget->removeTab(plusTabIndex);
+        delete oldWidget;  // Explicitly delete the widget
+        plusTabIndex = -1;
     }
     
     // Get workspace name for logging
@@ -258,11 +280,11 @@ void MainWindow::closeWorkspaceAtIndex(int index) {
     tabWidget->removeTab(index);
     delete workspace;
     
-    // Update workspace menu
+    addPlusTab();
     updateWorkspaceMenu();
     updateWorkspaceSortIndex();
     
-    bridge.logInfo("MainWindow Closed workspace: " + name);
+    bridge.logInfo("Leave MainWindow Closed workspace: " + QString::number(index) + ",name:" + name);
 }
 
 void MainWindow::updateWorkspaceMenu() {
@@ -276,6 +298,9 @@ void MainWindow::updateWorkspaceMenu() {
     bridge.logInfo("MainWindow After Removed existing workspace actions");
     // Add actions for each workspace
     for (int i = 0; i < tabWidget->count(); ++i) {
+        if(i == plusTabIndex) {
+            continue; // Skip the "+" tab
+        }
         Workspace* workspace = qobject_cast<Workspace*>(tabWidget->widget(i));
         if (workspace) {
             QAction* action = workspaceMenu->addAction(workspace->getDisplayName());
@@ -288,6 +313,9 @@ void MainWindow::updateWorkspaceMenu() {
             // Connect the action to switch to this workspace
             connect(action, &QAction::triggered, this, [this, i]() {
                 if (i >= 0 && i < tabWidget->count()) {
+                    if (i == plusTabIndex) {
+                        return; // Skip the "+" tab
+                    }
                     tabWidget->setCurrentIndex(i);
                 }
             });
@@ -305,6 +333,11 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* event) {
             if (mouseEvent->button() == Qt::RightButton) {
                 int tabIndex = tabWidget->tabBar()->tabAt(mouseEvent->pos());
                 if (tabIndex >= 0) {
+                    // Skip showing context menu if this is the "+" tab
+                    if (tabIndex == plusTabIndex) {
+                        return true; // Process the event and prevent the default context menu
+                    }
+                    
                     bridge.logInfo("MainWindow Right-clicked on tab " + QString::number(tabIndex));
                     
                     QMenu contextMenu(this);
@@ -493,6 +526,7 @@ void MainWindow::loadWorkspaces() {
         
         // Update workspace menu
         updateWorkspaceMenu();
+        addPlusTab();
         bridge.logInfo("MainWindow::loadWorkspaces Updated workspace menu");
         
         bridge.logInfo("MainWindow::loadWorkspaces Successfully loaded and initialized ");
@@ -505,6 +539,8 @@ void MainWindow::loadWorkspaces() {
             createWorkspace();
         }
     }
+    
+    // Add the "+" tab after loading all workspaces
     
     bridge.logInfo("Leave MainWindow::loadWorkspaces");
 }
@@ -529,6 +565,9 @@ void MainWindow::updateWorkspaceSortIndex() {
     // Collect workspace IDs in the current tab order
     QVector<int64_t> orderedIds;
     for (int i = 0; i < tabWidget->count(); ++i) {
+        if(i == plusTabIndex) {
+            continue; // Skip the "+" tab
+        }
         Workspace* workspace = qobject_cast<Workspace*>(tabWidget->widget(i));
         if (workspace) {
             int oldIndex = workspace->getSortIndex();
@@ -538,19 +577,7 @@ void MainWindow::updateWorkspaceSortIndex() {
             }
         }
     }
-}
-
-void MainWindow::updateWorkspaceNames() {
-    // Update tab names
-    for (int i = 0; i < tabWidget->count(); ++i) {
-        Workspace *workspace = qobject_cast<Workspace*>(tabWidget->widget(i));
-        if (workspace) {
-            tabWidget->setTabText(i, workspace->getDisplayName());
-        }
-    }
-    
-    // Update workspace menu
-    updateWorkspaceMenu();
+    bridge.logInfo("Leave MainWindow::updateWorkspaceSortIndex");
 }
 
 void MainWindow::renameWorkspace()
@@ -671,4 +698,50 @@ void MainWindow::showWorkspaceContextMenu(QAction* actionSender)
     contextMenu.setProperty("actionSender", QVariant::fromValue(actionSender));
     
     contextMenu.exec(QCursor::pos());
+}
+
+void MainWindow::addPlusTab() {
+    // Add the "+" tab at the end of the tab widget with a blank widget
+    QWidget* plusTabWidget = new QWidget(tabWidget);
+    plusTabIndex = tabWidget->addTab(plusTabWidget, "+");
+    // Make this tab not closable by removing close buttons on both sides
+    tabWidget->tabBar()->setTabButton(plusTabIndex, QTabBar::RightSide, nullptr);
+    tabWidget->tabBar()->setTabButton(plusTabIndex, QTabBar::LeftSide, nullptr);
+    bridge.logInfo("MainWindow Added '+' tab at index " + QString::number(plusTabIndex));
+}
+
+void MainWindow::onTabChanged(int index) {
+    // Check if the user clicked on the "+" tab
+    if (index == plusTabIndex) {
+        // Switch back to the previous tab (if there is one)
+        int previousIndex = plusTabIndex > 0 ? plusTabIndex - 1 : 0;
+        if (tabWidget->count() > 1) {  // If there's at least one regular tab
+            tabWidget->setCurrentIndex(previousIndex);
+        }
+        bridge.logInfo("MainWindow::onTabChanged, created new workspace");
+    } else if (index >= 0 && index < tabWidget->count()) {
+        // Update the active workspace in the bridge
+        Workspace *workspace = qobject_cast<Workspace*>(tabWidget->widget(index));
+        if (workspace) {
+            int64_t workspaceId = workspace->getWorkspaceId();
+            bridge.setActiveWorkspace(workspaceId);
+            bridge.logInfo("MainWindow Changed active workspace to " + QString::number(workspaceId));
+        }
+    }
+}
+
+void MainWindow::onTabClicked(int index) {
+    // Check if the user clicked on the "+" tab
+    if (index == plusTabIndex) {
+        // Switch back to the previous tab (if there is one)
+        int previousIndex = plusTabIndex > 0 ? plusTabIndex - 1 : 0;
+        if (tabWidget->count() > 1) {  // If there's at least one regular tab
+            tabWidget->setCurrentIndex(previousIndex);
+        }
+        
+        // Trigger the new workspace action
+        createWorkspace();
+        
+        bridge.logInfo("MainWindow::onTabClicked, created new workspace");
+    }
 }
