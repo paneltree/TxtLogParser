@@ -223,81 +223,80 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="107"/>
-        <location filename="../src/ui/mainwindow.cpp" line="174"/>
-        <location filename="../src/ui/mainwindow.cpp" line="209"/>
+        <location filename="../src/ui/mainwindow.cpp" line="106"/>
+        <location filename="../src/ui/mainwindow.cpp" line="203"/>
         <source>Workspace</source>
         <translation>Workspace</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="137"/>
-        <location filename="../src/ui/mainwindow.cpp" line="210"/>
+        <location filename="../src/ui/mainwindow.cpp" line="136"/>
+        <location filename="../src/ui/mainwindow.cpp" line="204"/>
         <source>New Workspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="142"/>
-        <location filename="../src/ui/mainwindow.cpp" line="211"/>
+        <location filename="../src/ui/mainwindow.cpp" line="141"/>
+        <location filename="../src/ui/mainwindow.cpp" line="205"/>
         <source>Close Workspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="374"/>
+        <location filename="../src/ui/mainwindow.cpp" line="368"/>
         <source>Close</source>
         <translation>Close</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="147"/>
-        <location filename="../src/ui/mainwindow.cpp" line="212"/>
+        <location filename="../src/ui/mainwindow.cpp" line="146"/>
+        <location filename="../src/ui/mainwindow.cpp" line="206"/>
         <source>Language</source>
         <translation>Language</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="179"/>
+        <location filename="../src/ui/mainwindow.cpp" line="173"/>
         <source>Chinese</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="180"/>
+        <location filename="../src/ui/mainwindow.cpp" line="174"/>
         <source>English</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="341"/>
+        <location filename="../src/ui/mainwindow.cpp" line="335"/>
         <source>Rename</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="348"/>
-        <location filename="../src/ui/mainwindow.cpp" line="593"/>
+        <location filename="../src/ui/mainwindow.cpp" line="342"/>
+        <location filename="../src/ui/mainwindow.cpp" line="587"/>
         <source>Rename Workspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="349"/>
-        <location filename="../src/ui/mainwindow.cpp" line="594"/>
+        <location filename="../src/ui/mainwindow.cpp" line="343"/>
+        <location filename="../src/ui/mainwindow.cpp" line="588"/>
         <source>Enter new name:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="363"/>
-        <location filename="../src/ui/mainwindow.cpp" line="622"/>
+        <location filename="../src/ui/mainwindow.cpp" line="357"/>
+        <location filename="../src/ui/mainwindow.cpp" line="616"/>
         <source>Rename Failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="364"/>
-        <location filename="../src/ui/mainwindow.cpp" line="623"/>
+        <location filename="../src/ui/mainwindow.cpp" line="358"/>
+        <location filename="../src/ui/mainwindow.cpp" line="617"/>
         <source>Failed to rename workspace. The name might be invalid or already in use.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="667"/>
+        <location filename="../src/ui/mainwindow.cpp" line="661"/>
         <source>Rename Current Workspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="668"/>
+        <location filename="../src/ui/mainwindow.cpp" line="662"/>
         <source>Close Current Workspace</source>
         <translation type="unfinished"></translation>
     </message>

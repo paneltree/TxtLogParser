@@ -47,7 +47,6 @@ private slots:
 
 private:
     void createMenus();
-    void createToolBars();
     void createLanguageMenu();
     void saveSettings();
     void loadSettings();

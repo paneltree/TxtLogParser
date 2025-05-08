@@ -79,7 +79,6 @@ MainWindow::MainWindow(QWidget *parent)
     
     // Create menus and toolbars
     createMenus();
-    createToolBars();
     createLanguageMenu();
     
     // Install event filter on tabWidget's tab bar
@@ -168,11 +167,6 @@ void MainWindow::createMenus() {
             color: palette(text);
         }
     )");
-}
-
-void MainWindow::createToolBars() {
-    QToolBar *toolbar = addToolBar(tr("Workspace"));
-    toolbar->addAction(newWorkspaceAction);
 }
 
 void MainWindow::createLanguageMenu() {
