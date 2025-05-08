@@ -54,6 +54,26 @@ Workspace::Workspace(int64_t id, QWidget *parent)
 
     // Create tab widget to hold the three widgets
     QTabWidget *tabWidget = new QTabWidget(topWidget);
+    // Style the tab widget with high contrast active/inactive states
+    tabWidget->setDocumentMode(true);
+    QString tabStyle = R"(
+        QTabBar::tab {
+            background-color: #f0f0f0;
+            border: 1px solid #c0c0c0;
+            padding: 6px 12px;
+            margin-right: 2px;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+        }
+        QTabBar::tab:selected {
+            background-color:rgb(76, 93, 149);
+            border-bottom-color: #ffffff;
+        }
+        QTabBar::tab:!selected {
+            margin-top: 2px;
+        }
+    )";
+    tabWidget->setStyleSheet(tabStyle);
     //tabWidget->setTabPosition(QTabWidget::West);  // Set tabs to the left side
     topLayout->addWidget(tabWidget);
     topLayout->setContentsMargins(0, 0, 0, 0);

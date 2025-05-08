@@ -483,17 +483,17 @@
 <context>
     <name>Workspace</name>
     <message>
-        <location filename="../src/ui/workspace.cpp" line="62"/>
+        <location filename="../src/ui/workspace.cpp" line="82"/>
         <source>Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/workspace.cpp" line="63"/>
+        <location filename="../src/ui/workspace.cpp" line="83"/>
         <source>Filters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/workspace.cpp" line="64"/>
+        <location filename="../src/ui/workspace.cpp" line="84"/>
         <source>Search</source>
         <translation type="unfinished"></translation>
     </message>
