@@ -106,7 +106,7 @@ Workspace::Workspace(int64_t id, QWidget *parent)
     connect(searchListWidget, &SearchListWidget::navigateToNextMatch, outputDisplay, &OutputDisplayWidget::onNavigateToNextSearchMatch);
     connect(searchListWidget, &SearchListWidget::navigateToPreviousMatch, outputDisplay, &OutputDisplayWidget::onNavigateToPreviousSearchMatch);
         
-    bridge.logInfo("Workspace Created workspace: " + QString::number(workspaceId));
+    bridge.logInfo("[Workspace:" + QString::number(workspaceId) + "] Created workspace: ");
 }
 
 
@@ -198,14 +198,14 @@ void Workspace::addSearch(const QString &query, bool caseSensitive, bool wholeWo
         if (bridge.addSearchToWorkspace(workspaceId, searchConfig)) {
             // Add search to UI
             searchListWidget->addSearch(searchConfig);
-            bridge.logInfo("Workspace Added search to workspace: " + query);
+            bridge.logInfo("[Workspace:" + QString::number(workspaceId) + "] Added search to workspace: " + query);
         } else {
-            bridge.logError("Failed to add search to workspace: " + query);
+            bridge.logError("[Workspace:" + QString::number(workspaceId) + "] Failed to add search to workspace: " + query);
         }
     } else {
         // Just add to UI if we don't have a valid workspace index yet
         searchListWidget->addSearch(searchConfig);
-        bridge.logInfo("Workspace Added search to workspace UI: " + query);
+        bridge.logInfo("[Workspace:" + QString::number(workspaceId) + "] Added search to workspace UI: " + query);
     }
 }
 
@@ -213,7 +213,7 @@ void Workspace::saveWorkspaceData()
 {
     if (workspaceId >= 0) {
         // The bridge will handle saving the workspace data
-        bridge.logInfo("Workspace Workspace data modified, will be saved on application close");
+        bridge.logInfo("[Workspace:" + QString::number(workspaceId) + "] Workspace data modified, will be saved on application close");
     }
 }
 
