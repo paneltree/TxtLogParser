@@ -75,7 +75,7 @@ MainWindow::MainWindow(QWidget *parent)
     
     // Create menus and toolbars
     createMenus();
-    createLanguageMenu();
+    //createLanguageMenu();
     
     // Install event filter on tabWidget's tab bar
     tabWidget->tabBar()->installEventFilter(this);
@@ -138,6 +138,8 @@ void MainWindow::createMenus() {
     connect(closeWorkspaceAction, &QAction::triggered, this, &MainWindow::closeWorkspace);
     workspaceMenu->addAction(closeWorkspaceAction);
     
+    // disable language menu for now
+    /*
     // Add language menu
     languageMenu = menuBar()->addMenu(tr("Language"));
     
@@ -163,6 +165,7 @@ void MainWindow::createMenus() {
             color: palette(text);
         }
     )");
+    */
 }
 
 void MainWindow::createLanguageMenu() {
