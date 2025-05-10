@@ -138,6 +138,37 @@ void MainWindow::createMenus() {
     connect(closeWorkspaceAction, &QAction::triggered, this, &MainWindow::closeWorkspace);
     workspaceMenu->addAction(closeWorkspaceAction);
     
+    // Add Help menu
+    helpMenu = menuBar()->addMenu(tr("Help"));
+    
+    // 设置Help菜单样式，与其他菜单保持一致
+    helpMenu->setStyleSheet(R"(
+        QMenu {
+            background-color: palette(window);
+            color: palette(text);
+            border: 1px solid palette(mid);
+            padding: 5px;
+        }
+        QMenu::item {
+            padding: 6px 20px;
+            border-radius: 3px;
+            margin: 2px;
+        }
+        QMenu::item:selected {
+            background-color: palette(highlight);
+            color: palette(highlighted-text);
+        }
+        QMenu::item:hover {
+            background-color: palette(mid);
+            color: palette(text);
+        }
+    )");
+    
+    // Create About action
+    aboutAction = new QAction(tr("About"), this);
+    connect(aboutAction, &QAction::triggered, this, &MainWindow::showAboutDialog);
+    helpMenu->addAction(aboutAction);
+    
     // disable language menu for now
     /*
     // Add language menu
@@ -747,4 +778,68 @@ void MainWindow::onTabClicked(int index) {
         
         bridge.logInfo("MainWindow::onTabClicked, created new workspace");
     }
+}
+
+void MainWindow::showAboutDialog() {
+    // 创建关于对话框
+    QMessageBox aboutBox(this);
+    aboutBox.setWindowTitle(tr("About TxtLogParser"));
+    
+    // 设置对话框图标
+    QPixmap iconPixmap(":/icons/64x64/app_icon.png");
+    if (!iconPixmap.isNull()) {
+        aboutBox.setIconPixmap(iconPixmap);
+    }
+    
+    // 设置对话框文本内容
+    QString aboutText = tr(
+        "<h3>TxtLogParser</h3>"
+        "<p>Version 1.0.0</p>"
+        "<p>A powerful tool for parsing and analyzing text log files.</p>"
+        "<p>Copyright © 2025 PanelTree</p>"
+        "<p><a href='https://github.com/paneltree/TxtLogParser'>https://github.com/paneltree/TxtLogParser</a></p>"
+    );
+    
+    aboutBox.setText(aboutText);
+    
+    // 设置详细信息
+    QString detailedText = tr(
+        "This software is provided under the terms of the MIT License.\n\n"
+        "Built with Qt 6 and C++.\n"
+        "Thank you for using TxtLogParser!"
+    );
+    
+    aboutBox.setDetailedText(detailedText);
+    
+    // 设置对话框按钮
+    aboutBox.setStandardButtons(QMessageBox::Ok);
+    
+    // 设置对话框样式，保持与应用程序一致
+    aboutBox.setStyleSheet(R"(
+        QMessageBox {
+            background-color: palette(window);
+            color: palette(text);
+        }
+        QLabel {
+            color: palette(text);
+        }
+        QPushButton {
+            background-color: palette(button);
+            color: palette(text);
+            border: 1px solid palette(mid);
+            padding: 5px 15px;
+            border-radius: 3px;
+        }
+        QPushButton:hover {
+            background-color: palette(mid);
+        }
+        QPushButton:pressed {
+            background-color: palette(dark);
+        }
+    )");
+    
+    // 显示对话框
+    aboutBox.exec();
+    
+    bridge.logInfo("MainWindow Showed About dialog");
 }

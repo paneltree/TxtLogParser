@@ -44,6 +44,7 @@ private slots:
     void renameWorkspace();
     void closeWorkspaceByAction();
     void closeWorkspaceAtIndex(int index);
+    void showAboutDialog(); // 添加显示About对话框的槽函数
 
 private:
     void createMenus();
@@ -60,8 +61,10 @@ private:
     QTabWidget *tabWidget;
     QMenu *workspaceMenu;
     QMenu *languageMenu;
+    QMenu *helpMenu; // 添加Help菜单
     QAction *newWorkspaceAction;
     QAction *closeWorkspaceAction;
+    QAction *aboutAction; // 添加About菜单项
     QTranslator translator;
     QSettings settings;
     
