@@ -31,20 +31,6 @@ Welcome to **TxtLogParser**, an innovative log parsing tool designed to simplify
 
 ### Linux
 
-## Build 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/paneltree/TxtLogParser.git
-   ```
-2. Install dependencies:
-   ```bash
-   [安装命令，例如 npm install 或 pip install -r requirements.txt]
-   ```
-3. Run the app:
-   ```bash
-   [运行命令，例如 npm start 或 python main.py]
-   ```
-
 ## Build
 
 ### MacOS
