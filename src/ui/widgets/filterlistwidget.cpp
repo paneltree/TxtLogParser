@@ -317,14 +317,16 @@ void FilterListWidget::removeSelectedFilter()
     delete item;
     //update the indices of the remaining filter widgets
 
+    QList<qint32> filterIds;
     for (int i = 0; i < filterListWidget->count(); i++) {
         QListWidgetItem *item = filterListWidget->item(i);
         FilterItemWidget *widget = qobject_cast<FilterItemWidget*>(filterListWidget->itemWidget(item));
         if (widget) {
             widget->setFilterIndex(i);
-            bridge.updateFilterRowInWorkspace(workspaceId, filterList[i].filterId, i);
+            filterIds.append(filterList[i].filterId);
         }
     }
+    bridge.updateFilterRowsInWorkspace(workspaceId, filterIds);
     guard.commit();
     emit filtersChanged();
 }
@@ -900,6 +902,7 @@ void FilterListWidget::updateFilterRows()
         }
     );
     filterList.clear();
+    QList<qint32> filterIds;
     for (int i = 0; i < filterListWidget->count(); i++) {
         QListWidgetItem *item = filterListWidget->item(i);
         if (item) {
@@ -908,10 +911,11 @@ void FilterListWidget::updateFilterRows()
                 widget->setFilterIndex(i);
                 FilterConfig filter = widget->getFilterConfig();
                 filterList.append(filter);
-                QtBridge::getInstance().updateFilterRowInWorkspace(workspaceId, filter.filterId, i);
+                filterIds.append(filter.filterId);
             }
         }
     }
+    QtBridge::getInstance().updateFilterRowsInWorkspace(workspaceId, filterIds);
     guard.commit();
 }
 

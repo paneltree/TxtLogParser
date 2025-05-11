@@ -52,7 +52,7 @@ public:
     void removeFilter(int32_t filterId);
     std::vector<FilterDataPtr> getFilterDataList();
     std::map<int32_t, int32_t> getFilterMatchCounts() const;
-    void updateFilterRow(int32_t filterId, int32_t filterRow);
+    void updateFilterRows(const std::list<int32_t>& filterIds);
     void updateFilter(const FilterData& filter);
     void beginFilterUpdate();
     void commitFilterUpdate();

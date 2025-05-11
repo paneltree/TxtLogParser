@@ -81,7 +81,7 @@ public:
     bool removeFilterFromWorkspace(int64_t workspaceId, int32_t filterId);
     void getFilterListFrmWorkspace(int64_t workspaceId, const std::function<void(const QList<FilterConfig>&)>& callback);
     QMap<int, int> getFilterMatchCounts(int64_t workspaceId) const;
-    void updateFilterRowInWorkspace(int64_t workspaceId, int32_t filterId, int32_t filterRow);
+    void updateFilterRowsInWorkspace(int64_t workspaceId, QList<qint32> filterIds);
     void updateFilterInWorkspace(int64_t workspaceId, const FilterConfig& filter);
     void beginFilterUpdate(int64_t workspaceId);
     void commitFilterUpdate(int64_t workspaceId);

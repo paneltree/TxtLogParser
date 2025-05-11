@@ -546,6 +546,7 @@ void OutputDisplayWidget::updateDisplay(int startLine, int lineCount, int matchL
     m_textEditLinesStartLine = startLine;
     m_textEditLinesEndLine = endLine;
     QColor defaultTextColor = QApplication::palette().color(QPalette::Text);
+    QString firstDisplayedLine = "";
     for (int i = startLine; i < endLine; ++i) {
         const auto& qOutputLine = outputLines[i];
         int curCharIndex = 0;
@@ -561,6 +562,10 @@ void OutputDisplayWidget::updateDisplay(int startLine, int lineCount, int matchL
                     format.setUnderlineColor(Qt::red);  
                 }
             }
+            
+            if(i == startLine){
+                firstDisplayedLine += qOutputSubLine.m_content;
+            }
             cursor.insertText(qOutputSubLine.m_content, format);
             curCharIndex += qOutputSubLine.m_content.length();
         }
@@ -570,6 +575,9 @@ void OutputDisplayWidget::updateDisplay(int startLine, int lineCount, int matchL
     //print rect of first block and last block
     QTextBlock firstBlock = doc->firstBlock();
     QTextBlock lastBlock = doc->lastBlock();
+    QTextStream(stdout) << "paneltree: OutputDisplayWidget::updateDisplay "
+                        << "firstDisplayedLine: " << firstDisplayedLine
+                        << Qt::endl;
 #if 0
     QTextStream(stdout) << "paneltree: OutputDisplayWidget::updateDisplay "
                         << "firstBlock: " << firstBlock.text()

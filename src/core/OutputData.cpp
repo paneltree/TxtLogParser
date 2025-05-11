@@ -132,8 +132,13 @@ namespace Core {
         }
     }
 
-    void OutputData::updateFilterRow(int32_t id, int32_t row){
-        m_enabledFilters[row] = m_filters[id];
+    void OutputData::refreshByFilterRowsChanged(){
+        m_enabledFilters.clear();
+        for(auto it : m_filters){
+            if(it.second->isEnabled()){
+                m_enabledFilters[it.second->getRow()] = it.second;
+            }
+        }
         recreateOutputLines();
     }
 

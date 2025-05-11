@@ -54,7 +54,7 @@ namespace Core {
         // Filter management
         void addFilter(std::shared_ptr<FilterData> filter);
         void removeFilter(int32_t id);
-        void updateFilterRow(int32_t id, int32_t row);
+        void refreshByFilterRowsChanged();
         void clearFilters();
         void updateFilter(const FilterData& filter);
         std::map<int32_t, int32_t> getFilterMatchCounts() const;

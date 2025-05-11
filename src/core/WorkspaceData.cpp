@@ -233,11 +233,22 @@ std::map<int32_t, int32_t> WorkspaceData::getFilterMatchCounts() const {
     return m_outputData.getFilterMatchCounts();
 }
 
-void WorkspaceData::updateFilterRow(int32_t filterId, int32_t filterRow) {
-    auto it = m_filters.find(filterId);
-    if (it != m_filters.end()) {
-        it->second->setRow(filterRow);
-        m_outputData.updateFilterRow(filterId, filterRow);
+void WorkspaceData::updateFilterRows(const std::list<int32_t>& filterIds) {
+    assert(filterIds.size() == m_filters.size());
+    int32_t row = 0;
+    bool changed = false;
+    for (const auto& filterId : filterIds) {
+        auto it = m_filters.find(filterId);
+        if (it != m_filters.end()) {
+            if(it->second->getRow() != row){
+                changed = true;
+                it->second->setRow(row);
+            }
+            ++row;
+        }
+    }
+    if(changed){
+        m_outputData.refreshByFilterRowsChanged();
     }
 }
 

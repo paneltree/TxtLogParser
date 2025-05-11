@@ -242,8 +242,13 @@ QMap<int, int> QtBridge::getFilterMatchCounts(int64_t workspaceId) const {
     return result;
 }
 
-void QtBridge::updateFilterRowInWorkspace(int64_t workspaceId, int32_t filterId, int32_t filterRow) {
-    workspaceManager->updateFilterRow(workspaceId, filterId, filterRow);
+void QtBridge::updateFilterRowsInWorkspace(int64_t workspaceId, QList<qint32> filterIds)
+{
+    std::list<int32_t> filterIds2;
+    for (auto filterId : filterIds) {
+        filterIds2.push_back(filterId);
+    }
+    workspaceManager->updateFilterRows(workspaceId, filterIds2);
 }
 
 void QtBridge::updateFilterInWorkspace(int64_t workspaceId, const FilterConfig& filter) {

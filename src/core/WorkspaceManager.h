@@ -65,6 +65,7 @@ public:
     bool removeFilterFromWorkspace(int64_t workspaceId, int32_t filterId);
     std::vector<FilterDataPtr> getFilterDataList(int64_t workspaceId);
     void updateFilterRow(int64_t workspaceId, int32_t filterId, int32_t filterRow);
+    void updateFilterRows(int64_t workspaceId, std::list<int32_t> filterIds);
     void updateFilter(int64_t workspaceId, const FilterData& filter);
     void beginFilterUpdate(int64_t workspaceId);
     void commitFilterUpdate(int64_t workspaceId);
