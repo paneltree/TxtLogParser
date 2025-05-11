@@ -76,7 +76,7 @@ public:
     int32_t addSearchToWorkspace(int64_t workspaceId, const SearchData& search);
     bool removeSearchFromWorkspace(int64_t workspaceId, int32_t searchId);
     std::vector<SearchDataPtr> getSearchDataList(int64_t workspaceId);
-    void updateSearchRow(int64_t workspaceId, int32_t searchId, int32_t searchRow);
+    void updateSearchRows(int64_t workspaceId, std::list<int32_t> searchIds);
     void updateSearch(int64_t workspaceId, const SearchData& search);
     void beginSearchUpdate(int64_t workspaceId);
     void commitSearchUpdate(int64_t workspaceId);

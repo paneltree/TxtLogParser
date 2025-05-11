@@ -330,12 +330,15 @@ std::map<int32_t, int32_t> WorkspaceData::getSearchMatchCounts() const {
     return m_outputData.getSearchMatchCounts();
 }
 
-void WorkspaceData::updateSearchRow(int32_t searchId, int32_t searchRow) {
-    auto it = m_searches.find(searchId);
-    if (it != m_searches.end()) {
-        it->second->setRow(searchRow);
-        m_outputData.updateSearchRow(searchId, searchRow);
+void WorkspaceData::updateSearchRows(const std::list<int32_t>& searchIds) {
+    int i = 0;
+    for (auto searchId : searchIds) {
+        auto it = m_searches.find(searchId);
+        if (it != m_searches.end()) {
+            it->second->setRow(i++);
+        }
     }
+    m_outputData.refreshBySearchRowsChanged();
 }
 
 void WorkspaceData::updateSearch(const SearchData& search) {

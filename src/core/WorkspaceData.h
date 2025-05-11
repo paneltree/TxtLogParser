@@ -65,7 +65,7 @@ public:
     void removeSearch(int32_t searchId);
     std::vector<SearchDataPtr> getSearchDataList();
     std::map<int32_t, int32_t> getSearchMatchCounts() const;
-    void updateSearchRow(int32_t searchId, int32_t searchRow);
+    void updateSearchRows(const std::list<int32_t>& searchIds);
     void updateSearch(const SearchData& search);
     void beginSearchUpdate();
     void commitSearchUpdate();

@@ -327,8 +327,12 @@ void QtBridge::getSearchListFrmWorkspace(int64_t workspaceId, const std::functio
     callback(searchList);
 }
 
-void QtBridge::updateSearchRowInWorkspace(int64_t workspaceId, int32_t searchId, int32_t searchRow) {
-    workspaceManager->updateSearchRow(workspaceId, searchId, searchRow);
+void QtBridge::updateSearchRowsInWorkspace(int64_t workspaceId, QList<qint32> searchIds) {
+    std::list<int32_t> stdSearchIds;
+    for (const auto& id : searchIds) {
+        stdSearchIds.push_back(id);
+    }
+    workspaceManager->updateSearchRows(workspaceId, stdSearchIds);
 }
 
 void QtBridge::updateSearchInWorkspace(int64_t workspaceId, const SearchConfig& search) {

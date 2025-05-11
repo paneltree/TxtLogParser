@@ -191,8 +191,13 @@ namespace Core {
         }
     }
 
-    void OutputData::updateSearchRow(int32_t id, int32_t row){
-        m_enabledSearches[row] = m_searches[id];
+    void OutputData::refreshBySearchRowsChanged(){
+        m_enabledSearches.clear();
+        for(auto it : m_searches){
+            if(it.second->isEnabled()){
+                m_enabledSearches[it.second->getRow()] = it.second;
+            }
+        }
         recreateOutputLines();
     }
 

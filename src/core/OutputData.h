@@ -62,7 +62,7 @@ namespace Core {
         // Search management
         void addSearch(std::shared_ptr<SearchData> search);
         void removeSearch(int32_t id);
-        void updateSearchRow(int32_t id, int32_t row);
+        void refreshBySearchRowsChanged();
         void clearSearches();
         void updateSearch(const SearchData& search);
         std::map<int32_t, int32_t> getSearchMatchCounts() const;

@@ -318,14 +318,16 @@ void SearchListWidget::removeSelectedSearch()
     delete item;
     //update the indices of the remaining search widgets
 
+    QList<qint32> searchIds;
     for (int i = 0; i < searchListWidget->count(); i++) {
         QListWidgetItem *item = searchListWidget->item(i);
         SearchItemWidget *widget = qobject_cast<SearchItemWidget*>(searchListWidget->itemWidget(item));
         if (widget) {
             widget->setSearchIndex(i);
-            bridge.updateSearchRowInWorkspace(workspaceId, searchList[i].searchId, i);
+            searchIds.append(searchList[i].searchId);
         }
     }
+    bridge.updateSearchRowsInWorkspace(workspaceId, searchIds);
     guard.commit();
     emit searchsChanged();
 }
@@ -895,6 +897,7 @@ void SearchListWidget::updateSearchRows()
         }
     );
     searchList.clear();
+    QList<qint32> searchIds;
     for (int i = 0; i < searchListWidget->count(); i++) {
         QListWidgetItem *item = searchListWidget->item(i);
         if (item) {
@@ -903,10 +906,11 @@ void SearchListWidget::updateSearchRows()
                 widget->setSearchIndex(i);
                 SearchConfig search = widget->getSearchConfig();
                 searchList.append(search);
-                QtBridge::getInstance().updateSearchRowInWorkspace(workspaceId, search.searchId, i);
+                searchIds.append(search.searchId);
             }
         }
     }
+    QtBridge::getInstance().updateSearchRowsInWorkspace(workspaceId, searchIds);
     guard.commit();
 }
 

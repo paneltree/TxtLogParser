@@ -91,7 +91,7 @@ public:
     int32_t addSearchToWorkspace(int64_t workspaceId, const SearchConfig& search);
     bool removeSearchFromWorkspace(int64_t workspaceId, int32_t searchId);
     void getSearchListFrmWorkspace(int64_t workspaceId, const std::function<void(const QList<SearchConfig>&)>& callback);
-    void updateSearchRowInWorkspace(int64_t workspaceId, int32_t searchId, int32_t searchRow);
+    void updateSearchRowsInWorkspace(int64_t workspaceId, QList<qint32> searchIds);
     void updateSearchInWorkspace(int64_t workspaceId, const SearchConfig& search);
     void beginSearchUpdate(int64_t workspaceId);
     void commitSearchUpdate(int64_t workspaceId);
