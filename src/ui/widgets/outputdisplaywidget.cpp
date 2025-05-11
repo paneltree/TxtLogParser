@@ -281,12 +281,12 @@ OutputDisplayWidget::OutputDisplayWidget(int64_t workspaceId, QtBridge& bridge, 
     textEditLines->clear();
 
     visibleLines = textEditLines->height() / m_oneLineHeight;
-#if 0
-    QTextStream(stdout) << "paneltree: OutputDisplayWidget::OutputDisplayWidget "
-                        << "visibleLines: " << visibleLines
-                        << ", textEditLines->height(): " << textEditLines->height()
-                        << ", m_oneLineHeight: " << m_oneLineHeight
-                        << Qt::endl;
+#if 0    
+    bridge.logInfo(QString("paneltree: OutputDisplayWidget::OutputDisplayWidget "
+                            "visibleLines: %1, textEditLines->height(): %2, m_oneLineHeight: %3")
+                            .arg(visibleLines)
+                            .arg(textEditLines->height())
+                            .arg(m_oneLineHeight));
 #endif
 }
 
@@ -418,28 +418,28 @@ void OutputDisplayWidget::resizeEvent(QResizeEvent *event)
     visibleLines = textEditLines->height() / m_oneLineHeight;
 
 #if 0
-    //print geometry info of containerWidget, contentWidget, customVerticalScrollBar,customHorizontalScrollBar
-    QTextStream(stdout) << "paneltree: OutputDisplayWidget::resizeEvent "
-                        << "containerWidget: " << rectToString(containerWidget->geometry())
-                        << ", contentWidget: " << rectToString(contentWidget->geometry())
-                        << ", customVerticalScrollBar: " << rectToString(customVerticalScrollBar->geometry())
-                        << ", customHorizontalScrollBar: " << rectToString(customHorizontalScrollBar->geometry())
-                        << Qt::endl;
-    //print geometry info of textEditLines, infoArea
-    QTextStream(stdout) << "paneltree: OutputDisplayWidget::resizeEvent "
-                        << "textEditLines: " << rectToString(textEditLines->geometry())
-                        << ", infoArea: " << rectToString(infoArea->geometry())
-                        << Qt::endl;
+    //print geometry info of containerWidget, contentWidget, customVerticalScrollBar,customHorizontalScrollBar    
+    bridge.logInfo(QString("paneltree: OutputDisplayWidget::resizeEvent "
+                            "containerWidget: %1, contentWidget: %2, customVerticalScrollBar: %3, customHorizontalScrollBar: %4")
+                            .arg(rectToString(containerWidget->geometry()))
+                            .arg(rectToString(contentWidget->geometry()))
+                            .arg(rectToString(customVerticalScrollBar->geometry()))
+                            .arg(rectToString(customHorizontalScrollBar->geometry())));
+    //print geometry info of textEditLines, infoArea    
+    bridge.logInfo(QString("paneltree: OutputDisplayWidget::resizeEvent "
+                            "textEditLines: %1, infoArea: %2")
+                            .arg(rectToString(textEditLines->geometry()))
+                            .arg(rectToString(infoArea->geometry())));
 
 #endif
 #if 0
-    // textEditLines, infoArea, 
-    QTextStream(stdout) << "paneltree: OutputDisplayWidget::resizeEvent "
-                        << ", workspaceId: " << workspaceId
-                        << ", visibleLines: " << visibleLines
-                        << ", textEditLines->height(): " << textEditLines->height()
-                        << ", m_oneLineHeight: " << m_oneLineHeight
-                        << Qt::endl;
+    // textEditLines, infoArea,    
+    bridge.logInfo(QString("paneltree: OutputDisplayWidget::resizeEvent "
+                            ", workspaceId: %1, visibleLines: %2, textEditLines->height(): %3, m_oneLineHeight: %4")
+                            .arg(workspaceId)
+                            .arg(visibleLines)
+                            .arg(textEditLines->height())
+                            .arg(m_oneLineHeight));
 #endif
     updateDisplay(textEditLines->verticalScrollBar()->value(), visibleLines);
 }
@@ -521,13 +521,13 @@ void OutputDisplayWidget::updateDisplay(int startLine, int lineCount, int matchL
         lineCount = visibleLines; // 使用最新计算的可见行数
     }
     
-#if 0
-    QTextStream(stdout) << "paneltree: OutputDisplayWidget::updateDisplay "
-                        << "startLine: " << startLine
-                        << ", lineCount: " << lineCount
-                        << ", visibleLines: " << visibleLines
-                        << ", outputLines.size(): " << outputLines.size()
-                        << Qt::endl;
+#if 0    
+    bridge.logInfo(QString("paneltree: OutputDisplayWidget::updateDisplay "
+                        "startLine: %1, lineCount: %2, visibleLines: %3, outputLines.size(): %4")
+                        .arg(startLine)
+                        .arg(lineCount)
+                        .arg(visibleLines)
+                        .arg(outputLines.size()));
 #endif
     // 禁用更新和信号
     customVerticalScrollBar->blockSignals(true);
@@ -547,6 +547,7 @@ void OutputDisplayWidget::updateDisplay(int startLine, int lineCount, int matchL
     m_textEditLinesEndLine = endLine;
     QColor defaultTextColor = QApplication::palette().color(QPalette::Text);
     QString firstDisplayedLine = "";
+    bool isFirstLine = false;
     for (int i = startLine; i < endLine; ++i) {
         const auto& qOutputLine = outputLines[i];
         int curCharIndex = 0;
@@ -564,6 +565,7 @@ void OutputDisplayWidget::updateDisplay(int startLine, int lineCount, int matchL
             }
             
             if(i == startLine){
+                isFirstLine = true;
                 firstDisplayedLine += qOutputSubLine.m_content;
             }
             cursor.insertText(qOutputSubLine.m_content, format);
@@ -575,16 +577,18 @@ void OutputDisplayWidget::updateDisplay(int startLine, int lineCount, int matchL
     //print rect of first block and last block
     QTextBlock firstBlock = doc->firstBlock();
     QTextBlock lastBlock = doc->lastBlock();
-    QTextStream(stdout) << "paneltree: OutputDisplayWidget::updateDisplay "
-                        << "firstDisplayedLine: " << firstDisplayedLine
-                        << Qt::endl;
-#if 0
-    QTextStream(stdout) << "paneltree: OutputDisplayWidget::updateDisplay "
-                        << "firstBlock: " << firstBlock.text()
-                        << ", lastBlock: " << lastBlock.text()
-                        << ", firstBlockRect: " << rectfToString(doc->documentLayout()->blockBoundingRect(firstBlock))
-                        << ", lastBlockRect: " << rectfToString(doc->documentLayout()->blockBoundingRect(lastBlock))
-                        << Qt::endl;
+    if(isFirstLine){
+        bridge.logInfo(QString("paneltree: OutputDisplayWidget::updateDisplay "
+                        "firstDisplayedLine: %1")
+                        .arg(firstDisplayedLine));
+    }
+#if 0    
+    bridge.logInfo(QString("paneltree: OutputDisplayWidget::updateDisplay "
+                        "firstBlock: %1, lastBlock: %2, firstBlockRect: %3, lastBlockRect: %4")
+                        .arg(firstBlock.text())
+                        .arg(lastBlock.text())
+                        .arg(rectfToString(doc->documentLayout()->blockBoundingRect(firstBlock)))
+                        .arg(rectfToString(doc->documentLayout()->blockBoundingRect(lastBlock))));
 #endif
     // 使自定义滚动条与内容同步
     customVerticalScrollBar->setValue(startLine);
@@ -883,14 +887,14 @@ void OutputDisplayWidget::updateScrollBarRanges()
     customHorizontalScrollBar->setPageStep(textHorizontalScrollBar->pageStep());
     customHorizontalScrollBar->setSingleStep(textHorizontalScrollBar->singleStep());
     customHorizontalScrollBar->setValue(textHorizontalScrollBar->value());
-#if 0
-    QTextStream(stdout) << "paneltree: OutputDisplayWidget::updateScrollBarRanges "
-                        << "vertical range: 0-" << maxValue
-                        << ", horizontal range: 0-" << textHorizontalScrollBar->maximum()
-                        << ", outputLines.size(): " << outputLines.size()
-                        << ", visibleLines: " << visibleLines
-                        << ", value: " << customVerticalScrollBar->value()
-                        << Qt::endl;
+#if 0    
+    bridge.logInfo(QString("paneltree: OutputDisplayWidget::updateScrollBarRanges "
+                        "vertical range: 0-%1, horizontal range: 0-%2, outputLines.size(): %3, visibleLines: %4, value: %5")
+                        .arg(maxValue)
+                        .arg(textHorizontalScrollBar->maximum())
+                        .arg(outputLines.size())
+                        .arg(visibleLines)
+                        .arg(customVerticalScrollBar->value()));
 #endif
 }
 
