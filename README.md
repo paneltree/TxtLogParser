@@ -62,7 +62,19 @@ Welcome to **TxtLogParser**, an innovative log parsing tool designed to simplify
 ### Windows
 
 * Prerequisites: CMake, Qt6, Visual Studio
-* Build Steps:
+* Build Method 1:
+   ```cmd
+   git clone https://github.com/paneltree/TxtLogParser.git
+   cd TxtLogParser
+   mkdir build
+   cd build
+   "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
+   set QT6_DIR=C:\Qt\6.8.3
+   cmake .. -G "Visual Studio 17 2022" 
+   cmake --build . --config Debug
+   cmake --build . --config Debug --target deploy_local
+   ```
+* Build Method 2:
    ```cmd
    git clone https://github.com/paneltree/TxtLogParser.git
    cd TxtLogParser
@@ -74,7 +86,7 @@ Welcome to **TxtLogParser**, an innovative log parsing tool designed to simplify
    cmake --build . --config Release --target deploy_local
    Release\TxtLogParser.exe
    ```
-* For NMake:
+* Build Method 3: For NMake:
    ```cmd
    git clone https://github.com/paneltree/TxtLogParser.git
    cd TxtLogParser

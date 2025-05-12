@@ -223,104 +223,104 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="102"/>
-        <location filename="../src/ui/mainwindow.cpp" line="233"/>
+        <location filename="../src/ui/mainwindow.cpp" line="84"/>
+        <location filename="../src/ui/mainwindow.cpp" line="215"/>
         <source>Workspace</source>
         <translation>工作区</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="132"/>
-        <location filename="../src/ui/mainwindow.cpp" line="234"/>
+        <location filename="../src/ui/mainwindow.cpp" line="114"/>
+        <location filename="../src/ui/mainwindow.cpp" line="216"/>
         <source>New Workspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="137"/>
-        <location filename="../src/ui/mainwindow.cpp" line="235"/>
+        <location filename="../src/ui/mainwindow.cpp" line="119"/>
+        <location filename="../src/ui/mainwindow.cpp" line="217"/>
         <source>Close Workspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="435"/>
+        <location filename="../src/ui/mainwindow.cpp" line="417"/>
         <source>Close</source>
         <translation>关闭</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="236"/>
+        <location filename="../src/ui/mainwindow.cpp" line="218"/>
         <source>Language</source>
         <translation>语言</translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="142"/>
+        <location filename="../src/ui/mainwindow.cpp" line="124"/>
         <source>Help</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="168"/>
+        <location filename="../src/ui/mainwindow.cpp" line="150"/>
         <source>About</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="203"/>
+        <location filename="../src/ui/mainwindow.cpp" line="185"/>
         <source>Chinese</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="204"/>
+        <location filename="../src/ui/mainwindow.cpp" line="186"/>
         <source>English</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="402"/>
+        <location filename="../src/ui/mainwindow.cpp" line="384"/>
         <source>Rename</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="409"/>
-        <location filename="../src/ui/mainwindow.cpp" line="648"/>
+        <location filename="../src/ui/mainwindow.cpp" line="391"/>
+        <location filename="../src/ui/mainwindow.cpp" line="630"/>
         <source>Rename Workspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="410"/>
-        <location filename="../src/ui/mainwindow.cpp" line="649"/>
+        <location filename="../src/ui/mainwindow.cpp" line="392"/>
+        <location filename="../src/ui/mainwindow.cpp" line="631"/>
         <source>Enter new name:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="424"/>
-        <location filename="../src/ui/mainwindow.cpp" line="677"/>
+        <location filename="../src/ui/mainwindow.cpp" line="406"/>
+        <location filename="../src/ui/mainwindow.cpp" line="659"/>
         <source>Rename Failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="425"/>
-        <location filename="../src/ui/mainwindow.cpp" line="678"/>
+        <location filename="../src/ui/mainwindow.cpp" line="407"/>
+        <location filename="../src/ui/mainwindow.cpp" line="660"/>
         <source>Failed to rename workspace. The name might be invalid or already in use.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="722"/>
+        <location filename="../src/ui/mainwindow.cpp" line="704"/>
         <source>Rename Current Workspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="723"/>
+        <location filename="../src/ui/mainwindow.cpp" line="705"/>
         <source>Close Current Workspace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="786"/>
+        <location filename="../src/ui/mainwindow.cpp" line="768"/>
         <source>About TxtLogParser</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="795"/>
+        <location filename="../src/ui/mainwindow.cpp" line="777"/>
         <source>&lt;h3&gt;TxtLogParser&lt;/h3&gt;&lt;p&gt;Version 1.0.0&lt;/p&gt;&lt;p&gt;A powerful tool for parsing and analyzing text log files.&lt;/p&gt;&lt;p&gt;Copyright © 2025 PanelTree&lt;/p&gt;&lt;p&gt;&lt;a href=&apos;https://github.com/paneltree/TxtLogParser&apos;&gt;https://github.com/paneltree/TxtLogParser&lt;/a&gt;&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="806"/>
+        <location filename="../src/ui/mainwindow.cpp" line="788"/>
         <source>This software is provided under the terms of the MIT License.
 
 Built with Qt 6 and C++.
@@ -509,17 +509,17 @@ Thank you for using TxtLogParser!</source>
 <context>
     <name>Workspace</name>
     <message>
-        <location filename="../src/ui/workspace.cpp" line="82"/>
+        <location filename="../src/ui/workspace.cpp" line="66"/>
         <source>Files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/workspace.cpp" line="83"/>
+        <location filename="../src/ui/workspace.cpp" line="67"/>
         <source>Filters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/workspace.cpp" line="84"/>
+        <location filename="../src/ui/workspace.cpp" line="68"/>
         <source>Search</source>
         <translation type="unfinished"></translation>
     </message>

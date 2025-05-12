@@ -168,6 +168,8 @@ set(UI_SOURCES
     src/ui/mainwindow.h
     src/ui/workspace.cpp
     src/ui/workspace.h
+    src/ui/StyleManager.cpp
+    src/ui/StyleManager.h
     src/ui/widgets/filelistwidget.cpp
     src/ui/widgets/filelistwidget.h
     src/ui/widgets/filterlistwidget.cpp
