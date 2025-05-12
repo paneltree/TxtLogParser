@@ -7,6 +7,7 @@
 #include "../bridge/QtBridge.h"
 #include "../core/AppUtils.h"
 #include "../core/Logger.h"
+#include "StyleManager.h"
 
 void printPaths() {
     auto& logger = Core::Logger::getInstance();
@@ -60,6 +61,17 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     
+    // 设置应用程序图标
+    app.setWindowIcon(QIcon(":/icons/icons/app_icon.png"));
+    
+    // 设置应用元数据
+    QApplication::setApplicationName("TxtLogParser");
+    QApplication::setOrganizationName("paneltree");
+    QApplication::setOrganizationDomain("github.com/paneltree");
+    
+    // Initialize StyleManager early to set up theme change detection
+    StyleManager::instance();
+    
     // Initialize the bridge
     QtBridge::getInstance();
     
@@ -70,4 +82,4 @@ int main(int argc, char *argv[])
     mainWindow.show();
     
     return app.exec();
-} 
+}

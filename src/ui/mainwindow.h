@@ -44,28 +44,34 @@ private slots:
     void renameWorkspace();
     void closeWorkspaceByAction();
     void closeWorkspaceAtIndex(int index);
+    void showAboutDialog(); // 添加显示About对话框的槽函数
+    void updateStyles(); // 处理系统主题变化的槽函数
 
 private:
     void createMenus();
-    void createToolBars();
     void createLanguageMenu();
     void saveSettings();
     void loadSettings();
     void restoreWorkspaces(const QStringList &workspaceNames);
     void loadWorkspaces();
     void updateWorkspaceSortIndex();
+    void addPlusTab();
+    void onTabChanged(int index);
+    void onTabClicked(int index);
     
     QTabWidget *tabWidget;
     QMenu *workspaceMenu;
     QMenu *languageMenu;
+    QMenu *helpMenu; // 添加Help菜单
     QAction *newWorkspaceAction;
     QAction *closeWorkspaceAction;
+    QAction *aboutAction; // 添加About菜单项
     QTranslator translator;
     QSettings settings;
-    void updateWorkspaceNames();
     
     QActionGroup *workspaceActionGroup;
     QList<QAction*> workspaceActions;
+    int plusTabIndex; // Index of the "+" tab
 
     // Window geometry methods
     void saveWindowGeometry();

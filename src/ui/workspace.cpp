@@ -4,6 +4,7 @@
 #include <QSplitter>
 #include <QTextEdit>
 #include <QTimer>
+#include <QTabWidget>
 #include "widgets/filelistwidget.h"
 #include "widgets/filterlistwidget.h"
 #include "widgets/searchlistwidget.h"
@@ -24,6 +25,7 @@
 #include <QFileDialog>
 #include <QDesktopServices>
 #include <QUrl>
+#include "StyleManager.h"
 
 // Forward declaration for the saveWorkspaces method
 class MainWindow;
@@ -51,28 +53,19 @@ Workspace::Workspace(int64_t id, QWidget *parent)
     filterListWidget = new FilterListWidget(workspaceId, bridge, topWidget);
     searchListWidget = new SearchListWidget(workspaceId, bridge, topWidget);
 
-    // Create horizontal splitters for the top section
-    QSplitter *leftSplitter = new QSplitter(Qt::Horizontal, topWidget);
-    topLayout->addWidget(leftSplitter);
+    // Create tab widget to hold the three widgets
+    QTabWidget *tabWidget = new QTabWidget(topWidget);
+    // Style the tab widget with high contrast active/inactive states
+    tabWidget->setDocumentMode(true);
+    tabWidget->setStyleSheet(StyleManager::instance().getTabStyle());
+    //tabWidget->setTabPosition(QTabWidget::West);  // Set tabs to the left side
+    topLayout->addWidget(tabWidget);
     topLayout->setContentsMargins(0, 0, 0, 0);
 
-    // Add the file list widget directly to the first splitter
-    leftSplitter->addWidget(fileListWidget);
-
-    // Create a second splitter for filter and search lists
-    QSplitter *rightSplitter = new QSplitter(Qt::Horizontal, leftSplitter);
-    leftSplitter->addWidget(rightSplitter);
-    
-    // Add filter and search widgets to the second splitter
-    rightSplitter->addWidget(filterListWidget);
-    rightSplitter->addWidget(searchListWidget);
-
-    // Set stretch factors for the splitters
-    leftSplitter->setStretchFactor(0, 1); // fileListWidget
-    leftSplitter->setStretchFactor(1, 2); // rightSplitter (contains filter and search)
-    
-    rightSplitter->setStretchFactor(0, 1); // filterListWidget
-    rightSplitter->setStretchFactor(1, 1); // searchListWidget
+    // Add the widgets to the tab widget
+    tabWidget->addTab(fileListWidget, tr("Files"));
+    tabWidget->addTab(filterListWidget, tr("Filters"));
+    tabWidget->addTab(searchListWidget, tr("Search"));
 
     // Bottom section: output display area
     outputDisplay = new OutputDisplayWidget(workspaceId, bridge, topWidget);  // No parent, let splitter manage
@@ -97,7 +90,7 @@ Workspace::Workspace(int64_t id, QWidget *parent)
     connect(searchListWidget, &SearchListWidget::navigateToNextMatch, outputDisplay, &OutputDisplayWidget::onNavigateToNextSearchMatch);
     connect(searchListWidget, &SearchListWidget::navigateToPreviousMatch, outputDisplay, &OutputDisplayWidget::onNavigateToPreviousSearchMatch);
         
-    bridge.logInfo("Workspace Created workspace: " + QString::number(workspaceId));
+    bridge.logInfo("[Workspace:" + QString::number(workspaceId) + "] Created workspace: ");
 }
 
 
@@ -189,14 +182,14 @@ void Workspace::addSearch(const QString &query, bool caseSensitive, bool wholeWo
         if (bridge.addSearchToWorkspace(workspaceId, searchConfig)) {
             // Add search to UI
             searchListWidget->addSearch(searchConfig);
-            bridge.logInfo("Workspace Added search to workspace: " + query);
+            bridge.logInfo("[Workspace:" + QString::number(workspaceId) + "] Added search to workspace: " + query);
         } else {
-            bridge.logError("Failed to add search to workspace: " + query);
+            bridge.logError("[Workspace:" + QString::number(workspaceId) + "] Failed to add search to workspace: " + query);
         }
     } else {
         // Just add to UI if we don't have a valid workspace index yet
         searchListWidget->addSearch(searchConfig);
-        bridge.logInfo("Workspace Added search to workspace UI: " + query);
+        bridge.logInfo("[Workspace:" + QString::number(workspaceId) + "] Added search to workspace UI: " + query);
     }
 }
 
@@ -204,7 +197,7 @@ void Workspace::saveWorkspaceData()
 {
     if (workspaceId >= 0) {
         // The bridge will handle saving the workspace data
-        bridge.logInfo("Workspace Workspace data modified, will be saved on application close");
+        bridge.logInfo("[Workspace:" + QString::number(workspaceId) + "] Workspace data modified, will be saved on application close");
     }
 }
 
@@ -264,6 +257,52 @@ void Workspace::onSearchsChanged()
 
 void Workspace::onFilterMatchCountsUpdated(const QMap<int, int> &matchCounts)
 {
+}
+
+void Workspace::updateTheme()
+{
+    // Log that we're updating the theme for this workspace
+    bridge.logInfo("[Workspace:" + QString::number(workspaceId) + "] Updating UI for theme change");
+    
+    // Find the TabWidget in the top widget that holds our UI components
+    QList<QTabWidget*> tabWidgets = findChildren<QTabWidget*>();
+    for (QTabWidget* tabWidget : tabWidgets) {
+        // Apply the updated tab style from StyleManager
+        tabWidget->setStyleSheet(StyleManager::instance().getTabStyle());
+        bridge.logInfo("[Workspace:" + QString::number(workspaceId) + "] Updated tab widget style");
+    }
+    
+    // Update styles in child widgets if they need custom theme handling
+    if (fileListWidget) {
+        // FileListWidget might have buttons or other elements that need style updates
+        QList<QPushButton*> buttons = fileListWidget->findChildren<QPushButton*>();
+        for (QPushButton* button : buttons) {
+            button->setStyleSheet(StyleManager::instance().getButtonStyle());
+        }
+    }
+    
+    if (filterListWidget) {
+        // Update filter list widget styles
+        QList<QPushButton*> buttons = filterListWidget->findChildren<QPushButton*>();
+        for (QPushButton* button : buttons) {
+            button->setStyleSheet(StyleManager::instance().getButtonStyle());
+        }
+    }
+    
+    if (searchListWidget) {
+        // Update search list widget styles
+        QList<QPushButton*> buttons = searchListWidget->findChildren<QPushButton*>();
+        for (QPushButton* button : buttons) {
+            button->setStyleSheet(StyleManager::instance().getButtonStyle());
+        }
+    }
+    
+    if (outputDisplay) {
+        // The output display might need theme updates
+        outputDisplay->update();
+    }
+    
+    bridge.logInfo("[Workspace:" + QString::number(workspaceId) + "] Theme update completed");
 }
 
 

@@ -52,19 +52,20 @@ public:
     void removeFilter(int32_t filterId);
     std::vector<FilterDataPtr> getFilterDataList();
     std::map<int32_t, int32_t> getFilterMatchCounts() const;
-    void updateFilterRow(int32_t filterId, int32_t filterRow);
+    void updateFilterRows(const std::list<int32_t>& filterIds);
     void updateFilter(const FilterData& filter);
     void beginFilterUpdate();
     void commitFilterUpdate();
     void rollbackFilterUpdate();
     std::string getNextFilterColor();
+    void reloadFiles();
 
     // Search management
     int32_t addSearch(const SearchData& search);
     void removeSearch(int32_t searchId);
     std::vector<SearchDataPtr> getSearchDataList();
     std::map<int32_t, int32_t> getSearchMatchCounts() const;
-    void updateSearchRow(int32_t searchId, int32_t searchRow);
+    void updateSearchRows(const std::list<int32_t>& searchIds);
     void updateSearch(const SearchData& search);
     void beginSearchUpdate();
     void commitSearchUpdate();

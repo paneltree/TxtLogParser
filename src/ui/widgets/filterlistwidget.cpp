@@ -317,14 +317,16 @@ void FilterListWidget::removeSelectedFilter()
     delete item;
     //update the indices of the remaining filter widgets
 
+    QList<qint32> filterIds;
     for (int i = 0; i < filterListWidget->count(); i++) {
         QListWidgetItem *item = filterListWidget->item(i);
         FilterItemWidget *widget = qobject_cast<FilterItemWidget*>(filterListWidget->itemWidget(item));
         if (widget) {
             widget->setFilterIndex(i);
-            bridge.updateFilterRowInWorkspace(workspaceId, filterList[i].filterId, i);
+            filterIds.append(filterList[i].filterId);
         }
     }
+    bridge.updateFilterRowsInWorkspace(workspaceId, filterIds);
     guard.commit();
     emit filtersChanged();
 }
@@ -594,57 +596,76 @@ FilterItemWidget::FilterItemWidget(const FilterConfig &filter, int index, QWidge
     filterLabel->setWordWrap(false);
     filterLabel->setTextFormat(Qt::PlainText);
     
-    layout->addWidget(filterLabel, 1);
+    layout->addWidget(filterLabel, 3); // Increase stretch factor from 1 to 3
     
     // Match count label
-    matchCountLabel = new QLabel(tr("Matches: 0"), this);
+    matchCountLabel = new QLabel(tr("M: 0"), this);
     matchCountLabel->setAlignment(Qt::AlignCenter);
-    matchCountLabel->setMinimumWidth(80);
+    matchCountLabel->setMinimumWidth(40); // Reduce from 80 to 40
+    matchCountLabel->setMaximumWidth(60); // Add maximum width
     layout->addWidget(matchCountLabel);
     
     // Navigation buttons
     prevMatchButton = new QPushButton("◀", this);
-    prevMatchButton->setFixedSize(24, 24);
+    prevMatchButton->setFixedSize(20, 24); // Reduce width from 24 to 20
     prevMatchButton->setToolTip(tr("Previous Match"));
     prevMatchButton->setEnabled(false);
     connect(prevMatchButton, &QPushButton::clicked, this, &FilterItemWidget::onPrevMatchClicked);
     layout->addWidget(prevMatchButton);
     
     nextMatchButton = new QPushButton("▶", this);
-    nextMatchButton->setFixedSize(24, 24);
+    nextMatchButton->setFixedSize(20, 24); // Reduce width from 24 to 20
     nextMatchButton->setToolTip(tr("Next Match"));
     nextMatchButton->setEnabled(false);
     connect(nextMatchButton, &QPushButton::clicked, this, &FilterItemWidget::onNextMatchClicked);
     layout->addWidget(nextMatchButton);
     
-    // Case sensitive checkbox
-    caseSensitiveButton = new QCheckBox("Case", this);
+    // Case sensitive button - replace checkbox with toolbutton
+    caseSensitiveButton = new QToolButton(this);
+    caseSensitiveButton->setText("Aa");
+    caseSensitiveButton->setCheckable(true);
     caseSensitiveButton->setChecked(filter.caseSensitive);
-    connect(caseSensitiveButton, &QCheckBox::toggled, this, &FilterItemWidget::onCaseSensitiveToggled);
+    caseSensitiveButton->setToolTip(tr("Case Sensitive"));
+    caseSensitiveButton->setFixedSize(24, 24);
+    //caseSensitiveButton->setMaximumWidth(30);
+    updateCaseSensitiveButtonStyle(); // New method to update style based on state
+    connect(caseSensitiveButton, &QToolButton::toggled, this, &FilterItemWidget::onCaseSensitiveToggled);
     layout->addWidget(caseSensitiveButton);
     
-    // Whole word checkbox
-    wholeWordButton = new QCheckBox("Word", this);
+    // Whole word button - replace checkbox with toolbutton
+    wholeWordButton = new QToolButton(this);
+    wholeWordButton->setText("ab");
+    wholeWordButton->setCheckable(true);
     wholeWordButton->setChecked(filter.wholeWord);
-    connect(wholeWordButton, &QCheckBox::toggled, this, &FilterItemWidget::onWholeWordToggled);
+    wholeWordButton->setToolTip(tr("Whole Word"));
+    wholeWordButton->setFixedSize(24, 24);
+    //wholeWordButton->setMaximumWidth(30);
+    updateWholeWordButtonStyle(); // New method to update style based on state
+    connect(wholeWordButton, &QToolButton::toggled, this, &FilterItemWidget::onWholeWordToggled);
     layout->addWidget(wholeWordButton);
     
-    // Regex checkbox
-    regexButton = new QCheckBox("Regex", this);
+    // Regex button - replace checkbox with toolbutton
+    regexButton = new QToolButton(this);
+    regexButton->setText(".*");
+    regexButton->setCheckable(true);
     regexButton->setChecked(filter.isRegex);
-    connect(regexButton, &QCheckBox::toggled, this, &FilterItemWidget::onRegexToggled);
+    regexButton->setToolTip(tr("Regular Expression"));
+    regexButton->setFixedSize(24, 24);
+    regexButton->setMaximumWidth(30);
+    updateRegexButtonStyle(); // New method to update style based on state
+    connect(regexButton, &QToolButton::toggled, this, &FilterItemWidget::onRegexToggled);
     layout->addWidget(regexButton);
     
     // Color button
     colorButton = new QPushButton(this);
-    colorButton->setFixedSize(24, 24);
+    colorButton->setFixedSize(20, 24); // Reduce width from 24 to 20
     colorButton->setStyleSheet(QString("background-color: %1; border: 1px solid #888;").arg(filter.color.name()));
     connect(colorButton, &QPushButton::clicked, this, &FilterItemWidget::onColorClicked);
     layout->addWidget(colorButton);
     
     // Remove button
     removeButton = new QPushButton(QIcon::fromTheme("edit-delete"), "", this);
-    removeButton->setFixedSize(24, 24);
+    removeButton->setFixedSize(20, 24); // Reduce width from 24 to 20
     removeButton->setToolTip(tr("Remove Filter"));
     connect(removeButton, &QPushButton::clicked, this, [this]() {
         emit removeRequested(itemIndex);
@@ -680,7 +701,7 @@ bool FilterItemWidget::eventFilter(QObject *watched, QEvent *event)
 void FilterItemWidget::updateMatchCount(int count)
 {
     currentFilter.matchCount = count;
-    matchCountLabel->setText(tr("Matches: %1").arg(count));
+    matchCountLabel->setText(tr("M: %1").arg(count));
     
     // Enable/disable navigation buttons based on match count
     bool hasMatches = (count > 0);
@@ -735,26 +756,47 @@ void FilterItemWidget::updateEnabledState()
     filterLabel->setStyleSheet(styleSheet);
     
     caseSensitiveButton->setEnabled(isEnabled);
+    if (isEnabled) {
+        updateCaseSensitiveButtonStyle();
+    } else {
+        caseSensitiveButton->setStyleSheet("QToolButton { background-color: #f0f0f0; border: 1px solid #cccccc; border-radius: 3px; opacity: 0.5; }");
+    }
+    
     wholeWordButton->setEnabled(isEnabled);
+    if (isEnabled) {
+        updateWholeWordButtonStyle();
+    } else {
+        wholeWordButton->setStyleSheet("QToolButton { background-color: #f0f0f0; border: 1px solid #cccccc; border-radius: 3px; opacity: 0.5; }");
+    }
+    
     regexButton->setEnabled(isEnabled);
+    if (isEnabled) {
+        updateRegexButtonStyle();
+    } else {
+        regexButton->setStyleSheet("QToolButton { background-color: #f0f0f0; border: 1px solid #cccccc; border-radius: 3px; opacity: 0.5; }");
+    }
+    
     colorButton->setEnabled(isEnabled);
 }
 
 void FilterItemWidget::onCaseSensitiveToggled(bool checked)
 {
     currentFilter.caseSensitive = checked;
+    updateCaseSensitiveButtonStyle();
     emit filterChanged(itemIndex, currentFilter);
 }
 
 void FilterItemWidget::onWholeWordToggled(bool checked)
 {
     currentFilter.wholeWord = checked;
+    updateWholeWordButtonStyle();
     emit filterChanged(itemIndex, currentFilter);
 }
 
 void FilterItemWidget::onRegexToggled(bool checked)
 {
     currentFilter.isRegex = checked;
+    updateRegexButtonStyle();
     emit filterChanged(itemIndex, currentFilter);
 }
 
@@ -783,7 +825,9 @@ void FilterItemWidget::setFilterConfig(const FilterConfig &filter)
     // Update button states
     enabledButton->setChecked(filter.enabled);
     caseSensitiveButton->setChecked(filter.caseSensitive);
+    updateCaseSensitiveButtonStyle();
     wholeWordButton->setChecked(filter.wholeWord);
+    updateWholeWordButtonStyle();
     regexButton->setChecked(filter.isRegex);
     
     // Update color button
@@ -837,21 +881,7 @@ void FilterItemWidget::showEditDialog()
 
 void FilterListWidget::handleItemMoved(int fromRow, int toRow)
 {
-    // Ensure the rows are valid
-    if (fromRow < 0 || fromRow >= filterList.size() || 
-        toRow < 0 || toRow >= filterList.size() || 
-        fromRow == toRow) {
-        return;
-    }
-    
-    // Move the filter in our internal list
-    FilterConfig movedFilter = filterList.takeAt(fromRow);
-    filterList.insert(toRow, movedFilter);
-    
-    // Update filter rows for all filters
     updateFilterRows();
-    
-    // Notify that filters have changed
     emit filtersChanged();
 }
 
@@ -871,16 +901,47 @@ void FilterListWidget::updateFilterRows()
             bridge.rollbackFilterUpdate(workspaceId);
         }
     );
+    filterList.clear();
+    QList<qint32> filterIds;
     for (int i = 0; i < filterListWidget->count(); i++) {
         QListWidgetItem *item = filterListWidget->item(i);
         if (item) {
             FilterItemWidget *widget = qobject_cast<FilterItemWidget*>(filterListWidget->itemWidget(item));
             if (widget) {
                 widget->setFilterIndex(i);
-                filterList[i].filterRow = i;
-                QtBridge::getInstance().updateFilterRowInWorkspace(workspaceId, filterList[i].filterId, i);
+                FilterConfig filter = widget->getFilterConfig();
+                filterList.append(filter);
+                filterIds.append(filter.filterId);
             }
         }
     }
+    QtBridge::getInstance().updateFilterRowsInWorkspace(workspaceId, filterIds);
     guard.commit();
+}
+
+void FilterItemWidget::updateCaseSensitiveButtonStyle()
+{
+    if (caseSensitiveButton->isChecked()) {
+        caseSensitiveButton->setStyleSheet("QToolButton { background-color: #99c2ff; border: 1px solid #5599ff; border-radius: 3px; }");
+    } else {
+        caseSensitiveButton->setStyleSheet("QToolButton { background-color: transparent; border: 1px solid #cccccc; border-radius: 3px; }");
+    }
+}
+
+void FilterItemWidget::updateWholeWordButtonStyle()
+{
+    if (wholeWordButton->isChecked()) {
+        wholeWordButton->setStyleSheet("QToolButton { background-color: #99c2ff; border: 1px solid #5599ff; border-radius: 3px;  text-decoration: underline;}");
+    } else {
+        wholeWordButton->setStyleSheet("QToolButton { background-color: transparent; border: 1px solid #cccccc; border-radius: 3px;  text-decoration: underline;}");
+    }
+}
+
+void FilterItemWidget::updateRegexButtonStyle()
+{
+    if (regexButton->isChecked()) {
+        regexButton->setStyleSheet("QToolButton { background-color: #99c2ff; border: 1px solid #5599ff; border-radius: 3px; }");
+    } else {
+        regexButton->setStyleSheet("QToolButton { background-color: transparent; border: 1px solid #cccccc; border-radius: 3px; }");
+    }
 }

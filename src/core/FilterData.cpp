@@ -183,6 +183,10 @@ namespace Core {
 
             if (begin == end) {
                 // No matches found
+                // Add the entire line as unmatched
+                OutputSubLine unmatched;
+                unmatched.setContent(lineContent);
+                sublines.push_back(unmatched);
                 return;
             }
 
@@ -204,7 +208,7 @@ namespace Core {
 
                 // Add matched part with color
                 OutputSubLine matchedPart;
-                matchedPart.setContent(match.str());
+                matchedPart.setContent(std::string_view(lineContent.substr(matchPos, matchLen)));
                 matchedPart.setColor(m_colorString);
                 matchedPart.setFilterId(m_filterId);
                 matchedPart.setFilterRow(m_filterRow);

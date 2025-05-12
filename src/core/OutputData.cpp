@@ -95,6 +95,19 @@ namespace Core {
         }
     }
 
+    void OutputData::reloadFiles(){
+        pauseRefresh();
+        m_loadedFiles.clear();
+        m_allFileLineInfos.clear();
+        for(auto it : m_allFiles){
+            if(it.second->isSelected()){
+                loadFile(it.second);
+            }
+        }
+        recreateOutputLines();
+        resumeRefresh();
+        refresh();
+    }
     ////////////////////////////////////////////////////////////
     // Filter management
     ////////////////////////////////////////////////////////////
@@ -119,8 +132,13 @@ namespace Core {
         }
     }
 
-    void OutputData::updateFilterRow(int32_t id, int32_t row){
-        m_enabledFilters[row] = m_filters[id];
+    void OutputData::refreshByFilterRowsChanged(){
+        m_enabledFilters.clear();
+        for(auto it : m_filters){
+            if(it.second->isEnabled()){
+                m_enabledFilters[it.second->getRow()] = it.second;
+            }
+        }
         recreateOutputLines();
     }
 
@@ -173,8 +191,13 @@ namespace Core {
         }
     }
 
-    void OutputData::updateSearchRow(int32_t id, int32_t row){
-        m_enabledSearches[row] = m_searches[id];
+    void OutputData::refreshBySearchRowsChanged(){
+        m_enabledSearches.clear();
+        for(auto it : m_searches){
+            if(it.second->isEnabled()){
+                m_enabledSearches[it.second->getRow()] = it.second;
+            }
+        }
         recreateOutputLines();
     }
 
@@ -263,6 +286,7 @@ namespace Core {
                 outputLine->setFileId(fileId);
                 outputLine->setFileRow(fileRow);
                 outputLine->setLineIndex(itLine->fileLineIndex);
+                outputLine->setContent(std::string_view(itLine->lineContent));
 
                 std::list<OutputSubLine> subLines;
                 OutputSubLine subLine;

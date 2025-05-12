@@ -43,15 +43,18 @@ namespace Core {
         void setFileId(int32_t fileId);
         void setFileRow(int32_t fileRow);
         void setLineIndex(int32_t lineIndex);
+        void setContent(std::string_view content);
         int32_t getFileId() const;
         int32_t getFileRow() const;
         int32_t getLineIndex() const;
+        std::string_view getContent() const;
         void addSubLine(const OutputSubLine& subLine);
         const std::list<OutputSubLine>& getSubLines() const;
     private:
         int32_t m_fileId;
         int32_t m_fileRow;
         int32_t m_lineIndex;
+        std::string_view m_content;
         std::list<OutputSubLine> m_subLines;
     };
 }

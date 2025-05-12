@@ -7,19 +7,29 @@ Welcome to **TxtLogParser**, an innovative log parsing tool designed to simplify
 - Customizable filters
 - Cross-platform support
 
-## Installation
-1. Clone the repository:
+## Download Precompiled Binaries
+
+### Windows
+
+### MacOS
+
+* Precompiled binaries are available for macOS. You can download the latest version from the [releases page]()
+* If you encounter a "damaged" error when opening the app, you can bypass it by following these steps:
+1. Open **Terminal**.
+2. Navigate to the directory where the app is located:
    ```bash
-   git clone https://github.com/paneltree/TxtLogParser.git
+   cd /path/to/TxtLogParser.app
    ```
-2. Install dependencies:
+3. Use the `xattr` command to remove the quarantine attribute:
    ```bash
-   [安装命令，例如 npm install 或 pip install -r requirements.txt]
+   xattr -d com.apple.quarantine TxtLogParser.app
    ```
-3. Run the app:
+4. If you still encounter issues, you can clear all extended attributes:
    ```bash
-   [运行命令，例如 npm start 或 python main.py]
+   xattr -c TxtLogParser.app
    ```
+
+### Linux
 
 ## Build
 
@@ -52,7 +62,19 @@ Welcome to **TxtLogParser**, an innovative log parsing tool designed to simplify
 ### Windows
 
 * Prerequisites: CMake, Qt6, Visual Studio
-* Build Steps:
+* Build Method 1:
+   ```cmd
+   git clone https://github.com/paneltree/TxtLogParser.git
+   cd TxtLogParser
+   mkdir build
+   cd build
+   "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
+   set QT6_DIR=C:\Qt\6.8.3
+   cmake .. -G "Visual Studio 17 2022" 
+   cmake --build . --config Debug
+   cmake --build . --config Debug --target deploy_local
+   ```
+* Build Method 2:
    ```cmd
    git clone https://github.com/paneltree/TxtLogParser.git
    cd TxtLogParser
@@ -64,7 +86,7 @@ Welcome to **TxtLogParser**, an innovative log parsing tool designed to simplify
    cmake --build . --config Release --target deploy_local
    Release\TxtLogParser.exe
    ```
-* For NMake:
+* Build Method 3: For NMake:
    ```cmd
    git clone https://github.com/paneltree/TxtLogParser.git
    cd TxtLogParser
@@ -79,13 +101,13 @@ Welcome to **TxtLogParser**, an innovative log parsing tool designed to simplify
 
 ### Window Position (QSettings)
 
-* macOS: ~/Library/Preferences/com.LogTools.TxtLogParser.plist
+* macOS: ~/Library/Preferences/com.paneltree.TxtLogParser.plist
 
    ```
-   $ defaults read ~/Library/Preferences/com.LogTools.TxtLogParser
+   $ defaults read ~/Library/Preferences/com.paneltree.TxtLogParser
    ```
-* Windows: Windows: Registry under HKEY_CURRENT_USER\Software\LogTools\TxtLogParser
-* Linux: ~/.config/LogTools/TxtLogParser.conf
+* Windows: Windows: Registry under HKEY_CURRENT_USER\Software\paneltree\TxtLogParser
+* Linux: ~/.config/paneltree/TxtLogParser.conf
 
 
 ### Workspace settings ()
@@ -97,7 +119,7 @@ Welcome to **TxtLogParser**, an innovative log parsing tool designed to simplify
 ### Logs
 
 * macOS: ~/Library/Logs/TxtLogParser/
-* Windows: 
+* Windows: %USERPROFILE%\AppData\Roaming\TxtLogParser\Logs
 * Linux: ~/.local/share/TxtLogParser/logs/
 
 ## Contributing

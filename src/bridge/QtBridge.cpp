@@ -199,6 +199,9 @@ void QtBridge::rollbackFileUpdate(int64_t workspaceId) {
     workspaceManager->rollbackFileUpdate(workspaceId);
 }
 
+void QtBridge::reloadFilesInWorkspace(int64_t workspaceId) {
+    workspaceManager->reloadFilesInWorkspace(workspaceId);
+}
 
 ////////////////////////////////////////////////////////////
 // Filter management
@@ -239,8 +242,13 @@ QMap<int, int> QtBridge::getFilterMatchCounts(int64_t workspaceId) const {
     return result;
 }
 
-void QtBridge::updateFilterRowInWorkspace(int64_t workspaceId, int32_t filterId, int32_t filterRow) {
-    workspaceManager->updateFilterRow(workspaceId, filterId, filterRow);
+void QtBridge::updateFilterRowsInWorkspace(int64_t workspaceId, QList<qint32> filterIds)
+{
+    std::list<int32_t> filterIds2;
+    for (auto filterId : filterIds) {
+        filterIds2.push_back(filterId);
+    }
+    workspaceManager->updateFilterRows(workspaceId, filterIds2);
 }
 
 void QtBridge::updateFilterInWorkspace(int64_t workspaceId, const FilterConfig& filter) {
@@ -319,8 +327,12 @@ void QtBridge::getSearchListFrmWorkspace(int64_t workspaceId, const std::functio
     callback(searchList);
 }
 
-void QtBridge::updateSearchRowInWorkspace(int64_t workspaceId, int32_t searchId, int32_t searchRow) {
-    workspaceManager->updateSearchRow(workspaceId, searchId, searchRow);
+void QtBridge::updateSearchRowsInWorkspace(int64_t workspaceId, QList<qint32> searchIds) {
+    std::list<int32_t> stdSearchIds;
+    for (const auto& id : searchIds) {
+        stdSearchIds.push_back(id);
+    }
+    workspaceManager->updateSearchRows(workspaceId, stdSearchIds);
 }
 
 void QtBridge::updateSearchInWorkspace(int64_t workspaceId, const SearchConfig& search) {

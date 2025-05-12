@@ -9,6 +9,7 @@
 #include <QLineEdit>
 #include <QCheckBox>
 #include <QPushButton>
+#include <QToolButton>
 #include <QColorDialog>
 #include <QFrame>
 #include <QColor>
@@ -96,9 +97,9 @@ private slots:
 private:
     QLabel *filterLabel;
     QCheckBox *enabledButton;
-    QCheckBox *caseSensitiveButton;
-    QCheckBox *wholeWordButton;
-    QCheckBox *regexButton;
+    QToolButton *caseSensitiveButton;
+    QToolButton *wholeWordButton;
+    QToolButton *regexButton;
     QPushButton *colorButton;
     QPushButton *removeButton;
     
@@ -112,6 +113,9 @@ private:
     
     void updateEnabledState();
     void updateFilterStyle();
+    void updateCaseSensitiveButtonStyle();
+    void updateWholeWordButtonStyle();
+    void updateRegexButtonStyle();
 };
 
 // Dialog for adding/editing filters
@@ -122,6 +126,7 @@ public:
     
     void setFilterConfig(const FilterConfig &filter);
     FilterConfig getFilterConfig() const;
+
     
 private slots:
     void selectColor();
