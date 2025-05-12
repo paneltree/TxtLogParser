@@ -19,6 +19,7 @@
 #include <cstdio>
 #include "bridge/QtBridge.h"
 
+//TODO refine
 // retrun a string representation of the QRectF
 QString rectToString(const QRect &rect)
 {
@@ -38,7 +39,7 @@ QString rectfToString(const QRectF &rect)
 
 
 // InfoAreaWidget implementation
-InfoAreaWidget::InfoAreaWidget(QTextEdit *editor) : QWidget(editor), textEditor(editor)
+InfoAreaWidget::InfoAreaWidget(QtBridge& bridge, QTextEdit *editor) : m_bridge(bridge), QWidget(editor), textEditor(editor)
 {
     // Use the exact same font as the text editor for perfect alignment
     setFont(QFont("Courier New", 11));
@@ -232,7 +233,7 @@ OutputDisplayWidget::OutputDisplayWidget(int64_t workspaceId, QtBridge& bridge, 
     
     // 创建文本编辑控件和行号区域
     textEditLines = new QTextEdit(contentWidget);
-    infoArea = new InfoAreaWidget(textEditLines);
+    infoArea = new InfoAreaWidget(bridge, textEditLines);
     //infoArea->setFixedWidth(130);
     
     // 禁用文本编辑器的内置滚动条
