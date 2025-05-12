@@ -259,4 +259,50 @@ void Workspace::onFilterMatchCountsUpdated(const QMap<int, int> &matchCounts)
 {
 }
 
+void Workspace::updateTheme()
+{
+    // Log that we're updating the theme for this workspace
+    bridge.logInfo("[Workspace:" + QString::number(workspaceId) + "] Updating UI for theme change");
+    
+    // Find the TabWidget in the top widget that holds our UI components
+    QList<QTabWidget*> tabWidgets = findChildren<QTabWidget*>();
+    for (QTabWidget* tabWidget : tabWidgets) {
+        // Apply the updated tab style from StyleManager
+        tabWidget->setStyleSheet(StyleManager::instance().getTabStyle());
+        bridge.logInfo("[Workspace:" + QString::number(workspaceId) + "] Updated tab widget style");
+    }
+    
+    // Update styles in child widgets if they need custom theme handling
+    if (fileListWidget) {
+        // FileListWidget might have buttons or other elements that need style updates
+        QList<QPushButton*> buttons = fileListWidget->findChildren<QPushButton*>();
+        for (QPushButton* button : buttons) {
+            button->setStyleSheet(StyleManager::instance().getButtonStyle());
+        }
+    }
+    
+    if (filterListWidget) {
+        // Update filter list widget styles
+        QList<QPushButton*> buttons = filterListWidget->findChildren<QPushButton*>();
+        for (QPushButton* button : buttons) {
+            button->setStyleSheet(StyleManager::instance().getButtonStyle());
+        }
+    }
+    
+    if (searchListWidget) {
+        // Update search list widget styles
+        QList<QPushButton*> buttons = searchListWidget->findChildren<QPushButton*>();
+        for (QPushButton* button : buttons) {
+            button->setStyleSheet(StyleManager::instance().getButtonStyle());
+        }
+    }
+    
+    if (outputDisplay) {
+        // The output display might need theme updates
+        outputDisplay->update();
+    }
+    
+    bridge.logInfo("[Workspace:" + QString::number(workspaceId) + "] Theme update completed");
+}
+
 

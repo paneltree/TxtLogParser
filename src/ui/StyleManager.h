@@ -58,6 +58,14 @@ private:
      */
     ~StyleManager();
     
+    /**
+     * @brief 事件过滤器，用于监听系统主题变化事件
+     * @param obj 接收事件的对象
+     * @param event 事件对象
+     * @return 如果事件被处理并且不应继续传播，则返回 true；否则返回 false
+     */
+    bool eventFilter(QObject *obj, QEvent *event) override;
+    
     // 禁止拷贝和赋值
     StyleManager(const StyleManager&) = delete;
     StyleManager& operator=(const StyleManager&) = delete;

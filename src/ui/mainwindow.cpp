@@ -33,6 +33,9 @@ MainWindow::MainWindow(QWidget *parent)
     tabWidget->setTabsClosable(true);  // Allow tabs to be closed
     tabWidget->setStyleSheet(StyleManager::instance().getTabStyle());
     
+    // Connect to theme change signals from StyleManager
+    connect(&StyleManager::instance(), &StyleManager::stylesChanged, this, &MainWindow::updateStyles);
+    
     setCentralWidget(tabWidget);
     
     // Connect tab close signal with filter for "+" tab
@@ -824,4 +827,52 @@ void MainWindow::showAboutDialog() {
     aboutBox.exec();
     
     bridge.logInfo("[MainWindow] MainWindow Showed About dialog");
+}
+
+void MainWindow::updateStyles() {
+    bridge.logInfo("[MainWindow] MainWindow::updateStyles - Updating styles due to theme change");
+    
+    // Update tab widget style
+    tabWidget->setStyleSheet(StyleManager::instance().getTabStyle());
+    
+    // Update menu styles with palette values
+    QString menuStyle = R"(
+        QMenu {
+            background-color: palette(window);
+            color: palette(text);
+            border: 1px solid palette(mid);
+            padding: 5px;
+        }
+        QMenu::item {
+            padding: 6px 20px;
+            border-radius: 3px;
+            margin: 2px;
+        }
+        QMenu::item:selected {
+            background-color: palette(highlight);
+            color: palette(highlighted-text);
+        }
+        QMenu::item:hover {
+            background-color: palette(mid);
+            color: palette(text);
+        }
+    )";
+    
+    // Apply updated style to all menus
+    workspaceMenu->setStyleSheet(menuStyle);
+    helpMenu->setStyleSheet(menuStyle);
+    
+    // Notify all workspaces about the theme change
+    for (int i = 0; i < tabWidget->count(); ++i) {
+        if (i == plusTabIndex) {
+            continue; // Skip the "+" tab
+        }
+        
+        Workspace *workspace = qobject_cast<Workspace*>(tabWidget->widget(i));
+        if (workspace) {
+            workspace->updateTheme();
+        }
+    }
+    
+    bridge.logInfo("[MainWindow] MainWindow::updateStyles - Styles updated successfully");
 }

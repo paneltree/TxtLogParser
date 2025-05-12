@@ -9,9 +9,34 @@ StyleManager& StyleManager::instance()
 
 StyleManager::StyleManager() : QObject(nullptr)
 {
-    // 在较新的 Qt 版本中，可以连接 QApplication 的 paletteChanged 信号
-    // 在 Qt 5.15 以上版本可使用：
-    // connect(qApp, &QApplication::paletteChanged, this, &StyleManager::refreshStyles);
+    // Connect to palette change signals
+    #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
+        // For Qt 5.15 and above, directly connect to paletteChanged signal
+        connect(qApp, &QApplication::paletteChanged, this, &StyleManager::refreshStyles);
+    #else
+        // For older Qt versions, use applicationStateChanged as a workaround
+        // This isn't as accurate but can help detect theme changes in many cases
+        connect(qApp, &QApplication::applicationStateChanged, this, [this](Qt::ApplicationState state) {
+            if (state == Qt::ApplicationActive) {
+                // Check if palette changed when application becomes active again
+                static QPalette lastPalette = QApplication::palette();
+                QPalette currentPalette = QApplication::palette();
+                
+                // Compare key colors to detect theme changes
+                if (lastPalette.color(QPalette::Window) != currentPalette.color(QPalette::Window) ||
+                    lastPalette.color(QPalette::WindowText) != currentPalette.color(QPalette::WindowText) ||
+                    lastPalette.color(QPalette::Base) != currentPalette.color(QPalette::Base) ||
+                    lastPalette.color(QPalette::Text) != currentPalette.color(QPalette::Text)) {
+                    
+                    lastPalette = currentPalette;
+                    refreshStyles();
+                }
+            }
+        });
+    #endif
+    
+    // Also monitor theme changes via QEvent::ThemeChange
+    qApp->installEventFilter(this);
 }
 
 StyleManager::~StyleManager()
@@ -99,4 +124,17 @@ void StyleManager::refreshStyles()
 {
     // 发出样式变化信号，通知所有连接的对象
     emit stylesChanged();
+}
+
+bool StyleManager::eventFilter(QObject *obj, QEvent *event)
+{
+    // Check for theme change events
+    if (event->type() == QEvent::ThemeChange) {
+        // When the system theme changes, refresh all styles
+        refreshStyles();
+        return false; // Allow the event to propagate
+    }
+    
+    // Allow the event to propagate to other filters
+    return QObject::eventFilter(obj, event);
 }

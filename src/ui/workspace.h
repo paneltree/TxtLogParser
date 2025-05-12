@@ -31,6 +31,9 @@ public:
     int getSortIndex() const;
     void setSortIndex(int index);
     void stopLoading();
+    
+    // Update styling based on the current theme
+    void updateTheme();
 
     QStringList getSelectedFiles() const;
 

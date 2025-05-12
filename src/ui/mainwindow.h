@@ -45,6 +45,7 @@ private slots:
     void closeWorkspaceByAction();
     void closeWorkspaceAtIndex(int index);
     void showAboutDialog(); // 添加显示About对话框的槽函数
+    void updateStyles(); // 处理系统主题变化的槽函数
 
 private:
     void createMenus();
