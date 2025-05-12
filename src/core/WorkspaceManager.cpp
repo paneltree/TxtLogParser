@@ -409,6 +409,14 @@ void WorkspaceManager::rollbackFileUpdate(int64_t workspaceId) {
     it->second->rollbackFileUpdate();
 }
 
+void WorkspaceManager::reloadFilesInWorkspace(int64_t workspaceId) {
+    auto it = workspaces.find(workspaceId);
+    if (it == workspaces.end()) {
+        Logger::getInstance().info("WorkspaceManager Failed to reload files in workspace: Invalid workspace id " + std::to_string(workspaceId));
+        return;
+    }
+    it->second->reloadFiles();
+}
 ////////////////////////////////////////////////////////////
 // Filter management
 ////////////////////////////////////////////////////////////
@@ -448,13 +456,13 @@ std::vector<FilterDataPtr> WorkspaceManager::getFilterDataList(int64_t workspace
     return it->second->getFilterDataList();
 }
 
-void WorkspaceManager::updateFilterRow(int64_t workspaceId, int32_t filterId, int32_t filterRow) {
+void WorkspaceManager::updateFilterRows(int64_t workspaceId, std::list<int32_t> filterIds) {
     auto it = workspaces.find(workspaceId);
     if (it == workspaces.end()) {
-        Logger::getInstance().info("WorkspaceManager Failed to update filter row: Invalid workspace id " + std::to_string(workspaceId));
+        Logger::getInstance().info("WorkspaceManager Failed to update filter rows: Invalid workspace id " + std::to_string(workspaceId));
         return;
     }
-    it->second->updateFilterRow(filterId, filterRow);
+    it->second->updateFilterRows(filterIds);
     saveWorkspaces();
 }
 
@@ -552,13 +560,13 @@ std::vector<SearchDataPtr> WorkspaceManager::getSearchDataList(int64_t workspace
     return it->second->getSearchDataList();
 }
 
-void WorkspaceManager::updateSearchRow(int64_t workspaceId, int32_t searchId, int32_t searchRow) {
+void WorkspaceManager::updateSearchRows(int64_t workspaceId, std::list<int32_t> searchIds) {
     auto it = workspaces.find(workspaceId);
     if (it == workspaces.end()) {
-        Logger::getInstance().info("WorkspaceManager Failed to update search row: Invalid workspace id " + std::to_string(workspaceId));
+        Logger::getInstance().info("WorkspaceManager Failed to update search rows: Invalid workspace id " + std::to_string(workspaceId));
         return;
     }
-    it->second->updateSearchRow(searchId, searchRow);
+    it->second->updateSearchRows(searchIds);
     saveWorkspaces();
 }
 

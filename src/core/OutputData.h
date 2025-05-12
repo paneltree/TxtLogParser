@@ -49,11 +49,12 @@ namespace Core {
         void addFile(std::shared_ptr<FileData> file);
         void removeFile(int32_t id);
         void updateFileRow(int32_t id, int32_t row);
+        void reloadFiles();
 
         // Filter management
         void addFilter(std::shared_ptr<FilterData> filter);
         void removeFilter(int32_t id);
-        void updateFilterRow(int32_t id, int32_t row);
+        void refreshByFilterRowsChanged();
         void clearFilters();
         void updateFilter(const FilterData& filter);
         std::map<int32_t, int32_t> getFilterMatchCounts() const;
@@ -61,7 +62,7 @@ namespace Core {
         // Search management
         void addSearch(std::shared_ptr<SearchData> search);
         void removeSearch(int32_t id);
-        void updateSearchRow(int32_t id, int32_t row);
+        void refreshBySearchRowsChanged();
         void clearSearches();
         void updateSearch(const SearchData& search);
         std::map<int32_t, int32_t> getSearchMatchCounts() const;

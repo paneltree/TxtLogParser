@@ -4,6 +4,7 @@
 #include <QSplitter>
 #include <QTextEdit>
 #include <QTimer>
+#include <QTabWidget>
 #include "widgets/filelistwidget.h"
 #include "widgets/filterlistwidget.h"
 #include "widgets/searchlistwidget.h"
@@ -51,28 +52,36 @@ Workspace::Workspace(int64_t id, QWidget *parent)
     filterListWidget = new FilterListWidget(workspaceId, bridge, topWidget);
     searchListWidget = new SearchListWidget(workspaceId, bridge, topWidget);
 
-    // Create horizontal splitters for the top section
-    QSplitter *leftSplitter = new QSplitter(Qt::Horizontal, topWidget);
-    topLayout->addWidget(leftSplitter);
+    // Create tab widget to hold the three widgets
+    QTabWidget *tabWidget = new QTabWidget(topWidget);
+    // Style the tab widget with high contrast active/inactive states
+    tabWidget->setDocumentMode(true);
+    QString tabStyle = R"(
+        QTabBar::tab {
+            background-color: #f0f0f0;
+            border: 1px solid #c0c0c0;
+            padding: 6px 12px;
+            margin-right: 2px;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+        }
+        QTabBar::tab:selected {
+            background-color:rgb(76, 93, 149);
+            border-bottom-color: #ffffff;
+        }
+        QTabBar::tab:!selected {
+            margin-top: 2px;
+        }
+    )";
+    tabWidget->setStyleSheet(tabStyle);
+    //tabWidget->setTabPosition(QTabWidget::West);  // Set tabs to the left side
+    topLayout->addWidget(tabWidget);
     topLayout->setContentsMargins(0, 0, 0, 0);
 
-    // Add the file list widget directly to the first splitter
-    leftSplitter->addWidget(fileListWidget);
-
-    // Create a second splitter for filter and search lists
-    QSplitter *rightSplitter = new QSplitter(Qt::Horizontal, leftSplitter);
-    leftSplitter->addWidget(rightSplitter);
-    
-    // Add filter and search widgets to the second splitter
-    rightSplitter->addWidget(filterListWidget);
-    rightSplitter->addWidget(searchListWidget);
-
-    // Set stretch factors for the splitters
-    leftSplitter->setStretchFactor(0, 1); // fileListWidget
-    leftSplitter->setStretchFactor(1, 2); // rightSplitter (contains filter and search)
-    
-    rightSplitter->setStretchFactor(0, 1); // filterListWidget
-    rightSplitter->setStretchFactor(1, 1); // searchListWidget
+    // Add the widgets to the tab widget
+    tabWidget->addTab(fileListWidget, tr("Files"));
+    tabWidget->addTab(filterListWidget, tr("Filters"));
+    tabWidget->addTab(searchListWidget, tr("Search"));
 
     // Bottom section: output display area
     outputDisplay = new OutputDisplayWidget(workspaceId, bridge, topWidget);  // No parent, let splitter manage
@@ -97,7 +106,7 @@ Workspace::Workspace(int64_t id, QWidget *parent)
     connect(searchListWidget, &SearchListWidget::navigateToNextMatch, outputDisplay, &OutputDisplayWidget::onNavigateToNextSearchMatch);
     connect(searchListWidget, &SearchListWidget::navigateToPreviousMatch, outputDisplay, &OutputDisplayWidget::onNavigateToPreviousSearchMatch);
         
-    bridge.logInfo("Workspace Created workspace: " + QString::number(workspaceId));
+    bridge.logInfo("[Workspace:" + QString::number(workspaceId) + "] Created workspace: ");
 }
 
 
@@ -189,14 +198,14 @@ void Workspace::addSearch(const QString &query, bool caseSensitive, bool wholeWo
         if (bridge.addSearchToWorkspace(workspaceId, searchConfig)) {
             // Add search to UI
             searchListWidget->addSearch(searchConfig);
-            bridge.logInfo("Workspace Added search to workspace: " + query);
+            bridge.logInfo("[Workspace:" + QString::number(workspaceId) + "] Added search to workspace: " + query);
         } else {
-            bridge.logError("Failed to add search to workspace: " + query);
+            bridge.logError("[Workspace:" + QString::number(workspaceId) + "] Failed to add search to workspace: " + query);
         }
     } else {
         // Just add to UI if we don't have a valid workspace index yet
         searchListWidget->addSearch(searchConfig);
-        bridge.logInfo("Workspace Added search to workspace UI: " + query);
+        bridge.logInfo("[Workspace:" + QString::number(workspaceId) + "] Added search to workspace UI: " + query);
     }
 }
 
@@ -204,7 +213,7 @@ void Workspace::saveWorkspaceData()
 {
     if (workspaceId >= 0) {
         // The bridge will handle saving the workspace data
-        bridge.logInfo("Workspace Workspace data modified, will be saved on application close");
+        bridge.logInfo("[Workspace:" + QString::number(workspaceId) + "] Workspace data modified, will be saved on application close");
     }
 }
 

@@ -74,13 +74,14 @@ public:
     void beginFileUpdate(int64_t workspaceId);
     void commitFileUpdate(int64_t workspaceId);
     void rollbackFileUpdate(int64_t workspaceId);
+    void reloadFilesInWorkspace(int64_t workspaceId);
 
     // Filter operations for workspaces
     int32_t addFilterToWorkspace(int64_t workspaceId, const FilterConfig& filter);
     bool removeFilterFromWorkspace(int64_t workspaceId, int32_t filterId);
     void getFilterListFrmWorkspace(int64_t workspaceId, const std::function<void(const QList<FilterConfig>&)>& callback);
     QMap<int, int> getFilterMatchCounts(int64_t workspaceId) const;
-    void updateFilterRowInWorkspace(int64_t workspaceId, int32_t filterId, int32_t filterRow);
+    void updateFilterRowsInWorkspace(int64_t workspaceId, QList<qint32> filterIds);
     void updateFilterInWorkspace(int64_t workspaceId, const FilterConfig& filter);
     void beginFilterUpdate(int64_t workspaceId);
     void commitFilterUpdate(int64_t workspaceId);
@@ -90,7 +91,7 @@ public:
     int32_t addSearchToWorkspace(int64_t workspaceId, const SearchConfig& search);
     bool removeSearchFromWorkspace(int64_t workspaceId, int32_t searchId);
     void getSearchListFrmWorkspace(int64_t workspaceId, const std::function<void(const QList<SearchConfig>&)>& callback);
-    void updateSearchRowInWorkspace(int64_t workspaceId, int32_t searchId, int32_t searchRow);
+    void updateSearchRowsInWorkspace(int64_t workspaceId, QList<qint32> searchIds);
     void updateSearchInWorkspace(int64_t workspaceId, const SearchConfig& search);
     void beginSearchUpdate(int64_t workspaceId);
     void commitSearchUpdate(int64_t workspaceId);

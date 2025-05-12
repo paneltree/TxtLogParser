@@ -188,6 +188,10 @@ void WorkspaceData::rollbackFileUpdate() {
     m_outputData.resumeRefresh();
 }
 
+void WorkspaceData::reloadFiles() {
+    m_outputData.reloadFiles();
+}
+
 ////////////////////////////////////////////////////////////
 // Filter management
 ////////////////////////////////////////////////////////////
@@ -229,11 +233,22 @@ std::map<int32_t, int32_t> WorkspaceData::getFilterMatchCounts() const {
     return m_outputData.getFilterMatchCounts();
 }
 
-void WorkspaceData::updateFilterRow(int32_t filterId, int32_t filterRow) {
-    auto it = m_filters.find(filterId);
-    if (it != m_filters.end()) {
-        it->second->setRow(filterRow);
-        m_outputData.updateFilterRow(filterId, filterRow);
+void WorkspaceData::updateFilterRows(const std::list<int32_t>& filterIds) {
+    assert(filterIds.size() == m_filters.size());
+    int32_t row = 0;
+    bool changed = false;
+    for (const auto& filterId : filterIds) {
+        auto it = m_filters.find(filterId);
+        if (it != m_filters.end()) {
+            if(it->second->getRow() != row){
+                changed = true;
+                it->second->setRow(row);
+            }
+            ++row;
+        }
+    }
+    if(changed){
+        m_outputData.refreshByFilterRowsChanged();
     }
 }
 
@@ -315,12 +330,15 @@ std::map<int32_t, int32_t> WorkspaceData::getSearchMatchCounts() const {
     return m_outputData.getSearchMatchCounts();
 }
 
-void WorkspaceData::updateSearchRow(int32_t searchId, int32_t searchRow) {
-    auto it = m_searches.find(searchId);
-    if (it != m_searches.end()) {
-        it->second->setRow(searchRow);
-        m_outputData.updateSearchRow(searchId, searchRow);
+void WorkspaceData::updateSearchRows(const std::list<int32_t>& searchIds) {
+    int i = 0;
+    for (auto searchId : searchIds) {
+        auto it = m_searches.find(searchId);
+        if (it != m_searches.end()) {
+            it->second->setRow(i++);
+        }
     }
+    m_outputData.refreshBySearchRowsChanged();
 }
 
 void WorkspaceData::updateSearch(const SearchData& search) {
