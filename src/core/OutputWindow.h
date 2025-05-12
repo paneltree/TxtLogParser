@@ -24,7 +24,7 @@ namespace Core{
         void reset();
     private:
         OutputData& m_outputData;
-        int32_t m_visiableLineCount = 50000;       //number of lines visible in the output window
+        int32_t m_visiableLineCount = 100000;       //number of lines visible in the output window
         int32_t m_totalLines;                   //total lines in the output window
         int32_t m_visiableTopLineIndex;         //top visible line index in the output window, between 0 and total lines - 1
         int32_t m_visiableBottomLineIndex;      //bottom visible line index in the output window, between 0 and total lines - 1
