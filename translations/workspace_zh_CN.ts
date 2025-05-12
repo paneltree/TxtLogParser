@@ -310,17 +310,17 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="771"/>
+        <location filename="../src/ui/mainwindow.cpp" line="772"/>
         <source>About TxtLogParser</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="780"/>
+        <location filename="../src/ui/mainwindow.cpp" line="781"/>
         <source>&lt;h3&gt;TxtLogParser&lt;/h3&gt;&lt;p&gt;Version 1.0.0&lt;/p&gt;&lt;p&gt;A powerful tool for parsing and analyzing text log files.&lt;/p&gt;&lt;p&gt;Copyright © 2025 PanelTree&lt;/p&gt;&lt;p&gt;&lt;a href=&apos;https://github.com/paneltree/TxtLogParser&apos;&gt;https://github.com/paneltree/TxtLogParser&lt;/a&gt;&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/ui/mainwindow.cpp" line="791"/>
+        <location filename="../src/ui/mainwindow.cpp" line="792"/>
         <source>This software is provided under the terms of the MIT License.
 
 Built with Qt 6 and C++.

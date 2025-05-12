@@ -744,6 +744,7 @@ void MainWindow::onTabChanged(int index) {
         if (workspace) {
             int64_t workspaceId = workspace->getWorkspaceId();
             bridge.setActiveWorkspace(workspaceId);
+            workspace->setActive(true);
             bridge.logInfo("[MainWindow] MainWindow Changed active workspace to " + QString::number(workspaceId));
         }
     }
