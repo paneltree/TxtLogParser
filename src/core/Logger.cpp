@@ -1,4 +1,5 @@
 #include "Logger.h"
+#include "LoggingSystem.h"  // Include our new unified logging system
 #include <chrono>
 #include <iomanip>
 #include <sstream>
@@ -42,78 +43,63 @@ void Logger::critical(const std::string& message) {
 bool Logger::setLogFile(const std::string& filePath) {
     std::lock_guard<std::mutex> lock(logMutex);
     
-    // Close existing log file if open
-    if (logFile.is_open()) {
-        logFile.close();
-    }
+    // Close any open file
+    closeLogFile();
     
-    // Open new log file
-    logFile.open(filePath, std::ios::out | std::ios::app);
-    if (!logFile.is_open()) {
-        std::cerr << "Failed to open log file: " << filePath << std::endl;
+    try {
+        // Add a file sink to the LogManager
+        LogManager::getInstance().addSink(std::make_shared<FileSink>(filePath));
+        return true;
+    } catch (const std::exception& e) {
+        std::cerr << "Failed to set log file: " << e.what() << std::endl;
         return false;
     }
-    
-    return true;
 }
 
 void Logger::closeLogFile() {
-    std::lock_guard<std::mutex> lock(logMutex);
-    if (logFile.is_open()) {
-        logFile.close();
-    }
+    // With our new design, we don't need to explicitly close files
+    // as the FileSink's destructor will handle that
 }
 
 void Logger::log(LogLevel level, const std::string& message) {
-    std::lock_guard<std::mutex> lock(logMutex);
+    // Convert Logger::LogLevel to Core::LogLevel and delegate to LogManager
+    Core::LogLevel coreLevel;
     
-    std::string timestamp = getTimestamp();
-    std::string levelStr = getLevelString(level);
-    std::string formattedMessage = timestamp + " [" + levelStr + "] " + message;
-    
-    // Write to log file if open
-    if (logFile.is_open()) {
-        logFile << formattedMessage << std::endl;
-        logFile.flush();
+    switch (level) {
+        case LogLevel::DEBUG:    coreLevel = Core::LogLevel::DEBUG; break;
+        case LogLevel::INFO:     coreLevel = Core::LogLevel::INFO; break;
+        case LogLevel::WARNING:  coreLevel = Core::LogLevel::WARNING; break;
+        case LogLevel::ERROR:    coreLevel = Core::LogLevel::ERROR; break;
+        case LogLevel::CRITICAL: coreLevel = Core::LogLevel::CRITICAL; break;
     }
     
-    // Write to console
-    std::cout << formattedMessage << std::endl;
+    // Delegate to LogManager
+    LogManager::getInstance().log(coreLevel, message);
     
-    // Call callback if set
+    // Call the callback if set
     if (logCallback) {
         logCallback(level, message);
     }
 }
 
 std::string Logger::getTimestamp() {
-    auto now = std::chrono::system_clock::now();
-    auto time = std::chrono::system_clock::to_time_t(now);
-    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-        now.time_since_epoch()) % 1000;
-    
-    std::stringstream ss;
-    ss << std::put_time(std::localtime(&time), "%Y-%m-%d %H:%M:%S");
-    ss << '.' << std::setfill('0') << std::setw(3) << ms.count();
-    
-    return ss.str();
+    // Delegate to LoggingSystem's implementation
+    return Core::getTimestamp();
 }
 
 std::string Logger::getLevelString(LogLevel level) {
+    // Convert and delegate
+    Core::LogLevel coreLevel;
+    
     switch (level) {
-        case LogLevel::DEBUG:
-            return "DEBUG";
-        case LogLevel::INFO:
-            return "INFO";
-        case LogLevel::WARNING:
-            return "WARNING";
-        case LogLevel::ERROR:
-            return "ERROR";
-        case LogLevel::CRITICAL:
-            return "CRITICAL";
-        default:
-            return "UNKNOWN";
+        case LogLevel::DEBUG:    coreLevel = Core::LogLevel::DEBUG; break;
+        case LogLevel::INFO:     coreLevel = Core::LogLevel::INFO; break;
+        case LogLevel::WARNING:  coreLevel = Core::LogLevel::WARNING; break;
+        case LogLevel::ERROR:    coreLevel = Core::LogLevel::ERROR; break;
+        case LogLevel::CRITICAL: coreLevel = Core::LogLevel::CRITICAL; break;
     }
+    
+    return Core::getLevelString(coreLevel);
 }
 
-} // namespace Core 
+} // namespace Core
