@@ -8,8 +8,7 @@
 #include <unordered_map>
 #include <memory>
 #include <exception>
-#include "LoggingSystem.h"  // Include our new unified logging system
-#include "LoggerBridge.h"   // Keep for backward compatibility
+#include "LoggerBridge.h"
 
 namespace Core {
 
@@ -17,7 +16,6 @@ namespace Core {
  * @brief 调试流类，支持流式语法
  * 
  * 此类用于替代Qt的QDebug流式语法，提供类似的使用体验
- * 该类现在是LogManager::StreamProxy的适配器
  */
 class DebugStream {
 public:
@@ -34,28 +32,25 @@ public:
      * @brief 析构函数，输出累积的日志消息
      */
     ~DebugStream() {
-        // 创建上下文
-        LogContext context(m_file, m_line);
-        
-        // 获取累积的消息
+        // 在析构时输出日志
         std::string message = m_stream.str();
+        std::string location = std::string(m_file) + ":" + std::to_string(m_line);
         
-        // 根据日志级别，将消息发送到统一日志系统
         switch (m_level) {
             case LogLevel::DEBUG:
-                LogManager::getInstance().debug(message, context);
+                LoggerBridge::getInstance().debug(message + " [" + location + "]");
                 break;
             case LogLevel::INFO:
-                LogManager::getInstance().info(message, context);
+                LoggerBridge::getInstance().info(message + " [" + location + "]");
                 break;
             case LogLevel::WARNING:
-                LogManager::getInstance().warning(message, context);
+                LoggerBridge::getInstance().warning(message + " [" + location + "]");
                 break;
             case LogLevel::ERROR:
-                LogManager::getInstance().error(message, context);
+                LoggerBridge::getInstance().error(message + " [" + location + "]");
                 break;
             case LogLevel::CRITICAL:
-                LogManager::getInstance().critical(message, context);
+                LoggerBridge::getInstance().critical(message + " [" + location + "]");
                 break;
         }
     }
@@ -96,8 +91,6 @@ private:
 
 /**
  * @brief 日志配置类，管理模块级日志配置
- * 
- * 该类现在是LogManager的适配器
  */
 class LogConfig {
 public:
@@ -107,13 +100,6 @@ public:
      * @param level 日志级别
      */
     static void setModuleLogLevel(const std::string& module, LogLevel level) {
-        // 将旧的日志级别转换为新的日志级别
-        Core::LogLevel newLevel = static_cast<Core::LogLevel>(level);
-        
-        // 在统一日志系统中设置模块级别
-        LogManager::getInstance().setModuleLogLevel(module, newLevel);
-        
-        // 保持旧的映射，用于向后兼容
         s_moduleLevels[module] = level;
     }
     
@@ -123,11 +109,11 @@ public:
      * @return 日志级别
      */
     static LogLevel getModuleLogLevel(const std::string& module) {
-        // 从统一日志系统获取级别
-        Core::LogLevel level = LogManager::getInstance().getModuleLogLevel(module);
-        
-        // 转换回旧的日志级别
-        return static_cast<LogLevel>(level);
+        auto it = s_moduleLevels.find(module);
+        if (it != s_moduleLevels.end()) {
+            return it->second;
+        }
+        return s_defaultLevel;
     }
     
     /**
@@ -135,10 +121,6 @@ public:
      * @param level 日志级别
      */
     static void setDefaultLogLevel(LogLevel level) {
-        // 在统一日志系统中设置全局级别
-        LogManager::getInstance().setMinLogLevel(static_cast<Core::LogLevel>(level));
-        
-        // 保持旧的值，用于向后兼容
         s_defaultLevel = level;
     }
     
@@ -192,37 +174,37 @@ namespace Core {
 #define CURRENT_DEBUG_LEVEL DEBUG_LEVEL_WARNING
 #endif
 
-// 流式调试宏 - 保持原有名称，但使用新的统一日志系统
+// 流式调试宏
 #define DEBUG_STREAM() Core::DebugStream(Core::LogLevel::DEBUG, __FILE__, __LINE__)
 #define INFO_STREAM() Core::DebugStream(Core::LogLevel::INFO, __FILE__, __LINE__)
 #define WARNING_STREAM() Core::DebugStream(Core::LogLevel::WARNING, __FILE__, __LINE__)
 #define ERROR_STREAM() Core::DebugStream(Core::LogLevel::ERROR, __FILE__, __LINE__)
 #define CRITICAL_STREAM() Core::DebugStream(Core::LogLevel::CRITICAL, __FILE__, __LINE__)
 
-// 条件调试宏 - 保持原有名称，但使用新的统一日志系统
+// 条件调试宏
 #define DEBUG_LOG(message) \
     if (CURRENT_DEBUG_LEVEL >= DEBUG_LEVEL_DEBUG) { \
-        Core::LogManager::getInstance().debug(std::string(message), {__FILE__, __LINE__}); \
+        Core::LoggerBridge::getInstance().debug(std::string(message) + " [" + __FILE__ + ":" + std::to_string(__LINE__) + "]"); \
     }
 
 #define INFO_LOG(message) \
     if (CURRENT_DEBUG_LEVEL >= DEBUG_LEVEL_INFO) { \
-        Core::LogManager::getInstance().info(std::string(message), {__FILE__, __LINE__}); \
+        Core::LoggerBridge::getInstance().info(std::string(message) + " [" + __FILE__ + ":" + std::to_string(__LINE__) + "]"); \
     }
 
 #define WARNING_LOG(message) \
     if (CURRENT_DEBUG_LEVEL >= DEBUG_LEVEL_WARNING) { \
-        Core::LogManager::getInstance().warning(std::string(message), {__FILE__, __LINE__}); \
+        Core::LoggerBridge::getInstance().warning(std::string(message) + " [" + __FILE__ + ":" + std::to_string(__LINE__) + "]"); \
     }
 
 #define ERROR_LOG(message) \
     if (CURRENT_DEBUG_LEVEL >= DEBUG_LEVEL_ERROR) { \
-        Core::LogManager::getInstance().error(std::string(message), {__FILE__, __LINE__}); \
+        Core::LoggerBridge::getInstance().error(std::string(message) + " [" + __FILE__ + ":" + std::to_string(__LINE__) + "]"); \
     }
 
 #define CRITICAL_LOG(message) \
     if (CURRENT_DEBUG_LEVEL >= DEBUG_LEVEL_ERROR) { \
-        Core::LogManager::getInstance().critical(std::string(message), {__FILE__, __LINE__}); \
+        Core::LoggerBridge::getInstance().critical(std::string(message) + " [" + __FILE__ + ":" + std::to_string(__LINE__) + "]"); \
     }
 
 // 模块调试宏
@@ -231,16 +213,16 @@ namespace Core {
 
 #define MODULE_DEBUG_LOG(module, message) \
     if (MODULE_DEBUG_ENABLED(module)) { \
-        Core::LogManager::getInstance().debug(std::string(message), {__FILE__, __LINE__, "", module}); \
+        Core::LoggerBridge::getInstance().debug(std::string("[") + module + "] " + message + " [" + __FILE__ + ":" + std::to_string(__LINE__) + "]"); \
     }
 
 // 断言宏
 #ifndef NDEBUG
 #define LOG_ASSERT(condition) \
     if (!(condition)) { \
-        Core::LogManager::getInstance().critical( \
-            std::string("Assertion failed: ") + #condition, \
-            {__FILE__, __LINE__}); \
+        Core::LoggerBridge::getInstance().critical( \
+            std::string("Assertion failed: ") + #condition + \
+            " at " + __FILE__ + ":" + std::to_string(__LINE__)); \
         assert(condition); \
     }
 #else
@@ -250,10 +232,10 @@ namespace Core {
 #ifndef NDEBUG
 #define LOG_ASSERT_X(condition, message) \
     if (!(condition)) { \
-        Core::LogManager::getInstance().critical( \
+        Core::LoggerBridge::getInstance().critical( \
             std::string("Assertion failed: ") + #condition + \
-            " - " + message, \
-            {__FILE__, __LINE__}); \
+            " - " + message + \
+            " at " + __FILE__ + ":" + std::to_string(__LINE__)); \
         assert(condition); \
     }
 #else
@@ -263,9 +245,9 @@ namespace Core {
 #ifndef NDEBUG
 #define CHECK_PTR(ptr) \
     if ((ptr) == nullptr) { \
-        Core::LogManager::getInstance().critical( \
-            std::string("Null pointer: ") + #ptr, \
-            {__FILE__, __LINE__}); \
+        Core::LoggerBridge::getInstance().critical( \
+            std::string("Null pointer: ") + #ptr + \
+            " at " + __FILE__ + ":" + std::to_string(__LINE__)); \
         assert((ptr) != nullptr); \
     }
 #else
@@ -275,18 +257,18 @@ namespace Core {
 // 发布模式断言
 #define RELEASE_ASSERT(condition, message) \
     if (!(condition)) { \
-        Core::LogManager::getInstance().critical( \
+        Core::LoggerBridge::getInstance().critical( \
             std::string("Assertion failed: ") + #condition + \
-            " - " + message, \
-            {__FILE__, __LINE__}); \
+            " - " + message + \
+            " at " + __FILE__ + ":" + std::to_string(__LINE__)); \
     }
 
 // 致命错误处理
 #define FATAL_ERROR(message) \
     { \
-        Core::LogManager::getInstance().critical( \
-            std::string("FATAL ERROR: ") + message, \
-            {__FILE__, __LINE__}); \
+        Core::LoggerBridge::getInstance().critical( \
+            std::string("FATAL ERROR: ") + message + \
+            " at " + __FILE__ + ":" + std::to_string(__LINE__)); \
         std::terminate(); \
     }
 
@@ -295,21 +277,21 @@ namespace Core {
     try { \
         code; \
     } catch (const std::exception& e) { \
-        Core::LogManager::getInstance().error( \
-            std::string("Exception caught: ") + e.what(), \
-            {__FILE__, __LINE__}); \
+        Core::LoggerBridge::getInstance().error( \
+            std::string("Exception caught: ") + e.what() + \
+            " at " + __FILE__ + ":" + std::to_string(__LINE__)); \
     } catch (...) { \
-        Core::LogManager::getInstance().error( \
-            std::string("Unknown exception caught"), \
-            {__FILE__, __LINE__}); \
+        Core::LoggerBridge::getInstance().error( \
+            std::string("Unknown exception caught") + \
+            " at " + __FILE__ + ":" + std::to_string(__LINE__)); \
     }
 
 // 错误代码检查和日志记录
 #define CHECK_ERROR_CODE(code, message) \
     if ((code) != 0) { \
-        Core::LogManager::getInstance().error( \
-            std::string(message) + ": error code " + std::to_string(code), \
-            {__FILE__, __LINE__}); \
+        Core::LoggerBridge::getInstance().error( \
+            std::string(message) + ": error code " + std::to_string(code) + \
+            " at " + __FILE__ + ":" + std::to_string(__LINE__)); \
         return false; \
     }
 
@@ -330,4 +312,4 @@ namespace Core {
 #define Q_ASSERT_X(condition, where, message) LOG_ASSERT_X(condition, std::string(where) + ": " + std::string(message))
 #define Q_CHECK_PTR(ptr) CHECK_PTR(ptr)
 
-#endif // CORE_DEBUGUTILS_H
+#endif // CORE_DEBUGUTILS_H 

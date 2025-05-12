@@ -1,5 +1,4 @@
 #include "LoggerBridge.h"
-#include "LoggingSystem.h" // Include the new unified logging system
 #include <iomanip>
 #include <sstream>
 #include <ctime>
@@ -10,22 +9,33 @@ namespace Core {
 
 // LogUtils 实现
 std::string LogUtils::getTimestamp() {
-    return Core::getTimestamp(); // 直接使用统一日志系统的函数
+    auto now = std::chrono::system_clock::now();
+    auto time_t_now = std::chrono::system_clock::to_time_t(now);
+    auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+        now.time_since_epoch()) % 1000;
+    
+    std::stringstream ss;
+    ss << std::put_time(std::localtime(&time_t_now), "%Y-%m-%d %H:%M:%S");
+    ss << '.' << std::setfill('0') << std::setw(3) << ms.count();
+    
+    return ss.str();
 }
 
 std::string LogUtils::getLevelString(LogLevel level) {
-    return Core::getLevelString(static_cast<Core::LogLevel>(level)); // 转换并使用统一日志系统的函数
+    switch (level) {
+        case LogLevel::DEBUG:    return "DEBUG";
+        case LogLevel::INFO:     return "INFO";
+        case LogLevel::WARNING:  return "WARNING";
+        case LogLevel::ERROR:    return "ERROR";
+        case LogLevel::CRITICAL: return "CRITICAL";
+        default:                 return "UNKNOWN";
+    }
 }
 
 std::string LogUtils::formatLogMessage(LogLevel level, const std::string& message) {
-    // 创建一个临时的LogMessage对象，使用统一日志系统的格式化功能
-    Core::LogMessage logMessage;
-    logMessage.level = static_cast<Core::LogLevel>(level);
-    logMessage.message = message;
-    logMessage.timestamp = std::chrono::system_clock::now();
-    logMessage.isTroubleshooting = false;
-    
-    return Core::formatLogMessage(logMessage);
+    std::stringstream ss;
+    ss << "[" << getTimestamp() << "] [" << getLevelString(level) << "] " << message;
+    return ss.str();
 }
 
 std::string LogUtils::formatTroubleshootingMessage(
@@ -33,16 +43,9 @@ std::string LogUtils::formatTroubleshootingMessage(
     const std::string& operation, 
     const std::string& message) {
     
-    // 创建一个临时的LogMessage对象，使用统一日志系统的格式化功能
-    Core::LogMessage logMessage;
-    logMessage.level = Core::LogLevel::INFO;
-    logMessage.message = message;
-    logMessage.timestamp = std::chrono::system_clock::now();
-    logMessage.category = category;
-    logMessage.operation = operation;
-    logMessage.isTroubleshooting = true;
-    
-    return Core::formatLogMessage(logMessage);
+    std::stringstream ss;
+    ss << "[" << getTimestamp() << "] [" << category << "][" << operation << "] " << message;
+    return ss.str();
 }
 
 // LoggerBridge 实现
@@ -52,7 +55,7 @@ LoggerBridge& LoggerBridge::getInstance() {
 }
 
 LoggerBridge::LoggerBridge() : m_initialized(false), m_running(false) {
-    // 构造函数
+    // 构造函数不做实际初始化，初始化在initialize方法中进行
 }
 
 LoggerBridge::~LoggerBridge() {
@@ -65,40 +68,57 @@ bool LoggerBridge::initialize(
     bool consoleOutput,
     LogLevel minLevel) {
     
+    // 防止重复初始化
     if (m_initialized) {
-        return true; // 已经初始化
+        return true;
     }
     
-    // 存储参数
     m_logFilePath = logFilePath;
     m_troubleshootingLogPath = troubleshootingLogPath;
     m_consoleOutput = consoleOutput;
     m_minLevel = minLevel;
     
-    // 初始化统一日志系统
-    auto& logManager = Core::LogManager::getInstance();
-    logManager.initialize();
-    logManager.setMinLogLevel(static_cast<Core::LogLevel>(minLevel));
-    
-    // 添加控制台接收器
-    if (consoleOutput) {
-        logManager.addSink(std::make_shared<Core::ConsoleSink>());
-    }
-    
-    // 添加文件接收器
+    // 确保日志目录存在
     try {
-        // 为应用程序日志添加文件接收器
-        logManager.addSink(std::make_shared<Core::FileSink>(logFilePath, MAX_LOG_FILE_SIZE));
+        std::filesystem::path logDir = std::filesystem::path(logFilePath).parent_path();
+        std::filesystem::path troubleshootingDir = std::filesystem::path(troubleshootingLogPath).parent_path();
         
-        // 为故障排查日志添加专用文件接收器
-        logManager.addSink(std::make_shared<Core::FileSink>(troubleshootingLogPath, MAX_LOG_FILE_SIZE));
+        if (!logDir.empty() && !std::filesystem::exists(logDir)) {
+            std::filesystem::create_directories(logDir);
+        }
         
-        m_initialized = true;
-        return true;
+        if (!troubleshootingDir.empty() && !std::filesystem::exists(troubleshootingDir)) {
+            std::filesystem::create_directories(troubleshootingDir);
+        }
     } catch (const std::exception& e) {
-        std::cerr << "Failed to initialize logging system: " << e.what() << std::endl;
+        std::cerr << "Failed to create log directories: " << e.what() << std::endl;
         return false;
     }
+    
+    // 打开日志文件
+    m_logFile.open(logFilePath, std::ios::trunc);
+    if (!m_logFile) {
+        std::cerr << "Failed to open log file: " << logFilePath << std::endl;
+        return false;
+    }
+    
+    m_troubleshootingLogFile.open(troubleshootingLogPath, std::ios::app);
+    if (!m_troubleshootingLogFile) {
+        std::cerr << "Failed to open troubleshooting log file: " << troubleshootingLogPath << std::endl;
+        m_logFile.close();
+        return false;
+    }
+    
+    // 启动日志处理线程
+    m_running = true;
+    m_processingThread = std::thread(&LoggerBridge::logProcessingThread, this);
+    
+    m_initialized = true;
+    
+    // 记录初始化成功日志
+    info("Logger initialized successfully");
+    
+    return true;
 }
 
 void LoggerBridge::shutdown() {
@@ -106,42 +126,65 @@ void LoggerBridge::shutdown() {
         return;
     }
     
-    // 关闭统一日志系统
-    Core::LogManager::getInstance().shutdown();
+    // 停止处理线程
+    m_running = false;
+    
+    // 通知处理线程退出
+    {
+        std::lock_guard<std::mutex> lock(m_queueMutex);
+        m_queueCondition.notify_all();
+    }
+    
+    // 等待处理线程结束
+    if (m_processingThread.joinable()) {
+        m_processingThread.join();
+    }
+    
+    // 处理剩余的日志消息
+    while (!m_messageQueue.empty()) {
+        LogMessage message = m_messageQueue.front();
+        m_messageQueue.pop();
+        processLogMessage(message);
+    }
+    
+    // 关闭日志文件
+    if (m_logFile.is_open()) {
+        m_logFile.close();
+    }
+    
+    if (m_troubleshootingLogFile.is_open()) {
+        m_troubleshootingLogFile.close();
+    }
     
     m_initialized = false;
 }
 
 void LoggerBridge::setMinLevel(LogLevel level) {
     m_minLevel = level;
-    Core::LogManager::getInstance().setMinLogLevel(static_cast<Core::LogLevel>(level));
 }
 
 void LoggerBridge::setConsoleOutput(bool enable) {
     m_consoleOutput = enable;
-    
-    // 注意：这个方法在新的日志系统中需要重新添加或移除控制台接收器
-    // 此处简化处理，仅更新标志
 }
 
 void LoggerBridge::debug(const std::string& message) {
-    Core::LogManager::getInstance().debug(message);
+    log(LogLevel::DEBUG, message);
 }
 
 void LoggerBridge::info(const std::string& message) {
-    Core::LogManager::getInstance().info(message);
+    log(LogLevel::INFO, message);
 }
 
 void LoggerBridge::warning(const std::string& message) {
-    Core::LogManager::getInstance().warning(message);
+    log(LogLevel::WARNING, message);
 }
 
 void LoggerBridge::error(const std::string& message) {
-    Core::LogManager::getInstance().error(message);
+    log(LogLevel::ERROR, message);
 }
 
 void LoggerBridge::critical(const std::string& message) {
-    Core::LogManager::getInstance().critical(message);
+    log(LogLevel::CRITICAL, message);
 }
 
 void LoggerBridge::troubleshootingLog(
@@ -149,7 +192,33 @@ void LoggerBridge::troubleshootingLog(
     const std::string& operation,
     const std::string& message) {
     
-    Core::LogManager::getInstance().troubleshooting(category, operation, message);
+    if (!m_initialized) {
+        std::cerr << "Logger not initialized" << std::endl;
+        return;
+    }
+    
+    LogMessage logMessage;
+    logMessage.level = LogLevel::INFO;
+    logMessage.message = message;
+    logMessage.timestamp = std::chrono::system_clock::now();
+    logMessage.category = category;
+    logMessage.operation = operation;
+    logMessage.isTroubleshooting = true;
+    
+    // 添加到消息队列
+    {
+        std::lock_guard<std::mutex> lock(m_queueMutex);
+        
+        // 队列已满，丢弃最旧的消息
+        if (m_messageQueue.size() >= MAX_QUEUE_SIZE) {
+            m_messageQueue.pop();
+        }
+        
+        m_messageQueue.push(logMessage);
+    }
+    
+    // 通知处理线程
+    m_queueCondition.notify_one();
 }
 
 void LoggerBridge::troubleshootingLogMessage(const std::string& message) {
@@ -166,68 +235,228 @@ void LoggerBridge::troubleshootingLogFilterOperation(
 void LoggerBridge::setLogCallback(LogCallback callback) {
     std::lock_guard<std::mutex> lock(m_callbackMutex);
     m_logCallback = callback;
-    
-    // 如果提供了回调，则添加到统一日志系统
-    if (callback) {
-        // 创建一个适配器将新的LogMessage转换为旧的格式
-        auto callbackAdapter = [this](const Core::LogMessage& newMessage) {
-            if (m_logCallback) {
-                // 转换消息格式并调用旧的回调
-                m_logCallback(
-                    static_cast<LogLevel>(newMessage.level),
-                    newMessage.message
-                );
-            }
-        };
-        
-        // 添加回调接收器
-        Core::LogManager::getInstance().addSink(
-            std::make_shared<Core::CallbackSink>(callbackAdapter));
-    }
 }
 
 void LoggerBridge::log(LogLevel level, const std::string& message) {
-    Core::LogManager::getInstance().log(
-        static_cast<Core::LogLevel>(level), 
-        message
-    );
-}
-
-// 以下方法在新的架构中不再需要，但为保持向后兼容性，保留空实现
-
-void LoggerBridge::processLogMessage(const LogMessage& message) {
-    // 新的日志系统会自动处理所有消息
+    if (!m_initialized) {
+        std::cerr << "Logger not initialized" << std::endl;
+        return;
+    }
+    
+    // 检查日志级别
+    if (level < m_minLevel) {
+        return;
+    }
+    
+    LogMessage logMessage;
+    logMessage.level = level;
+    logMessage.message = message;
+    logMessage.timestamp = std::chrono::system_clock::now();
+    logMessage.isTroubleshooting = false;
+    
+    // 添加到消息队列
+    {
+        std::lock_guard<std::mutex> lock(m_queueMutex);
+        
+        // 队列已满，丢弃最旧的消息
+        if (m_messageQueue.size() >= MAX_QUEUE_SIZE) {
+            m_messageQueue.pop();
+        }
+        
+        m_messageQueue.push(logMessage);
+    }
+    
+    // 通知处理线程
+    m_queueCondition.notify_one();
 }
 
 void LoggerBridge::logProcessingThread() {
-    // 新的日志系统有自己的处理线程
+    while (m_running) {
+        LogMessage message;
+        bool hasMessage = false;
+        
+        // 从队列中获取消息
+        {
+            std::unique_lock<std::mutex> lock(m_queueMutex);
+            
+            // 等待消息或退出信号
+            m_queueCondition.wait(lock, [this] {
+                return !m_messageQueue.empty() || !m_running;
+            });
+            
+            // 检查是否需要退出
+            if (!m_running && m_messageQueue.empty()) {
+                break;
+            }
+            
+            // 获取消息
+            if (!m_messageQueue.empty()) {
+                message = m_messageQueue.front();
+                m_messageQueue.pop();
+                hasMessage = true;
+            }
+        }
+        
+        // 处理消息
+        if (hasMessage) {
+            processLogMessage(message);
+        }
+    }
+}
+
+void LoggerBridge::processLogMessage(const LogMessage& message) {
+    // 写入日志文件
+    writeToFile(message);
+    
+    // 输出到控制台
+    if (m_consoleOutput) {
+        writeToConsole(message);
+    }
+    
+    // 调用回调函数
+    callLogCallback(message);
 }
 
 void LoggerBridge::writeToFile(const LogMessage& message) {
-    // 新的日志系统会自动处理文件写入
+    // 检查并轮转日志文件
+    checkAndRotateLogFile();
+    
+    // 格式化日志消息
+    std::string formattedMessage;
+    
+    if (message.isTroubleshooting) {
+        formattedMessage = LogUtils::formatTroubleshootingMessage(
+            message.category, message.operation, message.message);
+        
+        // 写入故障排查日志文件
+        if (m_troubleshootingLogFile.is_open()) {
+            m_troubleshootingLogFile << formattedMessage << std::endl;
+            m_troubleshootingLogFile.flush();
+        }
+    } else {
+        formattedMessage = LogUtils::formatLogMessage(message.level, message.message);
+        
+        // 写入普通日志文件
+        if (m_logFile.is_open()) {
+            m_logFile << formattedMessage << std::endl;
+            m_logFile.flush();
+        }
+    }
 }
 
 void LoggerBridge::writeToConsole(const LogMessage& message) {
-    // 新的日志系统会自动处理控制台输出
+    // 格式化日志消息
+    std::string formattedMessage;
+    
+    if (message.isTroubleshooting) {
+        formattedMessage = LogUtils::formatTroubleshootingMessage(
+            message.category, message.operation, message.message);
+    } else {
+        formattedMessage = LogUtils::formatLogMessage(message.level, message.message);
+    }
+    
+    // 根据日志级别选择输出流
+    if (message.level >= LogLevel::ERROR) {
+        std::cerr << formattedMessage << std::endl;
+    } else {
+        std::cout << formattedMessage << std::endl;
+    }
 }
 
 void LoggerBridge::callLogCallback(const LogMessage& message) {
-    // 新的日志系统会自动处理回调
+    std::lock_guard<std::mutex> lock(m_callbackMutex);
+    
+    if (m_logCallback) {
+        std::string formattedMessage;
+        
+        if (message.isTroubleshooting) {
+            formattedMessage = LogUtils::formatTroubleshootingMessage(
+                message.category, message.operation, message.message);
+        } else {
+            formattedMessage = LogUtils::formatLogMessage(message.level, message.message);
+        }
+        
+        m_logCallback(message.level, formattedMessage);
+    }
 }
 
 void LoggerBridge::checkAndRotateLogFile() {
-    // 新的日志系统会自动处理日志轮转
+    // 检查日志文件大小
+    if (m_logFile.is_open()) {
+        m_logFile.flush();
+        
+        // 获取文件大小
+        std::streampos fileSize = 0;
+        try {
+            fileSize = std::filesystem::file_size(m_logFilePath);
+        } catch (const std::exception& e) {
+            std::cerr << "Failed to get log file size: " << e.what() << std::endl;
+            return;
+        }
+        
+        // 如果文件大小超过限制，进行轮转
+        if (fileSize > MAX_LOG_FILE_SIZE) {
+            // 关闭当前日志文件
+            m_logFile.close();
+            
+            // 生成轮转文件名
+            std::string rotatedFilePath = m_logFilePath + "." + 
+                std::to_string(std::chrono::system_clock::to_time_t(
+                    std::chrono::system_clock::now()));
+            
+            // 重命名当前日志文件
+            try {
+                std::filesystem::rename(m_logFilePath, rotatedFilePath);
+            } catch (const std::exception& e) {
+                std::cerr << "Failed to rotate log file: " << e.what() << std::endl;
+            }
+            
+            // 重新打开日志文件
+            m_logFile.open(m_logFilePath, std::ios::app);
+            if (!m_logFile) {
+                std::cerr << "Failed to reopen log file after rotation: " << m_logFilePath << std::endl;
+            }
+        }
+    }
+    
+    // 同样检查故障排查日志文件
+    if (m_troubleshootingLogFile.is_open()) {
+        m_troubleshootingLogFile.flush();
+        
+        // 获取文件大小
+        std::streampos fileSize = 0;
+        try {
+            fileSize = std::filesystem::file_size(m_troubleshootingLogPath);
+        } catch (const std::exception& e) {
+            std::cerr << "Failed to get troubleshooting log file size: " << e.what() << std::endl;
+            return;
+        }
+        
+        // 如果文件大小超过限制，进行轮转
+        if (fileSize > MAX_LOG_FILE_SIZE) {
+            // 关闭当前日志文件
+            m_troubleshootingLogFile.close();
+            
+            // 生成轮转文件名
+            std::string rotatedFilePath = m_troubleshootingLogPath + "." + 
+                std::to_string(std::chrono::system_clock::to_time_t(
+                    std::chrono::system_clock::now()));
+            
+            // 重命名当前日志文件
+            try {
+                std::filesystem::rename(m_troubleshootingLogPath, rotatedFilePath);
+            } catch (const std::exception& e) {
+                std::cerr << "Failed to rotate troubleshooting log file: " << e.what() << std::endl;
+            }
+            
+            // 重新打开日志文件
+            m_troubleshootingLogFile.open(m_troubleshootingLogPath, std::ios::app);
+            if (!m_troubleshootingLogFile) {
+                std::cerr << "Failed to reopen troubleshooting log file after rotation: " 
+                          << m_troubleshootingLogPath << std::endl;
+            }
+        }
+    }
 }
 
-// 实现LogUtils::format函数的模板特化(在头文件中声明但需要在cpp中实现)
-template<>
-std::string LogUtils::format(const std::string& format) {
-    return format;
-}
-
-// 特化一些常见类型以避免编译错误
-template std::string LogUtils::format<int>(const std::string&, int&&);
-template std::string LogUtils::format<const char*>(const std::string&, const char*&&);
-template std::string LogUtils::format<std::string>(const std::string&, std::string&&);
-
-} // namespace Core
+} // namespace Core 
