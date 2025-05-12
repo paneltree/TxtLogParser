@@ -41,12 +41,25 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake .. -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=%BUILD_TYPE%
-        nmake
+        cmake .. -G "Visual Studio 17 2022"
+        cmake --build . --config %BUILD_TYPE%
+        cmake --build . --config %BUILD_TYPE% --target deploy_local
+
+    - name: Create ZIP archive
+      shell: powershell
+      run: |
+        Compress-Archive -Path build\Release\* -DestinationPath TxtLogParser-Release.zip
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: envs1
         path: env_vars.txt
+        retention-days: 7
+
+    - name: Upload Release ZIP
+      uses: actions/upload-artifact@v4
+      with:
+        name: TxtLogParser-Release
+        path: TxtLogParser-Release.zip
         retention-days: 7
