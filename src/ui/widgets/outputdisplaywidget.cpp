@@ -61,11 +61,11 @@ QSize InfoAreaWidget::sizeHint() const
     //return QSize(width, 0);
     QFontMetrics fm(font());
     // Create example string with max-width values
-    QString example = QString("%1 [%2:%3]")
+    QString example = QString(" %1 [%2:%3]")
         .arg(QString("9").repeated(m_outputLineFieldWidth), 
              QString("9").repeated(m_fileIndexFieldWidth), 
              QString("9").repeated(m_lineIndexFieldWidth));
-    int width = fm.horizontalAdvance(example) + 20; // Add padding
+    int width = fm.horizontalAdvance(example) + 30; // Add padding
     return QSize(width, 0);
 }
 
