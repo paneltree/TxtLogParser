@@ -57,9 +57,9 @@ endif()
 include(FetchContent)
 FetchContent_Declare(
     json
-    GIT_REPOSITORY https://github.com/nlohmann/json.git
-    GIT_TAG v3.11.2
-    GIT_SHALLOW TRUE
+    URL file://${CMAKE_CURRENT_SOURCE_DIR}/external/json-3.12.0.zip
+    URL_HASH SHA256=34660b5e9a407195d55e8da705ed26cc6d175ce5a6b1fb957e701fb4d5b04022
+    DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 )
 FetchContent_MakeAvailable(json)
 
