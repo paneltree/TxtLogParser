@@ -15,7 +15,13 @@
 #include "../../utils/GenericGuard.h"
 #include "searchconfig.h"
 #include <QMimeData>
+#include <QApplication>  // Add QApplication include
+#include "../StyleManager.h" // Include StyleManager
 
+
+///////////////////////////////////////////////////////////////////////////
+//                      SearchListWidget implementation
+///////////////////////////////////////////////////////////////////////////
 SearchListWidget::SearchListWidget(int64_t workspaceId, QtBridge& bridge, QWidget *parent)
     : QWidget(parent), workspaceId(workspaceId), colorIndex(0), bridge(bridge)
 {
@@ -46,6 +52,9 @@ SearchListWidget::SearchListWidget(int64_t workspaceId, QtBridge& bridge, QWidge
     layout->addWidget(searchListWidget);
     
     setLayout(layout);
+    // Connect to StyleManager for theme changes
+    connect(&StyleManager::instance(), &StyleManager::stylesChanged, 
+            this, &SearchListWidget::updateWidgetStyles);
 }
 
 void SearchListWidget::initializeWithData(int64_t workspaceId) {
@@ -455,7 +464,61 @@ void SearchListWidget::applySearchs(const QString &content)
     emit searchsChanged();
 }
 
-// SearchDialog implementation
+void SearchListWidget::handleItemMoved(int fromRow, int toRow)
+{
+    updateSearchRows();
+    emit searchsChanged();
+}
+
+void SearchListWidget::updateSearchRows()
+{
+    GenericGuard guard(
+        [&]() {
+            bridge.beginWorkspaceUpdate();
+            bridge.beginSearchUpdate(workspaceId);
+        },
+        [&]() {
+            bridge.commitWorkspaceUpdate();
+            bridge.commitSearchUpdate(workspaceId);
+        },
+        [&]() {
+            bridge.rollbackWorkspaceUpdate();
+            bridge.rollbackSearchUpdate(workspaceId);
+        }
+    );
+    searchList.clear();
+    QList<qint32> searchIds;
+    for (int i = 0; i < searchListWidget->count(); i++) {
+        QListWidgetItem *item = searchListWidget->item(i);
+        if (item) {
+            SearchItemWidget *widget = qobject_cast<SearchItemWidget*>(searchListWidget->itemWidget(item));
+            if (widget) {
+                widget->setSearchIndex(i);
+                SearchConfig search = widget->getSearchConfig();
+                searchList.append(search);
+                searchIds.append(search.searchId);
+            }
+        }
+    }
+    QtBridge::getInstance().updateSearchRowsInWorkspace(workspaceId, searchIds);
+    guard.commit();
+}
+
+void SearchListWidget::updateWidgetStyles()
+{
+    // Update styles for all filter item widgets
+    for (int i = 0; i < searchListWidget->count(); i++) {
+        QListWidgetItem *item = searchListWidget->item(i);
+        SearchItemWidget *widget = qobject_cast<SearchItemWidget*>(searchListWidget->itemWidget(item));
+        if (widget) {
+            widget->applySystemStyles();
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////
+//                      SearchDialog implementation
+///////////////////////////////////////////////////////////////////////////
 SearchDialog::SearchDialog(const QString &title, QWidget *parent)
     : QDialog(parent), currentColor(QColor("#FF4444"))  // Default to red
 {
@@ -575,7 +638,10 @@ void SearchDialog::selectColor()
     }
 }
 
-// SearchItemWidget implementation
+///////////////////////////////////////////////////////////////////////////
+//                      SearchItemWidget implementation
+///////////////////////////////////////////////////////////////////////////
+
 SearchItemWidget::SearchItemWidget(const SearchConfig &search, int index, QWidget *parent)
     : QWidget(parent), currentSearch(search), itemIndex(index)
 {
@@ -627,7 +693,6 @@ SearchItemWidget::SearchItemWidget(const SearchConfig &search, int index, QWidge
     caseSensitiveButton->setChecked(search.caseSensitive);
     caseSensitiveButton->setToolTip(tr("Case Sensitive"));
     caseSensitiveButton->setFixedSize(24, 24);
-    updateCaseSensitiveButtonStyle();
     connect(caseSensitiveButton, &QToolButton::toggled, this, &SearchItemWidget::onCaseSensitiveToggled);
     layout->addWidget(caseSensitiveButton);
     
@@ -638,7 +703,6 @@ SearchItemWidget::SearchItemWidget(const SearchConfig &search, int index, QWidge
     wholeWordButton->setChecked(search.wholeWord);
     wholeWordButton->setToolTip(tr("Whole Word"));
     wholeWordButton->setFixedSize(24, 24);
-    updateWholeWordButtonStyle();
     connect(wholeWordButton, &QToolButton::toggled, this, &SearchItemWidget::onWholeWordToggled);
     layout->addWidget(wholeWordButton);
     
@@ -649,7 +713,6 @@ SearchItemWidget::SearchItemWidget(const SearchConfig &search, int index, QWidge
     regexButton->setChecked(search.isRegex);
     regexButton->setToolTip(tr("Regular Expression"));
     regexButton->setFixedSize(24, 24);
-    updateRegexButtonStyle();
     connect(regexButton, &QToolButton::toggled, this, &SearchItemWidget::onRegexToggled);
     layout->addWidget(regexButton);
     
@@ -668,10 +731,7 @@ SearchItemWidget::SearchItemWidget(const SearchConfig &search, int index, QWidge
         emit removeRequested(itemIndex);
     });
     layout->addWidget(removeButton);
-    
-    // Update UI based on enabled state
-    updateEnabledState();
-    
+  
     setLayout(layout);
     
     // Connect double-click on the search label to edit
@@ -681,6 +741,9 @@ SearchItemWidget::SearchItemWidget(const SearchConfig &search, int index, QWidge
     
     // Install event filter to handle mouse events
     searchLabel->installEventFilter(this);
+
+    // Apply system theme styles
+    applySystemStyles();
 }
 
 // Add event filter to handle double-click on search label
@@ -756,21 +819,30 @@ void SearchItemWidget::updateEnabledState()
     if (isEnabled) {
         updateCaseSensitiveButtonStyle();
     } else {
-        caseSensitiveButton->setStyleSheet("QToolButton { background-color: #f0f0f0; border: 1px solid #cccccc; border-radius: 3px; opacity: 0.5; }");
+        QPalette palette = QApplication::palette();
+        caseSensitiveButton->setStyleSheet(QString("QToolButton { background-color: %1; border: 1px solid %2; border-radius: 3px; opacity: 0.5; }")
+            .arg(palette.color(QPalette::Button).name())
+            .arg(palette.color(QPalette::Mid).name()));
     }
     
     wholeWordButton->setEnabled(isEnabled);
     if (isEnabled) {
         updateWholeWordButtonStyle();
     } else {
-        wholeWordButton->setStyleSheet("QToolButton { background-color: #f0f0f0; border: 1px solid #cccccc; border-radius: 3px; opacity: 0.5; }");
+        QPalette palette = QApplication::palette();
+        wholeWordButton->setStyleSheet(QString("QToolButton { background-color: %1; border: 1px solid %2; border-radius: 3px; opacity: 0.5; text-decoration: underline; }")
+            .arg(palette.color(QPalette::Button).name())
+            .arg(palette.color(QPalette::Mid).name()));
     }
     
     regexButton->setEnabled(isEnabled);
     if (isEnabled) {
         updateRegexButtonStyle();
     } else {
-        regexButton->setStyleSheet("QToolButton { background-color: #f0f0f0; border: 1px solid #cccccc; border-radius: 3px; opacity: 0.5; }");
+        QPalette palette = QApplication::palette();
+        regexButton->setStyleSheet(QString("QToolButton { background-color: %1; border: 1px solid %2; border-radius: 3px; opacity: 0.5; }")
+            .arg(palette.color(QPalette::Button).name())
+            .arg(palette.color(QPalette::Mid).name()));
     }
     
     colorButton->setEnabled(isEnabled);
@@ -874,69 +946,50 @@ void SearchItemWidget::showEditDialog()
     delete dialog;
 }
 
-void SearchListWidget::handleItemMoved(int fromRow, int toRow)
-{
-    updateSearchRows();
-    emit searchsChanged();
-}
-
-void SearchListWidget::updateSearchRows()
-{
-    GenericGuard guard(
-        [&]() {
-            bridge.beginWorkspaceUpdate();
-            bridge.beginSearchUpdate(workspaceId);
-        },
-        [&]() {
-            bridge.commitWorkspaceUpdate();
-            bridge.commitSearchUpdate(workspaceId);
-        },
-        [&]() {
-            bridge.rollbackWorkspaceUpdate();
-            bridge.rollbackSearchUpdate(workspaceId);
-        }
-    );
-    searchList.clear();
-    QList<qint32> searchIds;
-    for (int i = 0; i < searchListWidget->count(); i++) {
-        QListWidgetItem *item = searchListWidget->item(i);
-        if (item) {
-            SearchItemWidget *widget = qobject_cast<SearchItemWidget*>(searchListWidget->itemWidget(item));
-            if (widget) {
-                widget->setSearchIndex(i);
-                SearchConfig search = widget->getSearchConfig();
-                searchList.append(search);
-                searchIds.append(search.searchId);
-            }
-        }
-    }
-    QtBridge::getInstance().updateSearchRowsInWorkspace(workspaceId, searchIds);
-    guard.commit();
-}
-
 void SearchItemWidget::updateCaseSensitiveButtonStyle()
 {
-    if (caseSensitiveButton->isChecked()) {
-        caseSensitiveButton->setStyleSheet("QToolButton { background-color: #99c2ff; border: 1px solid #5599ff; border-radius: 3px; }");
-    } else {
-        caseSensitiveButton->setStyleSheet("QToolButton { background-color: transparent; border: 1px solid #cccccc; border-radius: 3px; }");
-    }
+    caseSensitiveButton->setStyleSheet(StyleManager::instance().getFilterToolButtonStyle(caseSensitiveButton->isChecked()));
 }
 
 void SearchItemWidget::updateWholeWordButtonStyle()
 {
-    if (wholeWordButton->isChecked()) {
-        wholeWordButton->setStyleSheet("QToolButton { background-color: #99c2ff; border: 1px solid #5599ff; border-radius: 3px;  text-decoration: underline;}");
-    } else {
-        wholeWordButton->setStyleSheet("QToolButton { background-color: transparent; border: 1px solid #cccccc; border-radius: 3px;  text-decoration: underline;}");
-    }
+    QString styleSheet = StyleManager::instance().getFilterToolButtonStyle(wholeWordButton->isChecked());
+    // Add text decoration for the whole word button
+    styleSheet += " QToolButton { text-decoration: underline; }";
+    wholeWordButton->setStyleSheet(styleSheet);
 }
 
 void SearchItemWidget::updateRegexButtonStyle()
 {
-    if (regexButton->isChecked()) {
-        regexButton->setStyleSheet("QToolButton { background-color: #99c2ff; border: 1px solid #5599ff; border-radius: 3px; }");
-    } else {
-        regexButton->setStyleSheet("QToolButton { background-color: transparent; border: 1px solid #cccccc; border-radius: 3px; }");
-    }
+    regexButton->setStyleSheet(StyleManager::instance().getFilterToolButtonStyle(regexButton->isChecked()));
+}
+
+void SearchItemWidget::applySystemStyles()
+{
+    // Get styles from StyleManager
+    const StyleManager& styleManager = StyleManager::instance();
+    
+    // Apply navigation button styles
+    prevMatchButton->setStyleSheet(styleManager.getFilterNavigationButtonStyle());
+    nextMatchButton->setStyleSheet(styleManager.getFilterNavigationButtonStyle());
+    
+    // Apply tool button styles based on their checked state
+    updateCaseSensitiveButtonStyle();
+    updateWholeWordButtonStyle();
+    updateRegexButtonStyle();
+    
+    // Apply match count label style
+    matchCountLabel->setStyleSheet(styleManager.getMatchCountLabelStyle());
+    
+    // Keep filter label color unchanged, as it's part of the filter identity
+    // Update colorButton, but keep its background color as the filter color
+    QString buttonStyleBase = styleManager.getFilterNavigationButtonStyle();
+    QString colorButtonStyle = QString("background-color: %1; border: 1px solid #888;").arg(currentSearch.color.name());
+    colorButton->setStyleSheet(colorButtonStyle);
+    
+    // Apply navigation button style to removeButton
+    removeButton->setStyleSheet(styleManager.getFilterNavigationButtonStyle());
+    
+    // Update enabled state to refresh all widgets
+    updateEnabledState();
 }

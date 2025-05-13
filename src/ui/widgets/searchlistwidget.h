@@ -15,6 +15,7 @@
 #include <QColor>
 #include "../bridge/QtBridge.h"
 #include "../models/searchconfig.h"
+#include "../StyleManager.h"
 
 class SearchDialog;
 class SearchItemWidget;
@@ -58,6 +59,7 @@ private:
     SearchDialog *createSearchDialog(const QString &title, const SearchConfig &initialSearch = SearchConfig());
     void createSearchItem(int index, const SearchConfig &search);
     void updateSearchRows();
+    void updateWidgetStyles(); // Method to update widget styles
     
     // Helper methods for search processing
     int countMatches(const QString &content, const SearchConfig &search);
@@ -73,6 +75,7 @@ public:
     void updateMatchCount(int count);
     void setSearchIndex(int index);
     void setSearchConfig(const SearchConfig &search);
+    void applySystemStyles();
 
 protected:
     bool eventFilter(QObject *watched, QEvent *event);
