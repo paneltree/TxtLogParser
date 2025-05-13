@@ -120,7 +120,7 @@ QString StyleManager::getButtonStyle() const
     return style;
 }
 
-QString StyleManager::getFilterNavigationButtonStyle() const
+QString StyleManager::getFilterSearchNavigationButtonStyle() const
 {
     QPalette palette = QApplication::palette();
     
@@ -162,7 +162,7 @@ QString StyleManager::getFilterNavigationButtonStyle() const
     return style;
 }
 
-QString StyleManager::getFilterToolButtonStyle(bool isChecked) const
+QString StyleManager::getFilterSearchToolButtonStyle(bool isChecked) const
 {
     QPalette palette = QApplication::palette();
     

@@ -40,14 +40,14 @@ public:
      * @brief 获取过滤器项导航按钮样式
      * @return 过滤器导航按钮的样式表字符串
      */
-    QString getFilterNavigationButtonStyle() const;
+    QString getFilterSearchNavigationButtonStyle() const;
     
     /**
      * @brief 获取过滤器项工具按钮样式
      * @param isChecked 按钮是否处于选中状态
      * @return 过滤器工具按钮的样式表字符串
      */
-    QString getFilterToolButtonStyle(bool isChecked) const;
+    QString getFilterSearchToolButtonStyle(bool isChecked) const;
     
     /**
      * @brief 获取匹配计数标签样式

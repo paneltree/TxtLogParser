@@ -956,12 +956,12 @@ void FilterItemWidget::showEditDialog()
 
 void FilterItemWidget::updateCaseSensitiveButtonStyle()
 {
-    caseSensitiveButton->setStyleSheet(StyleManager::instance().getFilterToolButtonStyle(caseSensitiveButton->isChecked()));
+    caseSensitiveButton->setStyleSheet(StyleManager::instance().getFilterSearchToolButtonStyle(caseSensitiveButton->isChecked()));
 }
 
 void FilterItemWidget::updateWholeWordButtonStyle()
 {
-    QString styleSheet = StyleManager::instance().getFilterToolButtonStyle(wholeWordButton->isChecked());
+    QString styleSheet = StyleManager::instance().getFilterSearchToolButtonStyle(wholeWordButton->isChecked());
     // Add text decoration for the whole word button
     styleSheet += " QToolButton { text-decoration: underline; }";
     wholeWordButton->setStyleSheet(styleSheet);
@@ -969,7 +969,7 @@ void FilterItemWidget::updateWholeWordButtonStyle()
 
 void FilterItemWidget::updateRegexButtonStyle()
 {
-    regexButton->setStyleSheet(StyleManager::instance().getFilterToolButtonStyle(regexButton->isChecked()));
+    regexButton->setStyleSheet(StyleManager::instance().getFilterSearchToolButtonStyle(regexButton->isChecked()));
 }
 
 void FilterItemWidget::applySystemStyles()
@@ -978,8 +978,8 @@ void FilterItemWidget::applySystemStyles()
     const StyleManager& styleManager = StyleManager::instance();
     
     // Apply navigation button styles
-    prevMatchButton->setStyleSheet(styleManager.getFilterNavigationButtonStyle());
-    nextMatchButton->setStyleSheet(styleManager.getFilterNavigationButtonStyle());
+    prevMatchButton->setStyleSheet(styleManager.getFilterSearchNavigationButtonStyle());
+    nextMatchButton->setStyleSheet(styleManager.getFilterSearchNavigationButtonStyle());
     
     // Apply tool button styles based on their checked state
     updateCaseSensitiveButtonStyle();
@@ -991,12 +991,12 @@ void FilterItemWidget::applySystemStyles()
     
     // Keep filter label color unchanged, as it's part of the filter identity
     // Update colorButton, but keep its background color as the filter color
-    QString buttonStyleBase = styleManager.getFilterNavigationButtonStyle();
+    QString buttonStyleBase = styleManager.getFilterSearchNavigationButtonStyle();
     QString colorButtonStyle = QString("background-color: %1; border: 1px solid #888;").arg(currentFilter.color.name());
     colorButton->setStyleSheet(colorButtonStyle);
     
     // Apply navigation button style to removeButton
-    removeButton->setStyleSheet(styleManager.getFilterNavigationButtonStyle());
+    removeButton->setStyleSheet(styleManager.getFilterSearchNavigationButtonStyle());
     
     // Update enabled state to refresh all widgets
     updateEnabledState();
