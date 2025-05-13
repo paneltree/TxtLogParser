@@ -120,6 +120,120 @@ QString StyleManager::getButtonStyle() const
     return style;
 }
 
+QString StyleManager::getFilterNavigationButtonStyle() const
+{
+    QPalette palette = QApplication::palette();
+    
+    // Get system theme colors
+    QColor buttonBg = palette.color(QPalette::Button);
+    QColor buttonText = palette.color(QPalette::ButtonText);
+    QColor buttonBorder = palette.color(QPalette::Mid);
+    QColor buttonHoverBg = buttonBg.lighter(110);
+    QColor buttonPressedBg = buttonBg.darker(110);
+    
+    // Create style sheet with system colors for navigation buttons
+    QString style = QString(R"(
+        QPushButton {
+            background-color: %1;
+            color: %2;
+            border: 1px solid %3;
+            border-radius: 2px;
+            padding: 2px;
+        }
+        QPushButton:hover {
+            background-color: %4;
+        }
+        QPushButton:pressed {
+            background-color: %5;
+        }
+        QPushButton:disabled {
+            color: %6;
+            background-color: %7;
+        }
+    )")
+    .arg(buttonBg.name())
+    .arg(buttonText.name())
+    .arg(buttonBorder.name())
+    .arg(buttonHoverBg.name())
+    .arg(buttonPressedBg.name())
+    .arg(palette.color(QPalette::Disabled, QPalette::ButtonText).name())
+    .arg(palette.color(QPalette::Disabled, QPalette::Button).name());
+    
+    return style;
+}
+
+QString StyleManager::getFilterToolButtonStyle(bool isChecked) const
+{
+    QPalette palette = QApplication::palette();
+    
+    QColor bgColor;
+    QColor textColor;
+    QColor borderColor;
+    
+    if (isChecked) {
+        // Use highlight color when checked
+        bgColor = palette.color(QPalette::Highlight).lighter(130);
+        textColor = palette.color(QPalette::HighlightedText);
+        borderColor = palette.color(QPalette::Highlight);
+    } else {
+        // Use button colors when unchecked
+        bgColor = palette.color(QPalette::Button);
+        textColor = palette.color(QPalette::ButtonText);
+        borderColor = palette.color(QPalette::Mid);
+    }
+    
+    // Create style sheet
+    QString style = QString(R"(
+        QToolButton {
+            background-color: %1;
+            color: %2;
+            border: 1px solid %3;
+            border-radius: 3px;
+            padding: 2px;
+        }
+        QToolButton:hover {
+            background-color: %4;
+        }
+        QToolButton:disabled {
+            color: %5;
+            background-color: %6;
+        }
+    )")
+    .arg(bgColor.name())
+    .arg(textColor.name())
+    .arg(borderColor.name())
+    .arg(bgColor.lighter(110).name())
+    .arg(palette.color(QPalette::Disabled, QPalette::ButtonText).name())
+    .arg(palette.color(QPalette::Disabled, QPalette::Button).name());
+    
+    return style;
+}
+
+QString StyleManager::getMatchCountLabelStyle() const
+{
+    QPalette palette = QApplication::palette();
+    
+    QColor textColor = palette.color(QPalette::Text);
+    QColor bgColor = palette.color(QPalette::Base).darker(105);
+    QColor borderColor = palette.color(QPalette::Mid);
+    
+    // Create style sheet for match count label
+    QString style = QString(R"(
+        QLabel {
+            background-color: %1;
+            color: %2;
+            border: 1px solid %3;
+            border-radius: 3px;
+            padding: 2px 5px;
+        }
+    )")
+    .arg(bgColor.name())
+    .arg(textColor.name())
+    .arg(borderColor.name());
+    
+    return style;
+}
+
 void StyleManager::refreshStyles()
 {
     // 发出样式变化信号，通知所有连接的对象

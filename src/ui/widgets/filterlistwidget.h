@@ -15,6 +15,7 @@
 #include <QColor>
 #include "../bridge/QtBridge.h"
 #include "../models/filterconfig.h"
+#include "../StyleManager.h"
 
 class FilterDialog;
 class FilterItemWidget;
@@ -58,6 +59,7 @@ private:
     FilterDialog *createFilterDialog(const QString &title, const FilterConfig &initialFilter);
     void createFilterItem(int index, const FilterConfig &filter);
     void updateFilterRows();
+    void updateWidgetStyles(); // Method to update widget styles
     
     // Helper methods for filter processing
     int countMatches(const QString &content, const FilterConfig &filter);
@@ -73,6 +75,7 @@ public:
     void updateMatchCount(int count);
     void setFilterIndex(int index);
     void setFilterConfig(const FilterConfig &filter);
+    void applySystemStyles();
 
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
@@ -145,4 +148,4 @@ private:
     void updateColorButton();
 };
 
-#endif // FILTERLISTWIDGET_H 
+#endif // FILTERLISTWIDGET_H
