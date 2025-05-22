@@ -1,4 +1,4 @@
-name: Release TxtLogParser Windows
+name: Build TxtLogParser Windows
 
 on:
   workflow_dispatch:
@@ -10,7 +10,7 @@ env:
 
 jobs:
   build-windows:
-    name: Release on Windows
+    name: Build on Windows
     runs-on: windows-latest
     steps:
     - name: Checkout code
@@ -31,6 +31,10 @@ jobs:
       run: |
         echo $env:PATH
 
+    - name: Extract version from tag
+      id: version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
     - name: Store Path
       shell: bash
       run: |
@@ -41,13 +45,32 @@ jobs:
       run: |
         mkdir build
         cd build
-        cmake .. -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=%BUILD_TYPE%
-        nmake
-        cmake --build . --target deploy --config Release
+        cmake .. -G "Visual Studio 17 2022"
+        cmake --build . --config %BUILD_TYPE%
+        cmake --build . --config %BUILD_TYPE% --target deploy_local    - name: Create ZIP archive
+      shell: powershell
+      run: |
+        # Create directory with version in name
+        $releaseDir = "TxtLogParser-$env:VERSION-Windows-x64"
+        New-Item -ItemType Directory -Path $releaseDir -Force
+        
+        # Copy build output to versioned directory
+        Copy-Item -Path build\Release\* -Destination $releaseDir -Recurse
+        
+        # Create ZIP with version in filename
+        $zipFile = "TxtLogParser-$env:VERSION-Windows-x64.zip"
+        Compress-Archive -Path $releaseDir\* -DestinationPath $zipFile
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: envs1
         path: env_vars.txt
+        retention-days: 7
+
+    - name: Upload Release ZIP
+      uses: actions/upload-artifact@v4
+      with:
+        name: TxtLogParser-${{ env.VERSION }}-Windows-x64
+        path: TxtLogParser-${{ env.VERSION }}-Windows-x64.zip
         retention-days: 7
