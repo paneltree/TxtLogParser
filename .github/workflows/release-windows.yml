@@ -78,5 +78,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: TxtLogParser-${{ env.VERSION }}-Windows-x64
-        path: TxtLogParser-${{ env.VERSION }}-Windows-x64
+        path: TxtLogParser-${{ env.VERSION }}-Windows-x64/
         retention-days: 7
