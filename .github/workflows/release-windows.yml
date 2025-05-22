@@ -60,11 +60,15 @@ jobs:
     - name: Create release directory
       shell: powershell
       run: |
-        # Create directory with version in name
-        $releaseDir = "TxtLogParser-$env:VERSION-Windows-x64"
+        # Create parent directory with version in name
+        $parentDir = "TxtLogParser-$env:VERSION-Windows-x64"
+        New-Item -ItemType Directory -Path $parentDir -Force
+        
+        # Create child directory with same name inside parent directory
+        $releaseDir = "$parentDir\TxtLogParser-$env:VERSION-Windows-x64"
         New-Item -ItemType Directory -Path $releaseDir -Force
         
-        # Copy build output to versioned directory
+        # Copy build output to the child directory
         Copy-Item -Path build\Release\* -Destination $releaseDir -Recurse
 
     - name: Upload artifacts
@@ -78,5 +82,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: TxtLogParser-${{ env.VERSION }}-Windows-x64
-        path: TxtLogParser-${{ env.VERSION }}-Windows-x64/
+        path: TxtLogParser-${{ env.VERSION }}-Windows-x64
         retention-days: 7
