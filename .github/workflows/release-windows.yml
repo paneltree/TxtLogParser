@@ -47,7 +47,9 @@ jobs:
         cd build
         cmake .. -G "Visual Studio 17 2022"
         cmake --build . --config %BUILD_TYPE%
-        cmake --build . --config %BUILD_TYPE% --target deploy_local    - name: Create ZIP archive
+        cmake --build . --config %BUILD_TYPE% --target deploy_local    
+    
+    - name: Create ZIP archive
       shell: powershell
       run: |
         # Create directory with version in name
