@@ -57,7 +57,7 @@ jobs:
         cmake --build . --config %BUILD_TYPE%
         cmake --build . --config %BUILD_TYPE% --target deploy_local    
     
-    - name: Create ZIP archive
+    - name: Create release directory
       shell: powershell
       run: |
         # Create directory with version in name
@@ -66,10 +66,6 @@ jobs:
         
         # Copy build output to versioned directory
         Copy-Item -Path build\Release\* -Destination $releaseDir -Recurse
-        
-        # Create ZIP with version in filename
-        $zipFile = "TxtLogParser-$env:VERSION-Windows-x64.zip"
-        Compress-Archive -Path $releaseDir\* -DestinationPath $zipFile
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
@@ -82,5 +78,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: TxtLogParser-${{ env.VERSION }}-Windows-x64
-        path: TxtLogParser-${{ env.VERSION }}-Windows-x64.zip
+        path: TxtLogParser-${{ env.VERSION }}-Windows-x64
         retention-days: 7
