@@ -2,6 +2,11 @@ name: Build TxtLogParser macOS
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g. 1.0.0)'
+        required: true
+        default: '1.0.0'
 
 env:
   QT_VERSION: '6.8.3'
@@ -15,6 +20,16 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+
+    - name: Extract version and detect Apple architecture
+      id: version_arch
+      shell: bash
+      run: |
+        VERSION="${{ github.event.inputs.version }}"
+        ARCH=$(uname -m)
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "ARCH=$ARCH" >> $GITHUB_ENV
+        echo "Using version: $VERSION on architecture: $ARCH"
 
     - name: Set up CMake
       uses: lukka/get-cmake@latest
@@ -51,14 +66,15 @@ jobs:
     - name: Deploy
       run: |
         macdeployqt build/TxtLogParser.app -dmg -verbose=2
+        # Rename the DMG file to include version and architecture
+        mv build/TxtLogParser.dmg build/TxtLogParser-${{ env.VERSION }}-macOS-${{ env.ARCH }}.dmg
       shell: bash
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: TxtLogParser-macOS
-        path: build/TxtLogParser.dmg
-        retention-days: 7
+        name: TxtLogParser-${{ env.VERSION }}-macOS-${{ env.ARCH }}
+        path: build/TxtLogParser-${{ env.VERSION }}-macOS-${{ env.ARCH }}.dmg
 
     - name: Run tests
       run: |
