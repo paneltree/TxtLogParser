@@ -228,7 +228,7 @@ namespace Core {
                 //OutputSubLine unmatched;
                 //unmatched.setContent("");
                 //sublines.push_back(unmatched);
-                assert(false);
+                //assert(false);
             }
         }
         catch (const std::regex_error& e) {

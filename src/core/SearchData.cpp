@@ -226,9 +226,9 @@ namespace Core {
             }
             else {
                 // Add an empty string at the end if the last match is at the end of the line
-                OutputSubLine unmatched;
-                unmatched.setContent("");
-                sublines.push_back(unmatched);
+                //OutputSubLine unmatched;
+                //unmatched.setContent("");
+                //sublines.push_back(unmatched);
             }
         }
         catch (const std::regex_error& e) {

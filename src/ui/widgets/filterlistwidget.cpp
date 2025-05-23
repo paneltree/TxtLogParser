@@ -14,6 +14,14 @@
 #include <QRegularExpressionMatch>
 #include "../../utils/GenericGuard.h"
 #include <QMimeData>
+#include <QApplication>  // Add QApplication include
+#include "../StyleManager.h" // Include StyleManager
+
+
+///////////////////////////////////////////////////////////////////////////
+//                      FilterListWidget implementation
+///////////////////////////////////////////////////////////////////////////
+
 
 FilterListWidget::FilterListWidget(int64_t workspaceId, QtBridge& bridge, QWidget *parent)
     : QWidget(parent), workspaceId(workspaceId), colorIndex(0), bridge(bridge)
@@ -45,6 +53,10 @@ FilterListWidget::FilterListWidget(int64_t workspaceId, QtBridge& bridge, QWidge
     layout->addWidget(filterListWidget);
     
     setLayout(layout);
+    
+    // Connect to StyleManager for theme changes
+    connect(&StyleManager::instance(), &StyleManager::stylesChanged, 
+            this, &FilterListWidget::updateWidgetStyles);
 }
 
 void FilterListWidget::initializeWithData(int64_t workspaceId) {
@@ -454,7 +466,62 @@ void FilterListWidget::applyFilters(const QString &content)
     emit filtersChanged();
 }
 
-// FilterDialog implementation
+void FilterListWidget::handleItemMoved(int fromRow, int toRow)
+{
+    updateFilterRows();
+    emit filtersChanged();
+}
+
+void FilterListWidget::updateFilterRows()
+{
+    GenericGuard guard(
+        [&]() {
+            bridge.beginWorkspaceUpdate();
+            bridge.beginFilterUpdate(workspaceId);
+        },
+        [&]() {
+            bridge.commitWorkspaceUpdate();
+            bridge.commitFilterUpdate(workspaceId);
+        },
+        [&]() {
+            bridge.rollbackWorkspaceUpdate();
+            bridge.rollbackFilterUpdate(workspaceId);
+        }
+    );
+    filterList.clear();
+    QList<qint32> filterIds;
+    for (int i = 0; i < filterListWidget->count(); i++) {
+        QListWidgetItem *item = filterListWidget->item(i);
+        if (item) {
+            FilterItemWidget *widget = qobject_cast<FilterItemWidget*>(filterListWidget->itemWidget(item));
+            if (widget) {
+                widget->setFilterIndex(i);
+                FilterConfig filter = widget->getFilterConfig();
+                filterList.append(filter);
+                filterIds.append(filter.filterId);
+            }
+        }
+    }
+    QtBridge::getInstance().updateFilterRowsInWorkspace(workspaceId, filterIds);
+    guard.commit();
+}
+
+void FilterListWidget::updateWidgetStyles()
+{
+    // Update styles for all filter item widgets
+    for (int i = 0; i < filterListWidget->count(); i++) {
+        QListWidgetItem *item = filterListWidget->item(i);
+        FilterItemWidget *widget = qobject_cast<FilterItemWidget*>(filterListWidget->itemWidget(item));
+        if (widget) {
+            widget->applySystemStyles();
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////
+//                      FilterDialog implementation
+///////////////////////////////////////////////////////////////////////////
+
 FilterDialog::FilterDialog(const QString &title, QWidget *parent)
     : QDialog(parent), currentColor(QColor("#FF4444"))  // Default to red
 {
@@ -573,8 +640,10 @@ void FilterDialog::selectColor()
         updateColorButton();
     }
 }
+///////////////////////////////////////////////////////////////////////////
+//                      FilterItemWidget implementation
+///////////////////////////////////////////////////////////////////////////
 
-// FilterItemWidget implementation
 FilterItemWidget::FilterItemWidget(const FilterConfig &filter, int index, QWidget *parent)
     : QWidget(parent), currentFilter(filter), itemIndex(index)
 {
@@ -628,7 +697,6 @@ FilterItemWidget::FilterItemWidget(const FilterConfig &filter, int index, QWidge
     caseSensitiveButton->setToolTip(tr("Case Sensitive"));
     caseSensitiveButton->setFixedSize(24, 24);
     //caseSensitiveButton->setMaximumWidth(30);
-    updateCaseSensitiveButtonStyle(); // New method to update style based on state
     connect(caseSensitiveButton, &QToolButton::toggled, this, &FilterItemWidget::onCaseSensitiveToggled);
     layout->addWidget(caseSensitiveButton);
     
@@ -640,7 +708,6 @@ FilterItemWidget::FilterItemWidget(const FilterConfig &filter, int index, QWidge
     wholeWordButton->setToolTip(tr("Whole Word"));
     wholeWordButton->setFixedSize(24, 24);
     //wholeWordButton->setMaximumWidth(30);
-    updateWholeWordButtonStyle(); // New method to update style based on state
     connect(wholeWordButton, &QToolButton::toggled, this, &FilterItemWidget::onWholeWordToggled);
     layout->addWidget(wholeWordButton);
     
@@ -652,7 +719,6 @@ FilterItemWidget::FilterItemWidget(const FilterConfig &filter, int index, QWidge
     regexButton->setToolTip(tr("Regular Expression"));
     regexButton->setFixedSize(24, 24);
     regexButton->setMaximumWidth(30);
-    updateRegexButtonStyle(); // New method to update style based on state
     connect(regexButton, &QToolButton::toggled, this, &FilterItemWidget::onRegexToggled);
     layout->addWidget(regexButton);
     
@@ -672,9 +738,6 @@ FilterItemWidget::FilterItemWidget(const FilterConfig &filter, int index, QWidge
     });
     layout->addWidget(removeButton);
     
-    // Update UI based on enabled state
-    updateEnabledState();
-    
     setLayout(layout);
     
     // Connect double-click on the filter label to edit
@@ -684,6 +747,9 @@ FilterItemWidget::FilterItemWidget(const FilterConfig &filter, int index, QWidge
     
     // Install event filter to handle mouse events
     filterLabel->installEventFilter(this);
+    
+    // Apply system theme styles
+    applySystemStyles();
 }
 
 // Add event filter to handle double-click on filter label
@@ -759,21 +825,30 @@ void FilterItemWidget::updateEnabledState()
     if (isEnabled) {
         updateCaseSensitiveButtonStyle();
     } else {
-        caseSensitiveButton->setStyleSheet("QToolButton { background-color: #f0f0f0; border: 1px solid #cccccc; border-radius: 3px; opacity: 0.5; }");
+        QPalette palette = QApplication::palette();
+        caseSensitiveButton->setStyleSheet(QString("QToolButton { background-color: %1; border: 1px solid %2; border-radius: 3px; opacity: 0.5; }")
+            .arg(palette.color(QPalette::Button).name())
+            .arg(palette.color(QPalette::Mid).name()));
     }
     
     wholeWordButton->setEnabled(isEnabled);
     if (isEnabled) {
         updateWholeWordButtonStyle();
     } else {
-        wholeWordButton->setStyleSheet("QToolButton { background-color: #f0f0f0; border: 1px solid #cccccc; border-radius: 3px; opacity: 0.5; }");
+        QPalette palette = QApplication::palette();
+        wholeWordButton->setStyleSheet(QString("QToolButton { background-color: %1; border: 1px solid %2; border-radius: 3px; opacity: 0.5; text-decoration: underline; }")
+            .arg(palette.color(QPalette::Button).name())
+            .arg(palette.color(QPalette::Mid).name()));
     }
     
     regexButton->setEnabled(isEnabled);
     if (isEnabled) {
         updateRegexButtonStyle();
     } else {
-        regexButton->setStyleSheet("QToolButton { background-color: #f0f0f0; border: 1px solid #cccccc; border-radius: 3px; opacity: 0.5; }");
+        QPalette palette = QApplication::palette();
+        regexButton->setStyleSheet(QString("QToolButton { background-color: %1; border: 1px solid %2; border-radius: 3px; opacity: 0.5; }")
+            .arg(palette.color(QPalette::Button).name())
+            .arg(palette.color(QPalette::Mid).name()));
     }
     
     colorButton->setEnabled(isEnabled);
@@ -879,69 +954,50 @@ void FilterItemWidget::showEditDialog()
     delete dialog;
 }
 
-void FilterListWidget::handleItemMoved(int fromRow, int toRow)
-{
-    updateFilterRows();
-    emit filtersChanged();
-}
-
-void FilterListWidget::updateFilterRows()
-{
-    GenericGuard guard(
-        [&]() {
-            bridge.beginWorkspaceUpdate();
-            bridge.beginFilterUpdate(workspaceId);
-        },
-        [&]() {
-            bridge.commitWorkspaceUpdate();
-            bridge.commitFilterUpdate(workspaceId);
-        },
-        [&]() {
-            bridge.rollbackWorkspaceUpdate();
-            bridge.rollbackFilterUpdate(workspaceId);
-        }
-    );
-    filterList.clear();
-    QList<qint32> filterIds;
-    for (int i = 0; i < filterListWidget->count(); i++) {
-        QListWidgetItem *item = filterListWidget->item(i);
-        if (item) {
-            FilterItemWidget *widget = qobject_cast<FilterItemWidget*>(filterListWidget->itemWidget(item));
-            if (widget) {
-                widget->setFilterIndex(i);
-                FilterConfig filter = widget->getFilterConfig();
-                filterList.append(filter);
-                filterIds.append(filter.filterId);
-            }
-        }
-    }
-    QtBridge::getInstance().updateFilterRowsInWorkspace(workspaceId, filterIds);
-    guard.commit();
-}
-
 void FilterItemWidget::updateCaseSensitiveButtonStyle()
 {
-    if (caseSensitiveButton->isChecked()) {
-        caseSensitiveButton->setStyleSheet("QToolButton { background-color: #99c2ff; border: 1px solid #5599ff; border-radius: 3px; }");
-    } else {
-        caseSensitiveButton->setStyleSheet("QToolButton { background-color: transparent; border: 1px solid #cccccc; border-radius: 3px; }");
-    }
+    caseSensitiveButton->setStyleSheet(StyleManager::instance().getFilterSearchToolButtonStyle(caseSensitiveButton->isChecked()));
 }
 
 void FilterItemWidget::updateWholeWordButtonStyle()
 {
-    if (wholeWordButton->isChecked()) {
-        wholeWordButton->setStyleSheet("QToolButton { background-color: #99c2ff; border: 1px solid #5599ff; border-radius: 3px;  text-decoration: underline;}");
-    } else {
-        wholeWordButton->setStyleSheet("QToolButton { background-color: transparent; border: 1px solid #cccccc; border-radius: 3px;  text-decoration: underline;}");
-    }
+    QString styleSheet = StyleManager::instance().getFilterSearchToolButtonStyle(wholeWordButton->isChecked());
+    // Add text decoration for the whole word button
+    styleSheet += " QToolButton { text-decoration: underline; }";
+    wholeWordButton->setStyleSheet(styleSheet);
 }
 
 void FilterItemWidget::updateRegexButtonStyle()
 {
-    if (regexButton->isChecked()) {
-        regexButton->setStyleSheet("QToolButton { background-color: #99c2ff; border: 1px solid #5599ff; border-radius: 3px; }");
-    } else {
-        regexButton->setStyleSheet("QToolButton { background-color: transparent; border: 1px solid #cccccc; border-radius: 3px; }");
-    }
+    regexButton->setStyleSheet(StyleManager::instance().getFilterSearchToolButtonStyle(regexButton->isChecked()));
+}
+
+void FilterItemWidget::applySystemStyles()
+{
+    // Get styles from StyleManager
+    const StyleManager& styleManager = StyleManager::instance();
+    
+    // Apply navigation button styles
+    prevMatchButton->setStyleSheet(styleManager.getFilterSearchNavigationButtonStyle());
+    nextMatchButton->setStyleSheet(styleManager.getFilterSearchNavigationButtonStyle());
+    
+    // Apply tool button styles based on their checked state
+    updateCaseSensitiveButtonStyle();
+    updateWholeWordButtonStyle();
+    updateRegexButtonStyle();
+    
+    // Apply match count label style
+    matchCountLabel->setStyleSheet(styleManager.getMatchCountLabelStyle());
+    
+    // Keep filter label color unchanged, as it's part of the filter identity
+    // Update colorButton, but keep its background color as the filter color
+    QString buttonStyleBase = styleManager.getFilterSearchNavigationButtonStyle();
+    QString colorButtonStyle = QString("background-color: %1; border: 1px solid #888;").arg(currentFilter.color.name());
+    colorButton->setStyleSheet(colorButtonStyle);
+    
+    // Apply navigation button style to removeButton
+    removeButton->setStyleSheet(styleManager.getFilterSearchNavigationButtonStyle());
+    
+    // Update enabled state to refresh all widgets
+    updateEnabledState();
 }

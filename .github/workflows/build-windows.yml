@@ -2,6 +2,11 @@ name: Build TxtLogParser Windows
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g. 1.0.0)'
+        required: true
+        default: '1.0.0'
 
 env:
   QT_VERSION: '6.8.3'
@@ -31,6 +36,13 @@ jobs:
       run: |
         echo $env:PATH
 
+    - name: Extract version from tag
+      id: version
+      shell: powershell
+      run: |
+        $VERSION = "${{ github.event.inputs.version }}"
+        echo "VERSION=$VERSION" >> $env:GITHUB_ENV
+
     - name: Store Path
       shell: bash
       run: |
@@ -43,12 +55,21 @@ jobs:
         cd build
         cmake .. -G "Visual Studio 17 2022"
         cmake --build . --config %BUILD_TYPE%
-        cmake --build . --config %BUILD_TYPE% --target deploy_local
-
-    - name: Create ZIP archive
+        cmake --build . --config %BUILD_TYPE% --target deploy_local    
+    
+    - name: Create release directory
       shell: powershell
       run: |
-        Compress-Archive -Path build\Release\* -DestinationPath TxtLogParser-Release.zip
+        # Create parent directory with version in name
+        $parentDir = "TxtLogParser-$env:VERSION-Windows-x64"
+        New-Item -ItemType Directory -Path $parentDir -Force
+        
+        # Create child directory with same name inside parent directory
+        $releaseDir = "$parentDir\TxtLogParser-$env:VERSION-Windows-x64"
+        New-Item -ItemType Directory -Path $releaseDir -Force
+        
+        # Copy build output to the child directory
+        Copy-Item -Path build\Release\* -Destination $releaseDir -Recurse
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
@@ -60,6 +81,6 @@ jobs:
     - name: Upload Release ZIP
       uses: actions/upload-artifact@v4
       with:
-        name: TxtLogParser-Release
-        path: TxtLogParser-Release.zip
+        name: TxtLogParser-${{ env.VERSION }}-Windows-x64
+        path: TxtLogParser-${{ env.VERSION }}-Windows-x64
         retention-days: 7
