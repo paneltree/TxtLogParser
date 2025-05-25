@@ -261,14 +261,30 @@ if(APPLE)
 
     if(MACDEPLOYQT_EXECUTABLE)
         # Create a custom target for deployment
+        set(DMG_TEMP_DIR "${CMAKE_BINARY_DIR}/dmg_temp")
+        
         add_custom_target(deploy
+            # First run macdeployqt to bundle necessary Qt frameworks
             COMMAND ${MACDEPLOYQT_EXECUTABLE}
                 "$<TARGET_BUNDLE_CONTENT_DIR:TxtLogParser>/.."
                 -verbose=2
-                -dmg
                 -always-overwrite
+            # Prepare DMG contents with Applications shortcut
+            COMMAND ${CMAKE_COMMAND} -E remove_directory "${DMG_TEMP_DIR}"
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${DMG_TEMP_DIR}"
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+                "$<TARGET_BUNDLE_DIR:TxtLogParser>"
+                "${DMG_TEMP_DIR}/TxtLogParser.app"
+            COMMAND ln -s /Applications "${DMG_TEMP_DIR}/Applications"
+            # Create DMG with hdiutil
+            COMMAND hdiutil create
+                -volname "TxtLogParser"
+                -srcfolder "${DMG_TEMP_DIR}"
+                -ov
+                -format UDZO
+                "${CMAKE_BINARY_DIR}/TxtLogParser.dmg"
             DEPENDS TxtLogParser
-            COMMENT "Deploying application bundle for ${MACOS_ARCH} architecture..."
+            COMMENT "Deploying application bundle for ${MACOS_ARCH} architecture with Applications shortcut..."
         )
         
         # Create architecture-specific dmg target
