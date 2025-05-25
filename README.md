@@ -35,6 +35,7 @@ Welcome to **TxtLogParser**, an innovative log parsing tool designed to simplify
 
 ### MacOS
 
+#### default architecture
 * Prerequisites: Xcode, CMake, Qt6
 * Build steps:
    ```bash
@@ -42,8 +43,37 @@ Welcome to **TxtLogParser**, an innovative log parsing tool designed to simplify
    cd TxtLogParser
    mkdir build
    cd build
-   cmake .. -DQT_DIR=~/Qt/6.8.3
-   make
+   cmake .. -DQT_DIR=~/Qt/6.8.3 
+   cmake --build . --config Debug
+   cmake --build . --config Debug --target deploy
+   ```
+* 
+
+#### arm64
+* Prerequisites: Xcode, CMake, Qt6
+* Build steps:
+   ```bash
+   git clone https://github.com/paneltree/TxtLogParser.git
+   cd TxtLogParser
+   mkdir build
+   cd build
+   cmake .. -DMACOS_ARCH=arm64 -DQT_DIR=~/Qt/6.8.3 
+   cmake --build . --config Debug
+   cmake --build . --config Debug --target deploy_arm64
+   ```
+
+#### x86_64
+
+* Prerequisites: Xcode, CMake, Qt6
+* Build steps:
+   ```bash
+   git clone https://github.com/paneltree/TxtLogParser.git
+   cd TxtLogParser
+   mkdir build
+   cd build
+   cmake .. -DMACOS_ARCH=x86_64 -DQT_DIR=~/Qt/6.8.3 
+   cmake --build . --config Debug
+   cmake --build . --config Debug --target deploy_x86_64
    ```
 
 ### Linux

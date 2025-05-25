@@ -95,6 +95,22 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Set macOS-specific debugger attribute
 if(APPLE)
     set(CMAKE_XCODE_ATTRIBUTE_DEBUGGER "lldb")
+    
+    # Detect the host architecture
+    execute_process(
+        COMMAND uname -m
+        OUTPUT_VARIABLE HOST_ARCH
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    
+    # Set available architecture options
+    set(MACOS_ARCH "${HOST_ARCH}" CACHE STRING "Target macOS architecture (arm64, x86_64)")
+    set_property(CACHE MACOS_ARCH PROPERTY STRINGS arm64 x86_64)
+    
+    # Set architecture for the build
+    set(CMAKE_OSX_ARCHITECTURES "${MACOS_ARCH}")
+    
+    message(STATUS "Building for macOS architecture: ${MACOS_ARCH}")
 endif()
 
 # Set macOS bundle properties
@@ -252,7 +268,16 @@ if(APPLE)
                 -dmg
                 -always-overwrite
             DEPENDS TxtLogParser
-            COMMENT "Deploying application bundle..."
+            COMMENT "Deploying application bundle for ${MACOS_ARCH} architecture..."
+        )
+        
+        # Create architecture-specific dmg target
+        add_custom_target(deploy_${MACOS_ARCH}
+            COMMAND ${CMAKE_COMMAND} -E rename
+                "${CMAKE_BINARY_DIR}/TxtLogParser.dmg"
+                "${CMAKE_BINARY_DIR}/TxtLogParser-${MACOS_ARCH}.dmg"
+            DEPENDS deploy
+            COMMENT "Renaming DMG to include architecture: TxtLogParser-${MACOS_ARCH}.dmg"
         )
     endif()
 endif()
