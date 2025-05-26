@@ -2,6 +2,19 @@ name: Build TxtLogParser macOS
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g. 1.0.0)'
+        required: true
+        default: '1.0.0'
+      arch:
+        description: 'Target architecture (arm64 or x86_64)'
+        required: true
+        default: 'arm64'
+        type: choice
+        options:
+          - arm64
+          - x86_64
 
 env:
   QT_VERSION: '6.8.3'
@@ -15,6 +28,21 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+
+    - name: Extract version and set architecture
+      id: version_arch
+      shell: bash
+      run: |
+        VERSION="${{ github.event.inputs.version }}"
+        # Use the input architecture if provided, otherwise fall back to auto-detection
+        if [[ -n "${{ github.event.inputs.arch }}" ]]; then
+          ARCH="${{ github.event.inputs.arch }}"
+        else
+          ARCH=$(uname -m)
+        fi
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "ARCH=$ARCH" >> $GITHUB_ENV
+        echo "Using version: $VERSION on architecture: $ARCH"
 
     - name: Set up CMake
       uses: lukka/get-cmake@latest
@@ -40,7 +68,7 @@ jobs:
 
     - name: Configure CMake
       run: |
-        cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DQT_DIR=${{ runner.temp }}/Qt/${{ env.QT_VERSION }}/clang_64
+        cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DQT_DIR=${{ runner.temp }}/Qt/${{ env.QT_VERSION }}/clang_64 -DMACOS_ARCH=${{ env.ARCH }}
       shell: bash
 
     - name: Build
@@ -50,15 +78,17 @@ jobs:
 
     - name: Deploy
       run: |
-        macdeployqt build/TxtLogParser.app -dmg -verbose=2
+        # Use the CMake deploy target which handles macdeployqt and architecture-specific renaming
+        cmake --build build --target deploy_${{ env.ARCH }}
+        # Rename the architecture-specific DMG to include version
+        mv build/TxtLogParser-${{ env.ARCH }}.dmg build/TxtLogParser-${{ env.VERSION }}-macOS-${{ env.ARCH }}.dmg
       shell: bash
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: TxtLogParser-macOS
-        path: build/TxtLogParser.dmg
-        retention-days: 7
+        name: TxtLogParser-${{ env.VERSION }}-macOS-${{ env.ARCH }}
+        path: build/TxtLogParser-${{ env.VERSION }}-macOS-${{ env.ARCH }}.dmg
 
     - name: Run tests
       run: |

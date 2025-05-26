@@ -95,6 +95,22 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Set macOS-specific debugger attribute
 if(APPLE)
     set(CMAKE_XCODE_ATTRIBUTE_DEBUGGER "lldb")
+    
+    # Detect the host architecture
+    execute_process(
+        COMMAND uname -m
+        OUTPUT_VARIABLE HOST_ARCH
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    
+    # Set available architecture options
+    set(MACOS_ARCH "${HOST_ARCH}" CACHE STRING "Target macOS architecture (arm64, x86_64)")
+    set_property(CACHE MACOS_ARCH PROPERTY STRINGS arm64 x86_64)
+    
+    # Set architecture for the build
+    set(CMAKE_OSX_ARCHITECTURES "${MACOS_ARCH}")
+    
+    message(STATUS "Building for macOS architecture: ${MACOS_ARCH}")
 endif()
 
 # Set macOS bundle properties
@@ -245,14 +261,39 @@ if(APPLE)
 
     if(MACDEPLOYQT_EXECUTABLE)
         # Create a custom target for deployment
+        set(DMG_TEMP_DIR "${CMAKE_BINARY_DIR}/dmg_temp")
+        
         add_custom_target(deploy
+            # First run macdeployqt to bundle necessary Qt frameworks
             COMMAND ${MACDEPLOYQT_EXECUTABLE}
                 "$<TARGET_BUNDLE_CONTENT_DIR:TxtLogParser>/.."
                 -verbose=2
-                -dmg
                 -always-overwrite
+            # Prepare DMG contents with Applications shortcut
+            COMMAND ${CMAKE_COMMAND} -E remove_directory "${DMG_TEMP_DIR}"
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${DMG_TEMP_DIR}"
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+                "$<TARGET_BUNDLE_DIR:TxtLogParser>"
+                "${DMG_TEMP_DIR}/TxtLogParser.app"
+            COMMAND ln -s /Applications "${DMG_TEMP_DIR}/Applications"
+            # Create DMG with hdiutil
+            COMMAND hdiutil create
+                -volname "TxtLogParser"
+                -srcfolder "${DMG_TEMP_DIR}"
+                -ov
+                -format UDZO
+                "${CMAKE_BINARY_DIR}/TxtLogParser.dmg"
             DEPENDS TxtLogParser
-            COMMENT "Deploying application bundle..."
+            COMMENT "Deploying application bundle for ${MACOS_ARCH} architecture with Applications shortcut..."
+        )
+        
+        # Create architecture-specific dmg target
+        add_custom_target(deploy_${MACOS_ARCH}
+            COMMAND ${CMAKE_COMMAND} -E rename
+                "${CMAKE_BINARY_DIR}/TxtLogParser.dmg"
+                "${CMAKE_BINARY_DIR}/TxtLogParser-${MACOS_ARCH}.dmg"
+            DEPENDS deploy
+            COMMENT "Renaming DMG to include architecture: TxtLogParser-${MACOS_ARCH}.dmg"
         )
     endif()
 endif()
