@@ -1,11 +1,14 @@
 # TxtLogParser
 
-Welcome to **TxtLogParser**, an innovative log parsing tool designed to simplify log analysis. This project is currently in its early stages, and I’m excited to share it with the community!
+Welcome to **TxtLogParser**, an innovative log parsing tool designed to simplify log analysis. This project is currently in its early stages, and I'm excited to share it with the community!
 
 ## Features
 - Fast and lightweight log parsing
 - Customizable filters
 - Cross-platform support
+
+## Technologies
+This project is built using [Qt](https://www.qt.io/), a cross-platform application development framework, under the terms of the LGPL v3 license.
 
 ## Download Precompiled Binaries
 
@@ -156,7 +159,16 @@ Welcome to **TxtLogParser**, an innovative log parsing tool designed to simplify
 I welcome contributions from the community! Please check out the [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines. By contributing, you agree that your contributions may be used in future versions, including potential commercial releases.
 
 ## License
-This project is licensed under the [MIT License](LICENSE). You’re free to use, modify, and distribute it as per the terms of the license. As the copyright owner, I reserve the right to release future versions of this project under different licenses, including proprietary ones for commercial purposes.
+
+TxtLogParser is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Third-Party Licenses
+
+This project uses third-party libraries that are distributed under their own licenses:
+- Qt Framework (LGPL v3)
+- nlohmann/json (MIT)
+
+For more details, see the [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md) file.
 
 ## Future Plans
 TxtLogParser is currently open-source and free to use. In the future, I may introduce additional features or services, some of which might be offered under a paid, proprietary license. Stay tuned for updates!
