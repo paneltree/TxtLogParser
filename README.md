@@ -14,9 +14,11 @@ This project is built using [Qt](https://www.qt.io/), a cross-platform applicati
 
 ### Windows
 
+* Precompiled binaries are available for macOS. You can download the latest version from the [releases page](https://github.com/paneltree/TxtLogParser/releases)
+
 ### MacOS
 
-* Precompiled binaries are available for macOS. You can download the latest version from the [releases page]()
+* Precompiled binaries are available for macOS. You can download the latest version from the [releases page](https://github.com/paneltree/TxtLogParser/releases)
 * If you encounter a "damaged" error when opening the app, you can bypass it by following these steps:
 1. Open **Terminal**.
 2. Navigate to the directory where the app is located:
@@ -33,6 +35,8 @@ This project is built using [Qt](https://www.qt.io/), a cross-platform applicati
    ```
 
 ### Linux
+
+* Precompiled binaries for Linux are unavailable at the moment. You can build from source by following the instructions below.
 
 ## Build
 
